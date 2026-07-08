@@ -1,15 +1,5 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import type { Variants } from 'framer-motion';
-import Marquee from 'react-fast-marquee';
-
-const revealText: Variants = {
-  hidden: { y: '100%' },
-  visible: (i: number) => ({
-    y: '0%',
-    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as const, delay: i * 0.1 }
-  })
-};
 
 export default function Home() {
   return (
@@ -20,7 +10,7 @@ export default function Home() {
         <div className="max-w-[95vw]">
           <div className="mask-container overflow-hidden">
             <motion.h1 
-              custom={0} variants={revealText} initial="hidden" animate="visible"
+              initial={{ y: '100%' }} animate={{ y: '0%' }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
               className="text-huge"
             >
               SHAURYA
@@ -28,7 +18,7 @@ export default function Home() {
           </div>
           <div className="mask-container overflow-hidden -mt-4 md:-mt-8">
             <motion.h1 
-              custom={1} variants={revealText} initial="hidden" animate="visible"
+              initial={{ y: '100%' }} animate={{ y: '0%' }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
               className="text-huge text-[var(--text-secondary)]"
             >
               AGARWAL
@@ -36,7 +26,7 @@ export default function Home() {
           </div>
           <div className="mask-container overflow-hidden mt-6">
             <motion.p 
-              custom={2} variants={revealText} initial="hidden" animate="visible"
+              initial={{ y: '100%' }} animate={{ y: '0%' }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
               className="text-lg md:text-2xl font-medium tracking-tight max-w-2xl text-[var(--text-secondary)]"
             >
               Digital Craft. Building high-performance web experiences and editing cinematic, high-retention video.
@@ -45,15 +35,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Infinite Marquee */}
+      {/* Infinite Marquee using Pure CSS for React 19 safety */}
       <section className="py-8 border-y border-[var(--border-color)] bg-[var(--bg-primary)] overflow-hidden">
-        <Marquee speed={80} gradient={false} className="overflow-hidden">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase px-4 flex items-center">
+        <div className="animate-marquee">
+          <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase flex items-center whitespace-nowrap px-4">
             Digital Craft <span className="text-[var(--accent-cyan)] mx-8">✦</span> 
             Video Editing <span className="text-[var(--accent-cyan)] mx-8">✦</span> 
             Web Development <span className="text-[var(--accent-cyan)] mx-8">✦</span>
           </h2>
-        </Marquee>
+          <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase flex items-center whitespace-nowrap px-4">
+            Digital Craft <span className="text-[var(--accent-cyan)] mx-8">✦</span> 
+            Video Editing <span className="text-[var(--accent-cyan)] mx-8">✦</span> 
+            Web Development <span className="text-[var(--accent-cyan)] mx-8">✦</span>
+          </h2>
+        </div>
       </section>
 
       {/* Massive Full-Width Categories with Image Masking */}
