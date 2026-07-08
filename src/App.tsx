@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 // Components
 import Navigation from './components/Navigation';
 import Cursor from './components/Cursor';
-import ThreeBackground from './components/ThreeBackground';
+import LiquidBackground from './components/LiquidBackground';
 import SmoothScroll from './components/SmoothScroll';
+import Preloader from './components/Preloader';
 
 // Pages
 import Home from './pages/Home';
@@ -27,13 +29,25 @@ function AnimatedRoutes() {
 }
 
 function App() {
+  const [loading, setLoading] = useState(true);
+
   return (
     <Router>
       <SmoothScroll>
         <Cursor />
-        <ThreeBackground />
-        <Navigation />
-        <AnimatedRoutes />
+        {loading && <Preloader onComplete={() => setLoading(false)} />}
+        
+        {/* Render main content but keep it invisible until loading is done */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: loading ? 0 : 1 }}
+          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+          className={loading ? 'pointer-events-none' : ''}
+        >
+          <LiquidBackground />
+          <Navigation />
+          <AnimatedRoutes />
+        </motion.div>
       </SmoothScroll>
     </Router>
   );
