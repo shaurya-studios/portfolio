@@ -61,18 +61,18 @@ html.lenis {
 
 /* Agency Typography */
 .text-huge {
-  font-size: clamp(4rem, 12vw, 12rem);
+  font-size: clamp(3rem, 10vw, 8.5rem);
   font-weight: 900;
-  line-height: 0.85;
-  letter-spacing: -0.05em;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
   text-transform: uppercase;
 }
 
 .text-subhuge {
-  font-size: clamp(2rem, 5vw, 5rem);
-  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 
 /* Utilities */

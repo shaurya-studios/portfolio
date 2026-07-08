@@ -3,20 +3,20 @@ import { motion } from 'framer-motion';
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col pt-24">
+    <div className="min-h-screen flex flex-col pt-24 md:pt-32">
       
       {/* Massive Hero */}
-      <section className="flex-1 flex flex-col justify-end p-6 pb-12">
+      <section className="flex flex-col justify-center px-6 md:px-12 pb-20 min-h-[60vh] md:min-h-[75vh]">
         <div className="max-w-[95vw]">
-          <div className="mask-container overflow-hidden">
+          <div className="mask-container overflow-hidden pb-2">
             <motion.h1 
               initial={{ y: '100%' }} animate={{ y: '0%' }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="text-huge"
+              className="text-huge text-white"
             >
               SHAURYA
             </motion.h1>
           </div>
-          <div className="mask-container overflow-hidden -mt-4 md:-mt-8">
+          <div className="mask-container overflow-hidden pb-4">
             <motion.h1 
               initial={{ y: '100%' }} animate={{ y: '0%' }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
               className="text-huge text-[var(--text-secondary)]"
@@ -24,10 +24,10 @@ export default function Home() {
               AGARWAL
             </motion.h1>
           </div>
-          <div className="mask-container overflow-hidden mt-6">
+          <div className="mask-container overflow-hidden mt-6 md:mt-10">
             <motion.p 
               initial={{ y: '100%' }} animate={{ y: '0%' }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-              className="text-lg md:text-2xl font-medium tracking-tight max-w-2xl text-[var(--text-secondary)]"
+              className="text-lg md:text-2xl font-light tracking-tight max-w-2xl text-white/70"
             >
               Digital Craft. Building high-performance web experiences and editing cinematic, high-retention video.
             </motion.p>
@@ -36,14 +36,14 @@ export default function Home() {
       </section>
 
       {/* Infinite Marquee using Pure CSS for React 19 safety */}
-      <section className="py-8 border-y border-[var(--border-color)] bg-[var(--bg-primary)] overflow-hidden">
+      <section className="py-6 md:py-10 border-y border-[var(--border-color)] bg-[var(--bg-primary)] overflow-hidden">
         <div className="animate-marquee">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase flex items-center whitespace-nowrap px-4">
+          <h2 className="text-3xl md:text-5xl font-black tracking-tighter uppercase flex items-center whitespace-nowrap px-4">
             Digital Craft <span className="text-[var(--accent-cyan)] mx-8">✦</span> 
             Video Editing <span className="text-[var(--accent-cyan)] mx-8">✦</span> 
             Web Development <span className="text-[var(--accent-cyan)] mx-8">✦</span>
           </h2>
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase flex items-center whitespace-nowrap px-4">
+          <h2 className="text-3xl md:text-5xl font-black tracking-tighter uppercase flex items-center whitespace-nowrap px-4">
             Digital Craft <span className="text-[var(--accent-cyan)] mx-8">✦</span> 
             Video Editing <span className="text-[var(--accent-cyan)] mx-8">✦</span> 
             Web Development <span className="text-[var(--accent-cyan)] mx-8">✦</span>
@@ -53,19 +53,19 @@ export default function Home() {
 
       {/* Massive Full-Width Categories with Image Masking */}
       <section className="flex flex-col w-full bg-[var(--bg-primary)] relative">
-        <Link to="/dev" className="group relative w-full border-b border-[var(--border-color)] overflow-hidden h-[30vh] md:h-[40vh] flex items-center">
-          {/* Hover Image Mask */}
+        <Link to="/dev" className="group relative w-full border-b border-[var(--border-color)] overflow-hidden h-[30vh] md:h-[45vh] flex items-center">
+          {/* Hover Image Mask - Abstract Dark Liquid */}
           <div className="absolute inset-0 z-0 overflow-hidden">
-             <div className="absolute inset-0 bg-black/60 z-10 transition-opacity duration-700 group-hover:opacity-40" />
+             <div className="absolute inset-0 bg-black/70 z-10 transition-opacity duration-700 group-hover:opacity-30" />
              <img 
-                src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop" 
-                alt="Development" 
+                src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" 
+                alt="Development Background" 
                 className="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-[1.5s] ease-[0.16,1,0.3,1] opacity-0 group-hover:opacity-100"
              />
           </div>
           
-          <div className="relative p-6 md:p-12 flex w-full justify-between items-end mix-blend-difference z-20">
-            <div className="mask-container overflow-hidden">
+          <div className="relative px-6 md:px-12 flex w-full justify-between items-end mix-blend-difference z-20">
+            <div className="mask-container overflow-hidden pb-2">
               <span className="font-mono text-xs uppercase tracking-[0.3em] text-white/50 block mb-2 transition-transform duration-500 group-hover:-translate-y-2">01</span>
               <h2 className="text-subhuge text-white transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:translate-x-4">Development</h2>
             </div>
@@ -75,19 +75,19 @@ export default function Home() {
           </div>
         </Link>
 
-        <Link to="/video" className="group relative w-full border-b border-[var(--border-color)] overflow-hidden h-[30vh] md:h-[40vh] flex items-center">
-          {/* Hover Image Mask */}
+        <Link to="/video" className="group relative w-full border-b border-[var(--border-color)] overflow-hidden h-[30vh] md:h-[45vh] flex items-center">
+          {/* Hover Image Mask - Abstract Dark Ripples */}
           <div className="absolute inset-0 z-0 overflow-hidden">
-             <div className="absolute inset-0 bg-black/60 z-10 transition-opacity duration-700 group-hover:opacity-40" />
+             <div className="absolute inset-0 bg-black/70 z-10 transition-opacity duration-700 group-hover:opacity-30" />
              <img 
-                src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=2070&auto=format&fit=crop" 
-                alt="Video Editing" 
+                src="https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=2400&auto=format&fit=crop" 
+                alt="Video Editing Background" 
                 className="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-[1.5s] ease-[0.16,1,0.3,1] opacity-0 group-hover:opacity-100"
              />
           </div>
 
-          <div className="relative p-6 md:p-12 flex w-full justify-between items-end mix-blend-difference z-20">
-            <div className="mask-container overflow-hidden">
+          <div className="relative px-6 md:px-12 flex w-full justify-between items-end mix-blend-difference z-20">
+            <div className="mask-container overflow-hidden pb-2">
               <span className="font-mono text-xs uppercase tracking-[0.3em] text-white/50 block mb-2 transition-transform duration-500 group-hover:-translate-y-2">02</span>
               <h2 className="text-subhuge text-white transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:translate-x-4">Video Editing</h2>
             </div>
@@ -98,19 +98,19 @@ export default function Home() {
         </Link>
       </section>
 
-      {/* Editify Synergy Section (Extreme Polish) */}
+      {/* Editify Synergy Section */}
       <section className="py-32 px-6 bg-[var(--bg-primary)]">
         <div className="max-w-5xl mx-auto text-center mask-container overflow-hidden">
           <motion.h2 
             initial={{ y: 100 }} whileInView={{ y: 0 }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }} viewport={{ once: true }}
-            className="text-4xl md:text-7xl font-black mb-8 tracking-tighter uppercase leading-[0.9]"
+            className="text-4xl md:text-6xl font-black mb-8 tracking-tighter uppercase leading-[1.1]"
           >
             The Complete Package<br />
             <span className="text-[var(--accent-cyan)]">Editify Studios</span>
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 1, delay: 0.2 }} viewport={{ once: true }}
-            className="text-xl md:text-3xl text-[var(--text-secondary)] font-medium leading-tight mb-12 max-w-3xl mx-auto"
+            className="text-lg md:text-2xl text-[var(--text-secondary)] font-light leading-relaxed mb-12 max-w-3xl mx-auto"
           >
             Why hire a web developer and a video editor separately? For Editify Studios, I delivered the ultimate synergy. 
             I built their custom, high-performance web platform from the ground up, <em>and</em> I actively edit their high-retention YouTube content.
