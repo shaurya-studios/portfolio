@@ -1,86 +1,133 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Code, Video, ArrowRight } from 'lucide-react';
+import type { Variants } from 'framer-motion';
+import Marquee from 'react-fast-marquee';
+
+const revealText: Variants = {
+  hidden: { y: '100%' },
+  visible: (i: number) => ({
+    y: '0%',
+    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as const, delay: i * 0.1 }
+  })
+};
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen pt-32 pb-20 px-6 max-w-7xl mx-auto flex flex-col gap-32">
+    <div className="min-h-screen flex flex-col pt-24">
       
-      {/* Hero Section */}
-      <section className="flex flex-col items-center justify-center text-center gap-8 min-h-[60vh]">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <p className="font-mono text-sm uppercase tracking-[0.35em] text-secondary mb-6">Shaurya Agarwal · Portfolio · 2026</p>
-          <h1 className="heading-jumbo mb-6">
-            Step inside the <span className="text-gradient">studio.</span>
-          </h1>
-          <p className="subtitle max-w-2xl mx-auto">
-            Pick a door — Development or Video Editing. 
-            <br className="hidden md:block"/>
-            Move your cursor to look around.
-          </p>
-        </motion.div>
-
-        {/* The Doors */}
-        <div className="flex flex-col sm:flex-row gap-6 sm:gap-10 mt-10">
-          <Link to="/dev" className="group">
-            <motion.div 
-              whileHover={{ scale: 1.05, y: -10 }}
-              whileTap={{ scale: 0.95 }}
-              className="glass rounded-2xl p-10 flex flex-col items-center justify-center gap-4 w-64 h-64 border border-cyan-400/20 hover:border-cyan-400/60 hover:bg-cyan-400/5 transition-colors"
+      {/* Massive Hero */}
+      <section className="flex-1 flex flex-col justify-end p-6 pb-12">
+        <div className="max-w-[95vw]">
+          <div className="mask-container overflow-hidden">
+            <motion.h1 
+              custom={0} variants={revealText} initial="hidden" animate="visible"
+              className="text-huge"
             >
-              <Code size={48} className="text-cyan-400 opacity-80 group-hover:opacity-100 transition-opacity" />
-              <span className="font-mono text-xs uppercase tracking-[0.3em] text-secondary">01</span>
-              <span className="text-xl font-extrabold tracking-tight">Development</span>
-            </motion.div>
-          </Link>
-
-          <Link to="/video" className="group">
-            <motion.div 
-              whileHover={{ scale: 1.05, y: -10 }}
-              whileTap={{ scale: 0.95 }}
-              className="glass rounded-2xl p-10 flex flex-col items-center justify-center gap-4 w-64 h-64 border border-orange-400/20 hover:border-orange-400/60 hover:bg-orange-400/5 transition-colors"
+              SHAURYA
+            </motion.h1>
+          </div>
+          <div className="mask-container overflow-hidden -mt-4 md:-mt-8">
+            <motion.h1 
+              custom={1} variants={revealText} initial="hidden" animate="visible"
+              className="text-huge text-[var(--text-secondary)]"
             >
-              <Video size={48} className="text-orange-400 opacity-80 group-hover:opacity-100 transition-opacity" />
-              <span className="font-mono text-xs uppercase tracking-[0.3em] text-secondary">02</span>
-              <span className="text-xl font-extrabold tracking-tight">Video Editing</span>
-            </motion.div>
-          </Link>
+              AGARWAL
+            </motion.h1>
+          </div>
+          <div className="mask-container overflow-hidden mt-6">
+            <motion.p 
+              custom={2} variants={revealText} initial="hidden" animate="visible"
+              className="text-lg md:text-2xl font-medium tracking-tight max-w-2xl text-[var(--text-secondary)]"
+            >
+              Digital Craft. Building high-performance web experiences and editing cinematic, high-retention video.
+            </motion.p>
+          </div>
         </div>
       </section>
 
-      {/* Editify Synergy Section */}
-      <section className="py-20 relative">
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
-          className="glass rounded-3xl p-10 md:p-16 border border-[var(--accent-cyan)] border-opacity-30 relative overflow-hidden"
-        >
-          {/* Decorative glow */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--accent-cyan)] opacity-10 blur-[100px] rounded-full pointer-events-none" />
+      {/* Infinite Marquee */}
+      <section className="py-8 border-y border-[var(--border-color)] bg-[var(--bg-primary)] overflow-hidden">
+        <Marquee speed={80} gradient={false} className="overflow-hidden">
+          <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase px-4 flex items-center">
+            Digital Craft <span className="text-[var(--accent-cyan)] mx-8">✦</span> 
+            Video Editing <span className="text-[var(--accent-cyan)] mx-8">✦</span> 
+            Web Development <span className="text-[var(--accent-cyan)] mx-8">✦</span>
+          </h2>
+        </Marquee>
+      </section>
+
+      {/* Massive Full-Width Categories with Image Masking */}
+      <section className="flex flex-col w-full bg-[var(--bg-primary)] relative">
+        <Link to="/dev" className="group relative w-full border-b border-[var(--border-color)] overflow-hidden h-[30vh] md:h-[40vh] flex items-center">
+          {/* Hover Image Mask */}
+          <div className="absolute inset-0 z-0 overflow-hidden">
+             <div className="absolute inset-0 bg-black/60 z-10 transition-opacity duration-700 group-hover:opacity-40" />
+             <img 
+                src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop" 
+                alt="Development" 
+                className="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-[1.5s] ease-[0.16,1,0.3,1] opacity-0 group-hover:opacity-100"
+             />
+          </div>
           
-          <div className="max-w-3xl relative z-10">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              The Complete Package: <span className="text-gradient">Editify Studios</span>
-            </h2>
-            <p className="text-lg text-secondary leading-relaxed mb-10">
-              Why hire a web developer and a video editor separately? For Editify Studios, I delivered the ultimate synergy. 
-              I built their custom, high-performance web platform from the ground up, <em>and</em> I actively edit their high-retention YouTube and gaming content. 
-              Seamless integration, one point of contact.
-            </p>
-            
-            <div className="flex gap-4">
-              <a href="mailto:shaurya.studios.dev@gmail.com" className="inline-flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full font-semibold hover:bg-gray-200 transition-colors">
-                Let's achieve this for you <ArrowRight size={18} />
-              </a>
+          <div className="relative p-6 md:p-12 flex w-full justify-between items-end mix-blend-difference z-20">
+            <div className="mask-container overflow-hidden">
+              <span className="font-mono text-xs uppercase tracking-[0.3em] text-white/50 block mb-2 transition-transform duration-500 group-hover:-translate-y-2">01</span>
+              <h2 className="text-subhuge text-white transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:translate-x-4">Development</h2>
+            </div>
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 hidden md:block">
+              <p className="font-mono text-sm uppercase tracking-widest text-[var(--accent-cyan)]">View Projects &rarr;</p>
             </div>
           </div>
-        </motion.div>
+        </Link>
+
+        <Link to="/video" className="group relative w-full border-b border-[var(--border-color)] overflow-hidden h-[30vh] md:h-[40vh] flex items-center">
+          {/* Hover Image Mask */}
+          <div className="absolute inset-0 z-0 overflow-hidden">
+             <div className="absolute inset-0 bg-black/60 z-10 transition-opacity duration-700 group-hover:opacity-40" />
+             <img 
+                src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=2070&auto=format&fit=crop" 
+                alt="Video Editing" 
+                className="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-[1.5s] ease-[0.16,1,0.3,1] opacity-0 group-hover:opacity-100"
+             />
+          </div>
+
+          <div className="relative p-6 md:p-12 flex w-full justify-between items-end mix-blend-difference z-20">
+            <div className="mask-container overflow-hidden">
+              <span className="font-mono text-xs uppercase tracking-[0.3em] text-white/50 block mb-2 transition-transform duration-500 group-hover:-translate-y-2">02</span>
+              <h2 className="text-subhuge text-white transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:translate-x-4">Video Editing</h2>
+            </div>
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 hidden md:block">
+              <p className="font-mono text-sm uppercase tracking-widest text-white">Play Reels &rarr;</p>
+            </div>
+          </div>
+        </Link>
+      </section>
+
+      {/* Editify Synergy Section (Extreme Polish) */}
+      <section className="py-32 px-6 bg-[var(--bg-primary)]">
+        <div className="max-w-5xl mx-auto text-center mask-container overflow-hidden">
+          <motion.h2 
+            initial={{ y: 100 }} whileInView={{ y: 0 }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }} viewport={{ once: true }}
+            className="text-4xl md:text-7xl font-black mb-8 tracking-tighter uppercase leading-[0.9]"
+          >
+            The Complete Package<br />
+            <span className="text-[var(--accent-cyan)]">Editify Studios</span>
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 1, delay: 0.2 }} viewport={{ once: true }}
+            className="text-xl md:text-3xl text-[var(--text-secondary)] font-medium leading-tight mb-12 max-w-3xl mx-auto"
+          >
+            Why hire a web developer and a video editor separately? For Editify Studios, I delivered the ultimate synergy. 
+            I built their custom, high-performance web platform from the ground up, <em>and</em> I actively edit their high-retention YouTube content.
+          </motion.p>
+          <motion.a 
+            initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.4 }} viewport={{ once: true }}
+            href="mailto:shaurya.studios.dev@gmail.com" 
+            className="inline-block border border-white/20 px-10 py-5 font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-colors duration-500 rounded-full"
+          >
+            Start a project
+          </motion.a>
+        </div>
       </section>
     </div>
   );
