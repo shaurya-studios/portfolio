@@ -29,8 +29,8 @@ function GlassGeometry({ position, scale, rotationSpeed }: { position: [number, 
           temporalDistortion={0.0}
           clearcoat={1}
           attenuationDistance={0.5}
-          attenuationColor="#ffffff"
-          color="#f4f4f5"
+          attenuationColor="#0284c7"
+          color="#0ea5e9"
           roughness={0.1}
         />
       </mesh>

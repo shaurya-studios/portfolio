@@ -1,73 +1,53 @@
 import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform, useVelocity, useSpring } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export default function Home() {
-  const { scrollY } = useScroll();
-  const scrollVelocity = useVelocity(scrollY);
-  const smoothVelocity = useSpring(scrollVelocity, {
-    damping: 50,
-    stiffness: 400
-  });
-  
-  // Parallax effects
-  const heroY = useTransform(scrollY, [0, 1000], [0, 300]);
-  const heroOpacity = useTransform(scrollY, [0, 500], [1, 0]);
+  const fadeUp = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } }
+  };
 
-  // Skew effect for the marquee based on scroll speed
-  const skewVelocity = useTransform(smoothVelocity, [-1000, 1000], [-5, 5]);
-  const skewVelocityStr = useTransform(skewVelocity, (v) => `${v}deg`);
-  
-  const x1 = useTransform(scrollY, [0, 1000], [0, -300]);
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.3 }
+    }
+  };
 
   return (
-    <div className="min-h-screen flex flex-col pt-32 pb-24 relative z-10">
-      
+    <div className="w-full overflow-hidden">
       {/* Massive Clean Hero */}
-      <motion.section 
-        style={{ y: heroY, opacity: heroOpacity }}
-        className="flex flex-col justify-center px-6 md:px-12 pb-32 min-h-[70vh] w-full"
-      >
-        <div className="max-w-[95vw] pointer-events-none">
-          <div className="mask-container overflow-hidden pb-2">
-            <motion.h1 
-              initial={{ y: '100%' }} animate={{ y: '0%' }} transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-              className="text-huge text-[var(--text-primary)]"
-            >
-              SHAURYA
-            </motion.h1>
-          </div>
-          <div className="mask-container overflow-hidden pb-4">
-            <motion.h1 
-              initial={{ y: '100%' }} animate={{ y: '0%' }} transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.6 }}
-              className="text-huge text-[var(--text-secondary)]"
-            >
-              STUDIOS
-            </motion.h1>
-          </div>
-          <div className="mask-container overflow-hidden mt-8 md:mt-12 pointer-events-auto">
-            <motion.p 
-              initial={{ y: '100%' }} animate={{ y: '0%' }} transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.7 }}
-              className="text-xl md:text-3xl font-medium tracking-tight max-w-3xl text-[var(--text-secondary)] leading-relaxed"
-            >
-              Building the largest onchain communities and driving the consumer web revolution through elite digital craft.
-            </motion.p>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Structured Kinetic Marquee */}
-      <section className="py-16 md:py-24 border-y border-[var(--border-color)] bg-[var(--glass-bg)] backdrop-blur-md overflow-hidden relative z-20">
-        <motion.div style={{ skewY: skewVelocityStr }} className="relative flex flex-col">
-          <motion.div style={{ x: x1 }} className="flex whitespace-nowrap">
-            <h2 className="text-4xl md:text-7xl font-black tracking-tighter uppercase px-4 flex items-center text-[var(--text-primary)]">
-              Digital Craft <span className="text-[var(--accent-cyan)] mx-8">✦</span> Consumer Crypto <span className="text-[var(--accent-cyan)] mx-8">✦</span> Web Development <span className="text-[var(--accent-cyan)] mx-8">✦</span> Digital Craft
-            </h2>
-          </motion.div>
+      <section className="w-full px-6 md:px-12 pt-40 pb-24 md:pt-48 md:pb-32">
+        <motion.div 
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="max-w-[95vw]"
+        >
+          <motion.h1 variants={fadeUp} className="text-huge text-[var(--text-primary)] m-0 p-0 block">
+            SHAURYA
+          </motion.h1>
+          <motion.h1 variants={fadeUp} className="text-huge text-[var(--text-secondary)] m-0 p-0 block -mt-2 md:-mt-6">
+            STUDIOS
+          </motion.h1>
+          <motion.p variants={fadeUp} className="text-xl md:text-3xl font-medium tracking-tight max-w-3xl text-[var(--text-secondary)] leading-relaxed mt-8 md:mt-12">
+            Building the largest onchain communities and driving the consumer web revolution through elite digital craft.
+          </motion.p>
         </motion.div>
       </section>
 
+      {/* Structured Kinetic Marquee */}
+      <section className="py-12 md:py-20 border-y border-[var(--border-color)] bg-[var(--glass-bg)] backdrop-blur-md w-full">
+        <div className="animate-marquee">
+          <h2 className="text-4xl md:text-7xl font-black tracking-tighter uppercase px-4 flex items-center text-[var(--text-primary)] whitespace-nowrap">
+            Digital Craft <span className="text-[var(--accent-cyan)] mx-8">✦</span> Consumer Crypto <span className="text-[var(--accent-cyan)] mx-8">✦</span> Web Development <span className="text-[var(--accent-cyan)] mx-8">✦</span> Digital Craft <span className="text-[var(--accent-cyan)] mx-8">✦</span> Consumer Crypto <span className="text-[var(--accent-cyan)] mx-8">✦</span> Web Development <span className="text-[var(--accent-cyan)] mx-8">✦</span>
+          </h2>
+        </div>
+      </section>
+
       {/* Clean Grid Layout Projects */}
-      <section className="w-full px-6 md:px-12 py-32 relative z-20">
+      <section className="w-full px-6 md:px-12 py-24 md:py-32">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-screen-2xl mx-auto">
           
           <motion.div 
@@ -91,7 +71,7 @@ export default function Home() {
                   01 // Web Platform
                 </span>
               </div>
-              <div className="absolute bottom-8 left-8 z-20 mask-container">
+              <div className="absolute bottom-8 left-8 z-20">
                 <h2 className="text-4xl md:text-6xl font-black text-white mix-blend-difference uppercase translate-y-4 group-hover:translate-y-0 transition-transform duration-700 ease-[0.16,1,0.3,1]">
                   Development
                 </h2>
@@ -120,7 +100,7 @@ export default function Home() {
                   02 // Cinematic
                 </span>
               </div>
-              <div className="absolute bottom-8 left-8 z-20 mask-container">
+              <div className="absolute bottom-8 left-8 z-20">
                 <h2 className="text-4xl md:text-6xl font-black text-white mix-blend-difference uppercase translate-y-4 group-hover:translate-y-0 transition-transform duration-700 ease-[0.16,1,0.3,1]">
                   Production
                 </h2>
@@ -132,7 +112,7 @@ export default function Home() {
       </section>
 
       {/* Massive Call to Action */}
-      <section className="py-40 px-6 relative z-20 overflow-hidden text-center">
+      <section className="py-32 px-6 relative z-20 overflow-hidden text-center">
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }} 
           whileInView={{ scale: 1, opacity: 1 }} 
