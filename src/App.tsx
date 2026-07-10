@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 // Components
 import Navigation from './components/Navigation';
 import Cursor from './components/Cursor';
-import LiquidBackground from './components/LiquidBackground';
+import IglooBackground from './components/IglooBackground';
 import SmoothScroll from './components/SmoothScroll';
 import Preloader from './components/Preloader';
 
@@ -44,7 +44,7 @@ function App() {
           transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
           className={loading ? 'pointer-events-none' : ''}
         >
-          <LiquidBackground />
+          <IglooBackground />
           <Navigation />
           <AnimatedRoutes />
         </motion.div>

@@ -33,7 +33,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
           y: '-100%', 
           transition: { duration: 1.2, ease: [0.76, 0, 0.24, 1] } 
         }}
-        className="fixed inset-0 z-[100] bg-[#050505] flex flex-col justify-end p-8 md:p-12 overflow-hidden"
+        className="fixed inset-0 z-[100] bg-[var(--bg-primary)] flex flex-col justify-end p-8 md:p-12 overflow-hidden"
       >
         <div className="flex justify-between items-end w-full">
           <div className="overflow-hidden">
@@ -51,7 +51,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-              className="text-[clamp(6rem,20vw,20rem)] font-black leading-[0.8] tracking-tighter"
+              className="text-[clamp(6rem,20vw,20rem)] font-black leading-[0.8] tracking-tighter text-[var(--text-primary)]"
             >
               {progress}%
             </motion.h1>
