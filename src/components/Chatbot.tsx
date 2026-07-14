@@ -34,7 +34,7 @@ export default function Chatbot() {
       
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: data.reply || '> ERROR: BUGGIE COULD NOT COMPUTE.' 
+        content: data.reply || `> ERROR: ${data.error || 'BUGGIE COULD NOT COMPUTE.'}` 
       }]);
     } catch (err) {
       setMessages(prev => [...prev, { 

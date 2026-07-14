@@ -26,7 +26,7 @@ Context about Shaurya & The Studio:
 
 Keep your answers concise, direct, and formatted cleanly. If you don't know the answer, tell them to email Shaurya directly.`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -49,11 +49,15 @@ Keep your answers concise, direct, and formatted cleanly. If you don't know the 
     
     if (data.error) {
       console.error(data.error);
-      return res.status(500).json({ error: data.error.message || 'Failed to generate response' });
+      return res.status(500).json({ error: data.error.message || 'Failed to generate response from Gemini API' });
     }
 
-    const reply = data.candidates[0].content.parts[0].text;
-    res.status(200).json({ reply });
+    if (!data.candidates || data.candidates.length === 0) {
+      return res.status(500).json({ error: 'Gemini API returned empty candidates (possibly blocked by safety settings).' });
+    }
+
+    const reply = data.candidates[0].content?.parts?.[0]?.text;
+    res.status(200).json({ reply: reply || 'Buggie generated an empty response.' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
