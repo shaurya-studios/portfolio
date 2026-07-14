@@ -30,6 +30,11 @@ const MagneticButton = ({ children, className = '', href, target }: { children: 
 
   const Component = href ? 'a' : 'button';
 
+  const isWhiteBg = className.includes('bg-white');
+  const textClass = isWhiteBg ? 'text-black' : 'text-white';
+  const borderClass = isWhiteBg ? '' : 'border border-white/10';
+  const hoverClass = isWhiteBg ? '' : 'hover:bg-white/10';
+
   return (
     <motion.div
       ref={ref}
@@ -41,7 +46,7 @@ const MagneticButton = ({ children, className = '', href, target }: { children: 
       <Component 
         href={href} 
         target={target} 
-        className={`px-8 py-3.5 rounded-full border border-white/10 text-white hover:bg-white/10 backdrop-blur-md text-xs uppercase tracking-widest font-semibold transition-all duration-300 shadow-[0_8px_16px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.5)] block ${className}`}
+        className={`px-8 py-3.5 rounded-full backdrop-blur-md text-xs uppercase tracking-widest font-semibold transition-all duration-300 shadow-[0_8px_16px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.5)] block ${textClass} ${borderClass} ${hoverClass} ${className}`}
       >
         {children}
       </Component>
@@ -172,7 +177,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.8 }}
               className="flex flex-wrap items-center gap-6"
             >
-              <MagneticButton href="#pricing" className="bg-white text-black hover:bg-gray-200 border-none shadow-[0_10px_30px_rgba(255,255,255,0.2)]">
+              <MagneticButton href="#pricing" className="bg-white !text-black hover:bg-gray-200 border-none shadow-[0_10px_30px_rgba(255,255,255,0.2)]">
                 VIEW PRICING
               </MagneticButton>
               <MagneticButton href="#work">
@@ -399,7 +404,7 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center bg-white text-black font-bold">
+            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center bg-white !text-black font-bold border-none">
               BOOK BUSINESS
             </MagneticButton>
           </motion.div>
@@ -458,7 +463,6 @@ export default function Home() {
           transition={{ duration: 0.8 }}
         >
           <TiltCard className="p-12 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-2 h-full bg-[var(--color-accent)]"></div>
             <h2 className="text-lg font-bold mb-10 text-[var(--color-accent)] tracking-widest uppercase text-center md:text-left">Client Verification</h2>
             <div className="flex flex-col md:flex-row gap-12 items-center">
               <div className="flex-grow">
@@ -498,7 +502,7 @@ export default function Home() {
             Currently accepting new clients. Let's discuss your product goals and architect a custom solution for your business.
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
-            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full sm:w-auto text-center bg-white text-black hover:bg-gray-200 py-4 px-10 font-bold text-sm shadow-[0_15px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_20px_40px_rgba(255,255,255,0.3)]">
+            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full sm:w-auto text-center bg-white !text-black hover:bg-gray-200 py-4 px-10 font-bold text-sm shadow-[0_15px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_20px_40px_rgba(255,255,255,0.3)] border-none">
               EMAIL INQUIRY
             </MagneticButton>
             <div className="flex gap-4 w-full sm:w-auto">
