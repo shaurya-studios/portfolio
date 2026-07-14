@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Code2, Layers, Cpu, Check, ExternalLink, Terminal } from 'lucide-react';
+import { ArrowRight, Code2, Layers, Cpu, Terminal } from 'lucide-react';
 
 // Reusable Terminal Button
 const TerminalButton = ({ children, className = '', href, target }: { children: React.ReactNode, className?: string, href?: string, target?: string }) => {
