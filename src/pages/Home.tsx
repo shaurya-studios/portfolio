@@ -130,9 +130,9 @@ export default function Home() {
       {/* 3. PROJECT SHOWCASE */}
       <section id="work" className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="mb-12">
-          <h2 className="text-display-md mb-4">Selected Works</h2>
+          <h2 className="text-display-md mb-4">Past Works</h2>
           <p className="text-lg text-[var(--color-text-secondary)] max-w-2xl">
-            A collection of my past works and projects.
+            A few of my recent projects.
           </p>
         </div>
 
