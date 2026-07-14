@@ -68,6 +68,13 @@ export default function Chatbot() {
                 </div>
               </div>
             ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="max-w-[85%] p-3 text-sm bg-[#111] text-[var(--color-accent)] border border-[var(--color-border)] animate-pulse rounded-lg rounded-tl-none">
+                  Buggie is typing...
+                </div>
+              </div>
+            )}
             <div ref={endRef} />
           </div>
           
