@@ -9,15 +9,6 @@ export default defineConfig({
     react()
   ],
   build: {
-    minify: 'esbuild',
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          framer: ['framer-motion'],
-          ui: ['lucide-react']
-        }
-      }
-    }
+    minify: 'esbuild'
   }
 })
