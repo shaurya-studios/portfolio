@@ -87,6 +87,7 @@ export default function Chatbot() {
       ) : (
         <button 
           onClick={() => setIsOpen(true)}
+          aria-label="Open AI Chatbot"
           className="w-14 h-14 bg-[var(--color-accent)] text-black flex items-center justify-center hover:-translate-y-1 transition-transform border border-[var(--color-border)] shadow-[4px_4px_0_0_var(--color-border)]"
         >
           <MessageSquare size={24} />

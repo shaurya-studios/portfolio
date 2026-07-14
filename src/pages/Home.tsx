@@ -363,7 +363,7 @@ export default function Home() {
             </p>
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-black border border-[var(--color-border)] flex items-center justify-center p-1.5 grayscale">
-                <img src="/editify-logo.png" alt="Editify Studios" className="w-full h-full object-contain" />
+                <img src="/editify-logo.png" alt="Editify Studios" loading="lazy" className="w-full h-full object-contain" />
               </div>
               <div>
                 <h4 className="font-bold text-sm text-[var(--color-accent)]">Founder</h4>
