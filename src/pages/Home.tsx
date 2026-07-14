@@ -44,7 +44,7 @@ export default function Home() {
   }, [currentText, isDeleting, currentWordIndex]);
 
   return (
-    <div className="w-full pb-16 font-mono selection:bg-[var(--color-accent)] selection:text-black relative z-10">
+    <div id="home" className="w-full pb-16 font-mono selection:bg-[var(--color-accent)] selection:text-white relative z-10 pt-20">
       
       {/* 1. INTERACTIVE HERO */}
       <section className="min-h-screen flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto">
@@ -58,7 +58,7 @@ export default function Home() {
           <div className="w-full md:w-3/5">
             <div className="mb-8 text-[var(--color-accent)] text-sm flex items-center gap-2">
               <Terminal size={16} />
-              <span>shaurya@system:~# ./init_portfolio.sh</span>
+              <span>SHAURYA.DEV // SYSTEM_ONLINE</span>
             </div>
 
             <motion.h1 
@@ -76,7 +76,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="text-lg md:text-xl text-[var(--color-text-secondary)] max-w-2xl leading-relaxed mb-8"
             >
-              &gt; I partner with forward-thinking founders to design and build premium software that converts, scales, and stands out.
+              I partner with forward-thinking founders to design and build premium software that converts, scales, and stands out.
             </motion.p>
 
             <motion.div 
@@ -85,11 +85,11 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.6 }}
               className="flex flex-wrap items-center gap-4"
             >
-              <TerminalButton href="#pricing" className="bg-[var(--color-accent)] text-black border-[var(--color-accent)] hover:bg-transparent hover:text-[var(--color-accent)] flex items-center gap-2">
-                [ VIEW_PRICING ] <ArrowRight size={16} />
+              <TerminalButton href="#pricing" className="bg-[var(--color-accent)] text-white border-[var(--color-accent)] hover:bg-transparent hover:text-[var(--color-accent)] flex items-center gap-2">
+                VIEW PRICING <ArrowRight size={16} />
               </TerminalButton>
               <TerminalButton href="#work">
-                [ SHOWCASE ]
+                SHOWCASE
               </TerminalButton>
             </motion.div>
           </div>
@@ -100,18 +100,18 @@ export default function Home() {
             transition={{ duration: 1, delay: 0.8 }}
             className="w-full md:w-2/5 relative hidden md:block"
           >
-            {/* Terminal Window Tech Stack */}
+            {/* Tech Stack Card */}
             <div className="card-border p-6 shadow-[8px_8px_0_0_var(--color-border)]">
               <div className="border-b border-[var(--color-border)] pb-2 mb-4 flex justify-between items-center text-xs text-[var(--color-text-secondary)]">
-                <span>root@system: /tech_stack</span>
+                <span>CORE_STACK</span>
                 <div className="flex gap-2">
-                  <div className="w-3 h-3 bg-red-500/50" />
-                  <div className="w-3 h-3 bg-yellow-500/50" />
-                  <div className="w-3 h-3 bg-[var(--color-accent)]" />
+                  <div className="w-3 h-3 bg-red-500/50 rounded-full" />
+                  <div className="w-3 h-3 bg-yellow-500/50 rounded-full" />
+                  <div className="w-3 h-3 bg-[var(--color-accent)] rounded-full" />
                 </div>
               </div>
               <div className="space-y-2 text-sm text-[var(--color-text-secondary)]">
-                <p><span className="text-[var(--color-accent)]">$</span> loading dependencies...</p>
+                <p><span className="text-[var(--color-accent)]">&gt;</span> loading dependencies...</p>
                 <div className="flex flex-wrap gap-2 pt-2">
                   {['React', 'Next.js', 'TypeScript', 'Tailwind', 'Node.js', 'Vercel', 'PostgreSQL', 'Framer Motion'].map(tech => (
                     <span key={tech} className="px-2 py-1 bg-[var(--color-bg-subtle)] border border-[var(--color-border)] text-[var(--color-text-primary)]">
@@ -131,20 +131,20 @@ export default function Home() {
       <section className="py-16 border-y border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold mb-1 text-[var(--color-accent)]">100/100</h3>
-            <p className="text-[var(--color-text-secondary)] text-xs uppercase tracking-widest">Performance</p>
+            <h3 className="text-2xl font-bold mb-1 text-[var(--color-accent)]">Lightning Fast</h3>
+            <p className="text-[var(--color-text-secondary)] text-xs uppercase tracking-widest">Speed Optimized</p>
           </div>
           <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold mb-1 text-[var(--color-accent)]">&lt; 100ms</h3>
-            <p className="text-[var(--color-text-secondary)] text-xs uppercase tracking-widest">Latency</p>
+            <h3 className="text-2xl font-bold mb-1 text-[var(--color-accent)]">Fully Responsive</h3>
+            <p className="text-[var(--color-text-secondary)] text-xs uppercase tracking-widest">Mobile & Desktop Ready</p>
           </div>
           <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold mb-1 text-[var(--color-accent)]">100%</h3>
-            <p className="text-[var(--color-text-secondary)] text-xs uppercase tracking-widest">Responsive</p>
+            <h3 className="text-2xl font-bold mb-1 text-[var(--color-accent)]">SEO Friendly</h3>
+            <p className="text-[var(--color-text-secondary)] text-xs uppercase tracking-widest">Rank Higher on Google</p>
           </div>
           <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold mb-1 text-[var(--color-accent)]">CUSTOM</h3>
-            <p className="text-[var(--color-text-secondary)] text-xs uppercase tracking-widest">Built</p>
+            <h3 className="text-2xl font-bold mb-1 text-[var(--color-accent)]">Custom Built</h3>
+            <p className="text-[var(--color-text-secondary)] text-xs uppercase tracking-widest">Tailored to Your Brand</p>
           </div>
         </div>
       </section>
@@ -152,9 +152,9 @@ export default function Home() {
       {/* 3. PROJECT SHOWCASE */}
       <section id="work" className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="mb-12 border-b border-[var(--color-border)] pb-4">
-          <h2 className="text-3xl font-bold text-white mb-2">&gt; PAST_WORKS.EXE</h2>
+          <h2 className="text-3xl font-bold text-white mb-2">PAST WORKS</h2>
           <p className="text-sm text-[var(--color-text-secondary)] uppercase">
-            // A few of my recent projects.
+            A few of my recent projects.
           </p>
         </div>
 
@@ -162,23 +162,23 @@ export default function Home() {
           {/* Project 1 */}
           <div className="card-border flex flex-col md:flex-row shadow-[8px_8px_0_0_var(--color-border)] hover:shadow-[8px_8px_0_0_var(--color-accent)] transition-shadow">
             <div className="p-8 md:w-1/2 flex flex-col justify-center">
-              <span className="text-[var(--color-accent)] text-xs tracking-widest uppercase mb-2 block">[ CREATIVE_AGENCY ]</span>
+              <span className="text-[var(--color-accent)] text-xs tracking-widest uppercase mb-2 block">Creative Agency</span>
               <h3 className="text-2xl font-bold mb-4 text-white">Editify Studios</h3>
               <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm mb-6">
                 A high-performance portfolio and lead generation platform for a creative studio. Optimized for insane conversion rates and cinematic video delivery.
               </p>
               <div className="flex flex-wrap gap-2 mb-6">
                 {['Next.js', 'Framer Motion', 'Tailwind CSS'].map(tech => (
-                  <span key={tech} className="px-2 py-1 text-xs border border-[var(--color-border)] text-gray-400">
+                  <span key={tech} className="px-2 py-1 text-xs border border-[var(--color-border)] text-[var(--color-text-primary)]">
                     {tech}
                   </span>
                 ))}
               </div>
               <TerminalButton href="https://editify-studios.vercel.app" target="_blank">
-                EXECUTE_LINK
+                VIEW PROJECT
               </TerminalButton>
             </div>
-            <div className="md:w-1/2 h-[200px] md:h-auto bg-[#0a0a0a] border-l border-[var(--color-border)] flex items-center justify-center p-4">
+            <div className="md:w-1/2 h-[200px] md:h-auto bg-[#050505] border-l border-[var(--color-border)] flex items-center justify-center p-4">
               <div className="w-full h-full border border-[var(--color-border)] border-dashed flex items-center justify-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-[var(--color-accent-glow)] opacity-20" />
                 <span className="text-[var(--color-accent)] font-bold text-xl uppercase tracking-widest relative z-10">EDITIFY_STUDIOS</span>
@@ -189,23 +189,23 @@ export default function Home() {
           {/* Project 2 */}
           <div className="card-border flex flex-col md:flex-row-reverse shadow-[8px_8px_0_0_var(--color-border)] hover:shadow-[8px_8px_0_0_var(--color-accent)] transition-shadow">
             <div className="p-8 md:w-1/2 flex flex-col justify-center">
-              <span className="text-[var(--color-accent)] text-xs tracking-widest uppercase mb-2 block">[ WEB_PLATFORM ]</span>
+              <span className="text-[var(--color-accent)] text-xs tracking-widest uppercase mb-2 block">Web Platform</span>
               <h3 className="text-2xl font-bold mb-4 text-white">Thumbpilot</h3>
               <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm mb-6">
                 A robust platform built on Edge architecture (Cloudflare Workers) ensuring blazing fast global delivery and highly scalable API routes.
               </p>
               <div className="flex flex-wrap gap-2 mb-6">
                 {['React', 'Cloudflare Workers', 'TypeScript'].map(tech => (
-                  <span key={tech} className="px-2 py-1 text-xs border border-[var(--color-border)] text-gray-400">
+                  <span key={tech} className="px-2 py-1 text-xs border border-[var(--color-border)] text-[var(--color-text-primary)]">
                     {tech}
                   </span>
                 ))}
               </div>
               <TerminalButton href="https://thumbpilot.sigmashaurya2.workers.dev" target="_blank">
-                EXECUTE_LINK
+                VIEW PROJECT
               </TerminalButton>
             </div>
-            <div className="md:w-1/2 h-[200px] md:h-auto bg-[#0a0a0a] border-r border-[var(--color-border)] flex items-center justify-center p-4">
+            <div className="md:w-1/2 h-[200px] md:h-auto bg-[#050505] border-r border-[var(--color-border)] flex items-center justify-center p-4">
               <div className="w-full h-full border border-[var(--color-border)] border-dashed flex items-center justify-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-[var(--color-accent-glow)] opacity-20" />
                 <span className="text-[var(--color-accent)] font-bold text-xl uppercase tracking-widest relative z-10">THUMBPILOT</span>
@@ -216,10 +216,10 @@ export default function Home() {
       </section>
 
       {/* 4. SERVICES & PROCESS */}
-      <section className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
+      <section id="services" className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
           <div className="card-border p-8">
-            <h2 className="text-xl font-bold mb-8 text-[var(--color-accent)] border-b border-[var(--color-border)] pb-2">&gt; CORE_MODULES</h2>
+            <h2 className="text-xl font-bold mb-8 text-[var(--color-accent)] border-b border-[var(--color-border)] pb-2">Core Services</h2>
             <div className="space-y-6">
               {[
                 { icon: <Code2 size={20}/>, title: 'Full-Stack Dev', desc: 'Modern, scalable architectures (React, Node, Postgres).' },
@@ -238,7 +238,7 @@ export default function Home() {
           </div>
           
           <div className="card-border p-8">
-            <h2 className="text-xl font-bold mb-8 text-[var(--color-accent)] border-b border-[var(--color-border)] pb-2">&gt; EXECUTION_PIPELINE</h2>
+            <h2 className="text-xl font-bold mb-8 text-[var(--color-accent)] border-b border-[var(--color-border)] pb-2">Execution Pipeline</h2>
             <div className="space-y-6">
               {[
                 'Discovery & Planning',
@@ -248,7 +248,7 @@ export default function Home() {
                 'Launch & Support'
               ].map((step, i) => (
                 <div key={i} className="flex items-start gap-4">
-                  <div className="text-[var(--color-accent)] font-bold text-sm">[0{i + 1}]</div>
+                  <div className="text-[var(--color-accent)] font-bold text-sm">0{i + 1}</div>
                   <p className="text-[var(--color-text-primary)] text-sm">{step}</p>
                 </div>
               ))}
@@ -260,9 +260,9 @@ export default function Home() {
       {/* 4.5 PRICING */}
       <section id="pricing" className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="mb-12 border-b border-[var(--color-border)] pb-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-2">&gt; PRICING_TIERS</h2>
+          <h2 className="text-3xl font-bold text-white mb-2">PRICING TIERS</h2>
           <p className="text-sm text-[var(--color-text-secondary)] uppercase">
-            // Clear pricing for high-quality websites.
+            Clear pricing for high-quality websites.
           </p>
         </div>
 
@@ -277,19 +277,19 @@ export default function Home() {
             <ul className="space-y-3 mb-8 flex-grow">
               {['Functional website', '1-3 Pages', '2 Revisions', 'Content upload', 'Basic Speed opt', 'Social icons'].map((feature, i) => (
                 <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
-                  <span className="text-[var(--color-accent)]">&gt;</span>
+                  <span className="text-[var(--color-accent)]">•</span>
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
             <TerminalButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center">
-              INIT
+              SELECT PLAN
             </TerminalButton>
           </div>
 
           {/* Tier 2 */}
-          <div className="card-border p-6 flex flex-col border-[var(--color-accent)] shadow-[0_0_15px_rgba(57,255,20,0.1)] relative mt-[-10px] mb-[-10px] bg-[var(--color-bg-elevated)] z-10">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--color-accent)] text-black text-[10px] font-bold uppercase tracking-widest py-1 px-3">
+          <div className="card-border p-6 flex flex-col border-[var(--color-accent)] shadow-[0_0_15px_var(--color-accent-glow)] relative mt-[-10px] mb-[-10px] bg-[var(--color-bg-elevated)] z-10">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--color-accent)] text-white text-[10px] font-bold uppercase tracking-widest py-1 px-3">
               RECOMMENDED
             </div>
             <h3 className="text-sm font-bold text-[var(--color-accent)] mb-2 uppercase border-b border-[var(--color-border)] pb-2">Professional</h3>
@@ -299,13 +299,13 @@ export default function Home() {
             <ul className="space-y-3 mb-8 flex-grow">
               {['Functional website', 'Up to 5 Pages', '5 Revisions', 'Content upload', 'Plugins setup', 'Opt-in form', 'Speed opt', 'Hosting setup', 'Social icons'].map((feature, i) => (
                 <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
-                  <span className="text-[var(--color-accent)]">&gt;</span>
+                  <span className="text-[var(--color-accent)]">•</span>
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
-            <TerminalButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center bg-[var(--color-accent)] text-black hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-accent)]">
-              INIT
+            <TerminalButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center bg-[var(--color-accent)] text-white hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-accent)]">
+              SELECT PLAN
             </TerminalButton>
           </div>
 
@@ -318,26 +318,26 @@ export default function Home() {
             <ul className="space-y-3 mb-8 flex-grow">
               {['Functional website', 'Up to 10 Pages', 'Unltd Revisions', 'E-commerce func', 'Up to 50 Products', 'Payment Config', 'Autoresponder', 'Speed opt', 'Hosting setup'].map((feature, i) => (
                 <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
-                  <span className="text-[var(--color-accent)]">&gt;</span>
+                  <span className="text-[var(--color-accent)]">•</span>
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
             <TerminalButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center">
-              INIT
+              SELECT PLAN
             </TerminalButton>
           </div>
 
           {/* Tier 4 */}
-          <div className="card-border p-6 flex flex-col bg-[#0a0a0a]">
-            <h3 className="text-sm font-bold text-[var(--color-text-secondary)] mb-2 uppercase border-b border-[var(--color-border)] pb-2">Custom</h3>
+          <div className="card-border p-6 flex flex-col bg-[#050505]">
+            <h3 className="text-sm font-bold text-[var(--color-text-secondary)] mb-2 uppercase border-b border-[var(--color-border)] pb-2">Bespoke</h3>
             <div className="mb-6 mt-4">
-              <span className="text-2xl font-bold text-white">ENTERPRISE</span>
+              <span className="text-2xl font-bold text-white">LET'S TALK</span>
             </div>
             <ul className="space-y-3 mb-8 flex-grow">
-              {['Custom Web Apps', 'Complex APIs', 'AI/LLM Integrations', 'Custom Dashboards', 'Headless Arch', 'Dedicated Support'].map((feature, i) => (
+              {['Your Unique Vision', 'Complex Integrations', 'AI/LLM Capabilities', 'Bespoke Animations', 'Custom Architecture', 'Dedicated Support'].map((feature, i) => (
                 <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
-                  <span className="text-[var(--color-accent)]">&gt;</span>
+                  <span className="text-[var(--color-accent)]">•</span>
                   <span>{feature}</span>
                 </li>
               ))}
@@ -352,7 +352,7 @@ export default function Home() {
 
       {/* 5. TESTIMONIALS */}
       <section className="py-20 px-6 md:px-12 max-w-4xl mx-auto">
-        <h2 className="text-xl font-bold mb-8 text-[var(--color-accent)] border-b border-[var(--color-border)] pb-2">&gt; USER_REVIEWS</h2>
+        <h2 className="text-xl font-bold mb-8 text-[var(--color-accent)] border-b border-[var(--color-border)] pb-2">CLIENT REVIEWS</h2>
         <div className="grid grid-cols-1 gap-6">
           <div className="card-border p-8 border-l-4 border-l-[var(--color-accent)]">
             <div className="flex gap-1 mb-6 text-[var(--color-accent)]">
@@ -375,13 +375,13 @@ export default function Home() {
       </section>
 
       {/* 6. CONTACT */}
-      <section className="py-20 px-6 md:px-12 max-w-4xl mx-auto text-center border-t border-[var(--color-border)] mt-10">
-        <h2 className="text-3xl font-bold mb-4 text-white">&gt; INITIATE_CONTACT</h2>
+      <section id="contact" className="py-20 px-6 md:px-12 max-w-4xl mx-auto text-center border-t border-[var(--color-border)] mt-10">
+        <h2 className="text-3xl font-bold mb-4 text-white">Ready to Build?</h2>
         <p className="text-sm text-[var(--color-text-secondary)] mb-8 max-w-2xl mx-auto uppercase">
-          // Let's discuss your product goals and how a custom website can help your business grow.
+          Let's discuss your product goals and how a custom website can help your business grow.
         </p>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-          <TerminalButton href="mailto:shaurya.studios.dev@gmail.com" className="bg-[var(--color-accent)] text-black border-[var(--color-accent)] hover:bg-transparent hover:text-[var(--color-accent)] w-full sm:w-auto">
+          <TerminalButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full sm:w-auto text-center">
             shaurya.studios.dev@gmail.com
           </TerminalButton>
           <div className="flex gap-4">
