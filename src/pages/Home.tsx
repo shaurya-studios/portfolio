@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { ArrowRight, Code2, Layers, Cpu, Terminal } from 'lucide-react';
+import { Code2, Layers, Cpu } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
 // Apple-style Magnetic Button Component (Rounded, soft shadow)
