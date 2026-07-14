@@ -4,30 +4,46 @@ import { MessageSquare, X, Send } from 'lucide-react';
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{role: 'user' | 'assistant', content: string}[]>([
-    { role: 'assistant', content: 'SYSTEM_ONLINE. I am the Shaurya.dev AI Assistant. How can I help you today?' }
+    { role: 'assistant', content: 'SYSTEM_ONLINE. I am Buggie, ready to fix your problems. Ask me anything about Shaurya\'s services, pricing, or past work!' }
   ]);
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage = input;
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setInput('');
+    setIsLoading(true);
 
-    // Simulate AI response for now until OpenAI is integrated
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage })
+      });
+      
+      const data = await response.json();
+      
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: `> ERROR: OPENAI_API_KEY_MISSING.\n\nI am currently offline. Please email shaurya.studios.dev@gmail.com directly to talk to Shaurya while I am under maintenance.` 
+        content: data.reply || '> ERROR: BUGGIE COULD NOT COMPUTE.' 
       }]);
-    }, 1000);
+    } catch (err) {
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: '> ERROR: NETWORK_FAILURE. Buggie is currently offline.' 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -35,9 +51,9 @@ export default function Chatbot() {
       {isOpen ? (
         <div className="w-[350px] h-[500px] bg-[#0a0a0a] border border-[var(--color-border)] flex flex-col shadow-[8px_8px_0_0_var(--color-accent-glow)]">
           <div className="border-b border-[var(--color-border)] p-4 flex justify-between items-center bg-[#111111]">
-            <div className="flex items-center gap-2 text-[var(--color-accent)] font-bold text-sm">
+            <div className="flex items-center gap-2 text-[var(--color-accent)] font-bold text-sm uppercase">
               <div className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
-              SHAURYA_BOT_v1.0
+              BUGGIE_v1.0
             </div>
             <button onClick={() => setIsOpen(false)} className="text-[var(--color-text-secondary)] hover:text-white">
               <X size={18} />
