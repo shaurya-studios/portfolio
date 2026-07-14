@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Code2, Layers, Cpu, Terminal } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 // Reusable Terminal Button
 const TerminalButton = ({ children, className = '', href, target }: { children: React.ReactNode, className?: string, href?: string, target?: string }) => {
@@ -16,6 +17,32 @@ const TerminalButton = ({ children, className = '', href, target }: { children: 
 };
 
 export default function Home() {
+  const words = ["AGENCY WEBSITES", "BUSINESS PLATFORMS", "SAAS APPLICATIONS", "E-COMMERCE STORES", "WEB EXPERIENCES"];
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [currentText, setCurrentText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const fullWord = words[currentWordIndex];
+      
+      if (!isDeleting) {
+        setCurrentText(fullWord.substring(0, currentText.length + 1));
+        if (currentText.length === fullWord.length) {
+          setTimeout(() => setIsDeleting(true), 2000);
+        }
+      } else {
+        setCurrentText(fullWord.substring(0, currentText.length - 1));
+        if (currentText.length === 0) {
+          setIsDeleting(false);
+          setCurrentWordIndex((prev) => (prev + 1) % words.length);
+        }
+      }
+    }, isDeleting ? 30 : 80);
+
+    return () => clearTimeout(timeoutId);
+  }, [currentText, isDeleting, currentWordIndex]);
+
   return (
     <div className="w-full pb-16 font-mono selection:bg-[var(--color-accent)] selection:text-black relative z-10">
       
@@ -38,9 +65,9 @@ export default function Home() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-white"
+              className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-white min-h-[120px]"
             >
-              ENGINEERING WORLD-CLASS WEB EXPERIENCES<span className="text-[var(--color-accent)] animate-blink">_</span>
+              ENGINEERING WORLD-CLASS <span className="text-[var(--color-accent)]">{currentText}</span><span className="text-[var(--color-accent)] animate-blink">_</span>
             </motion.h1>
 
             <motion.p 
