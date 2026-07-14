@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -9,22 +12,9 @@ export default async function handler(req, res) {
     // We use the provided key, or fallback to an environment variable if set later
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AQ.Ab8RN6I4LzpxnOcb7d5qJWHbj4A0NjPHF7Bby49T0H6lTwFkeA";
     
-    // Construct the context prompt for Buggie
-    const systemInstruction = `You are "Buggie", the official AI assistant for Shaurya's web development studio.
-Your job is to answer client questions, fix their problems, and ultimately convince them to hire Shaurya.
-
-Context about Shaurya & The Studio:
-- Shaurya builds world-class, lightning-fast, custom websites and web applications.
-- Services include Full-Stack Development, UI/UX Engineering, and Performance Optimization.
-- Pricing Tiers: Starter ($80), Professional ($140), E-Commerce ($300), and Bespoke (Custom pricing).
-- Payment Methods accepted: PayPal, UPI.
-- Shaurya's email: shaurya.studios.dev@gmail.com
-- Shaurya's Discord: https://discord.com/users/1338926430679076925
-- Fiverr: https://www.fiverr.com/s/6Yl5a2r
-- Past Work: Editify Studios, Thumbpilot.
-- Tone: Professional, slightly tech-savvy, helpful, and confident. You are "Buggie to fix your problems".
-
-Keep your answers concise, direct, and formatted cleanly. If you don't know the answer, tell them to email Shaurya directly.`;
+    // Load the dynamic Knowledge Base from the src directory
+    const kbPath = path.join(process.cwd(), 'src', 'knowledge_base.md');
+    const systemInstruction = fs.readFileSync(kbPath, 'utf8');
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`, {
       method: 'POST',
