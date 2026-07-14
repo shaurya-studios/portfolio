@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
   try {
     // We use the provided key, or fallback to an environment variable if set later
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AQ.Ab8RN6KuZ6LhsRosn9EkRcMQWUSdibhApc35DoZgc7gSANw1JA";
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AQ.Ab8RN6I4LzpxnOcb7d5qJWHbj4A0NjPHF7Bby49T0H6lTwFkeA";
     
     // Construct the context prompt for Buggie
     const systemInstruction = `You are "Buggie", the official AI assistant for Shaurya's web development studio.
