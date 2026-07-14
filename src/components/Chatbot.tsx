@@ -1,18 +1,39 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Send } from 'lucide-react';
 
+const TypewriterText = ({ text, onComplete }: { text: string, onComplete: () => void }) => {
+  const [displayedText, setDisplayedText] = useState('');
+  
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      setDisplayedText(text.slice(0, i + 1));
+      i++;
+      if (i >= text.length) {
+        clearInterval(interval);
+        onComplete();
+      }
+    }, 15);
+    return () => clearInterval(interval);
+  }, [text]);
+
+  return <>{displayedText}</>;
+};
+
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<{role: 'user' | 'assistant', content: string}[]>([
-    { role: 'assistant', content: 'SYSTEM_ONLINE. I am Buggie, ready to fix your problems. Ask me anything about Shaurya\'s services, pricing, or past work!' }
+  const [messages, setMessages] = useState<{role: 'user' | 'assistant', content: string, typed?: boolean}[]>([
+    { role: 'assistant', content: 'SYSTEM_ONLINE. I am Buggie, ready to fix your problems. Ask me anything about Shaurya\'s services, pricing, or past work!', typed: true }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Only scroll smoothly when messages change, but don't force a bottom scroll 
+    // while the typewriter is expanding the text, to avoid scrolling past the top.
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isOpen]);
+  }, [messages.length, isOpen, isLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +85,16 @@ export default function Chatbot() {
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[85%] p-3 text-sm whitespace-pre-wrap ${m.role === 'user' ? 'bg-[var(--color-accent)] text-black' : 'bg-[#111] text-[var(--color-text-primary)] border border-[var(--color-border)]'}`}>
-                  {m.content}
+                  {m.role === 'assistant' && !m.typed ? (
+                    <TypewriterText 
+                      text={m.content} 
+                      onComplete={() => {
+                        setMessages(prev => prev.map((msg, idx) => idx === i ? { ...msg, typed: true } : msg));
+                      }} 
+                    />
+                  ) : (
+                    m.content
+                  )}
                 </div>
               </div>
             ))}
