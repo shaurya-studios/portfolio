@@ -348,8 +348,8 @@ export default function Home() {
                 <img src="/editify-logo.png" alt="Editify Studios" className="w-full h-full object-contain" />
               </div>
               <div>
-                <h4 className="font-bold text-base">Editify Studios</h4>
-                <p className="text-xs text-[var(--color-text-secondary)]">Creative Agency</p>
+                <h4 className="font-bold text-base">Founder</h4>
+                <p className="text-xs text-[var(--color-text-secondary)]">Editify Studios</p>
               </div>
             </div>
           </motion.div>
