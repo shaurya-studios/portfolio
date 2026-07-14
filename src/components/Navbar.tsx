@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -12,25 +13,29 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-mono ${
-        scrolled ? 'bg-[#0a0a0a]/80 backdrop-blur-md border-b border-[var(--color-border)] py-4' : 'bg-transparent py-6'
+    <motion.header 
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.8, type: "spring", bounce: 0.2 }}
+      className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-[90%] max-w-4xl ${
+        scrolled ? 'bg-[#111111]/70 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.5)] py-3 px-8 rounded-full' : 'bg-transparent py-4 px-4'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
-        <a href="#home" className="text-white font-bold text-xl tracking-tighter">
+      <div className="flex items-center justify-between">
+        <a href="#home" className="text-white font-bold text-lg tracking-tight flex items-center gap-2 group">
+          <div className="w-2.5 h-2.5 rounded-full bg-[var(--color-accent)] group-hover:scale-125 transition-transform duration-300 shadow-[0_0_12px_var(--color-accent-glow)]"></div>
           SHAURYA<span className="text-[var(--color-accent)]">.DEV</span>
         </a>
         
-        <nav className="hidden md:flex items-center gap-8 text-sm uppercase tracking-widest">
-          <a href="#work" className="text-[var(--color-text-secondary)] hover:text-white transition-colors">Works</a>
-          <a href="#services" className="text-[var(--color-text-secondary)] hover:text-white transition-colors">Services</a>
-          <a href="#pricing" className="text-[var(--color-text-secondary)] hover:text-white transition-colors">Pricing</a>
-          <a href="#contact" className="px-4 py-2 border border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black transition-colors">
-            Contact
+        <nav className="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest font-semibold">
+          <a href="#work" className="text-gray-400 hover:text-white transition-colors duration-300">Showcase</a>
+          <a href="#services" className="text-gray-400 hover:text-white transition-colors duration-300">Services</a>
+          <a href="#pricing" className="text-gray-400 hover:text-white transition-colors duration-300">Pricing</a>
+          <a href="#contact" className="px-5 py-2 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-white transition-all duration-300 backdrop-blur-md">
+            CONNECT
           </a>
         </nav>
       </div>
-    </header>
+    </motion.header>
   );
 }

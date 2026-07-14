@@ -1,18 +1,97 @@
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ArrowRight, Code2, Layers, Cpu, Terminal } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-// Reusable Terminal Button
-const TerminalButton = ({ children, className = '', href, target }: { children: React.ReactNode, className?: string, href?: string, target?: string }) => {
+// Apple-style Magnetic Button Component (Rounded, soft shadow)
+const MagneticButton = ({ children, className = '', href, target }: { children: React.ReactNode, className?: string, href?: string, target?: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const springConfig = { damping: 20, stiffness: 200, mass: 0.1 };
+  const springX = useSpring(x, springConfig);
+  const springY = useSpring(y, springConfig);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!ref.current) return;
+    const { clientX, clientY } = e;
+    const { height, width, left, top } = ref.current.getBoundingClientRect();
+    const middleX = clientX - (left + width / 2);
+    const middleY = clientY - (top + height / 2);
+    // Subtle movement for high performance
+    x.set(middleX * 0.15);
+    y.set(middleY * 0.15);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
   const Component = href ? 'a' : 'button';
+
   return (
-    <Component 
-      href={href} 
-      target={target} 
-      className={`px-6 py-3 border border-[var(--color-border)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-black hover:border-[var(--color-accent)] font-mono text-sm uppercase tracking-widest transition-colors ${className}`}
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ x: springX, y: springY }}
+      className="inline-block"
     >
-      {children}
-    </Component>
+      <Component 
+        href={href} 
+        target={target} 
+        className={`px-8 py-3.5 rounded-full border border-white/10 text-white hover:bg-white/10 backdrop-blur-md text-xs uppercase tracking-widest font-semibold transition-all duration-300 shadow-[0_8px_16px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.5)] block ${className}`}
+      >
+        {children}
+      </Component>
+    </motion.div>
+  );
+};
+
+// Apple-style Glassmorphic Tilt Card Component
+const TiltCard = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x, { stiffness: 400, damping: 30 });
+  const mouseYSpring = useSpring(y, { stiffness: 400, damping: 30 });
+
+  // Very subtle rotation for premium Apple feel (max 4 degrees)
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["4deg", "-4deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-4deg", "4deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      className={`rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-xl p-8 shadow-[0_20px_40px_rgba(0,0,0,0.4)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.6)] transition-shadow duration-500 ${className}`}
+    >
+      <div style={{ transform: "translateZ(20px)" }}>
+        {children}
+      </div>
+    </motion.div>
   );
 };
 
@@ -44,355 +123,394 @@ export default function Home() {
   }, [currentText, isDeleting, currentWordIndex]);
 
   return (
-    <div id="home" className="w-full pb-16 font-mono selection:bg-[var(--color-accent)] selection:text-white relative z-10 pt-20">
+    <div id="home" className="w-full pb-16 font-sans selection:bg-[var(--color-accent)] selection:text-white relative z-10 pt-32 overflow-hidden">
       
-      {/* 1. INTERACTIVE HERO */}
-      <section className="min-h-screen flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto">
+      {/* Soft glowing ambient background elements */}
+      <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[var(--color-accent)]/10 blur-[120px] pointer-events-none -z-10"></div>
+      <div className="fixed bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/10 blur-[120px] pointer-events-none -z-10"></div>
+
+      {/* 1. INTERACTIVE 3D HERO */}
+      <section className="min-h-[85vh] flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto">
         <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col md:flex-row items-center gap-12 mt-16"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="flex flex-col md:flex-row items-center gap-12"
         >
           
-          <div className="w-full md:w-3/5">
-            <div className="mb-8 text-[var(--color-accent)] text-sm flex items-center gap-2">
-              <Terminal size={16} />
-              <span>SHAURYA.DEV // SYSTEM_ONLINE</span>
-            </div>
-
-            <motion.h1 
+          <div className="w-full md:w-3/5" style={{ perspective: 1000 }}>
+            <motion.div className="mb-8 text-[var(--color-accent)] text-xs font-semibold tracking-widest flex items-center gap-3 uppercase"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-white min-h-[120px]"
+              transition={{ delay: 0.2 }}
             >
-              ENGINEERING WORLD-CLASS <span className="text-[var(--color-accent)]">{currentText}</span><span className="text-[var(--color-accent)] animate-blink">_</span>
+              <div className="w-2 h-2 rounded-full bg-[var(--color-accent)] shadow-[0_0_10px_var(--color-accent-glow)] animate-pulse" />
+              <span>SHAURYA.DEV // SYSTEM_ONLINE</span>
+            </motion.div>
+
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-500 min-h-[140px] tracking-tight"
+            >
+              ENGINEERING <br/>WORLD-CLASS <br/><span className="text-[var(--color-accent)] drop-shadow-[0_0_15px_rgba(176,38,255,0.3)]">{currentText}</span><span className="text-[var(--color-accent)] animate-blink">_</span>
             </motion.h1>
 
             <motion.p 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="text-lg md:text-xl text-[var(--color-text-secondary)] max-w-2xl leading-relaxed mb-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="text-lg md:text-xl text-gray-400 max-w-2xl leading-relaxed mb-10 font-medium"
             >
-              I partner with forward-thinking founders to design and build premium software that converts, scales, and stands out.
+              I partner with forward-thinking founders to design and build premium software that converts, scales, and stands out. 
             </motion.p>
 
             <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="flex flex-wrap items-center gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+              className="flex flex-wrap items-center gap-6"
             >
-              <TerminalButton href="#pricing" className="bg-[var(--color-accent)] text-white border-[var(--color-accent)] hover:bg-transparent hover:text-[var(--color-accent)] flex items-center gap-2">
-                VIEW PRICING <ArrowRight size={16} />
-              </TerminalButton>
-              <TerminalButton href="#work">
+              <MagneticButton href="#pricing" className="bg-white text-black hover:bg-gray-200 border-none shadow-[0_10px_30px_rgba(255,255,255,0.2)]">
+                VIEW PRICING
+              </MagneticButton>
+              <MagneticButton href="#work">
                 SHOWCASE
-              </TerminalButton>
+              </MagneticButton>
             </motion.div>
           </div>
 
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.8 }}
-            className="w-full md:w-2/5 relative hidden md:block"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="w-full md:w-2/5 relative hidden md:block perspective-[1000px]"
           >
-            {/* Tech Stack Card */}
-            <div className="card-border p-6 shadow-[8px_8px_0_0_var(--color-border)]">
-              <div className="border-b border-[var(--color-border)] pb-2 mb-4 flex justify-between items-center text-xs text-[var(--color-text-secondary)]">
+            <TiltCard>
+              <div className="border-b border-white/10 pb-4 mb-6 flex justify-between items-center text-xs text-gray-400 font-medium tracking-wide">
                 <span>CORE_STACK</span>
                 <div className="flex gap-2">
-                  <div className="w-3 h-3 bg-red-500/50 rounded-full" />
-                  <div className="w-3 h-3 bg-yellow-500/50 rounded-full" />
-                  <div className="w-3 h-3 bg-[var(--color-accent)] rounded-full" />
+                  <div className="w-3 h-3 bg-red-500/80 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                  <div className="w-3 h-3 bg-yellow-500/80 rounded-full shadow-[0_0_8px_rgba(234,179,8,0.5)]" />
+                  <div className="w-3 h-3 bg-green-500/80 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
                 </div>
               </div>
-              <div className="space-y-2 text-sm text-[var(--color-text-secondary)]">
-                <p><span className="text-[var(--color-accent)]">&gt;</span> loading dependencies...</p>
+              <div className="space-y-4 text-sm text-gray-300 font-mono">
+                <p><span className="text-[var(--color-accent)]">❯</span> loading dependencies...</p>
                 <div className="flex flex-wrap gap-2 pt-2">
-                  {['React', 'Next.js', 'TypeScript', 'Tailwind', 'Node.js', 'Vercel', 'PostgreSQL', 'Framer Motion'].map(tech => (
-                    <span key={tech} className="px-2 py-1 bg-[var(--color-bg-subtle)] border border-[var(--color-border)] text-[var(--color-text-primary)]">
+                  {['React', 'Next.js', 'TypeScript', 'Tailwind', 'Node.js', 'Vercel', 'Postgres', 'Framer'].map(tech => (
+                    <span key={tech} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white backdrop-blur-md">
                       {tech}
                     </span>
                   ))}
                 </div>
-                <p className="pt-4 text-emerald-400">&gt; STATUS: ONLINE (99.99% UPTIME)</p>
+                <p className="pt-4 text-emerald-400 font-medium">❯ STATUS: ONLINE (99.99% UPTIME)</p>
               </div>
-            </div>
+            </TiltCard>
           </motion.div>
 
         </motion.div>
       </section>
 
-      {/* 2. TRUST SECTION */}
-      <section className="py-16 border-y border-[var(--color-border)] bg-[var(--color-bg-elevated)]">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold mb-1 text-[var(--color-accent)]">Lightning Fast</h3>
-            <p className="text-[var(--color-text-secondary)] text-xs uppercase tracking-widest">Speed Optimized</p>
-          </div>
-          <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold mb-1 text-[var(--color-accent)]">Fully Responsive</h3>
-            <p className="text-[var(--color-text-secondary)] text-xs uppercase tracking-widest">Mobile & Desktop Ready</p>
-          </div>
-          <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold mb-1 text-[var(--color-accent)]">SEO Friendly</h3>
-            <p className="text-[var(--color-text-secondary)] text-xs uppercase tracking-widest">Rank Higher on Google</p>
-          </div>
-          <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold mb-1 text-[var(--color-accent)]">Custom Built</h3>
-            <p className="text-[var(--color-text-secondary)] text-xs uppercase tracking-widest">Tailored to Your Brand</p>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. PROJECT SHOWCASE */}
-      <section id="work" className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
-        <div className="mb-12 border-b border-[var(--color-border)] pb-4">
-          <h2 className="text-3xl font-bold text-white mb-2">PAST WORKS</h2>
-          <p className="text-sm text-[var(--color-text-secondary)] uppercase">
-            A few of my recent projects.
+      {/* 2. 3D PROJECT SHOWCASE */}
+      <section id="work" className="py-32 px-6 md:px-12 max-w-7xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-16 border-b border-white/10 pb-8"
+        >
+          <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-3 tracking-tight">PAST WORKS</h2>
+          <p className="text-sm text-[var(--color-accent)] font-semibold uppercase tracking-widest">
+            ENGINEERED FOR SCALABILITY & SPEED
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 gap-12">
+        <div className="grid grid-cols-1 gap-24 perspective-[1200px]">
           {/* Project 1 */}
-          <div className="card-border flex flex-col md:flex-row shadow-[8px_8px_0_0_var(--color-border)] hover:shadow-[8px_8px_0_0_var(--color-accent)] transition-shadow">
-            <div className="p-8 md:w-1/2 flex flex-col justify-center">
-              <span className="text-[var(--color-accent)] text-xs tracking-widest uppercase mb-2 block">Creative Agency</span>
-              <h3 className="text-2xl font-bold mb-4 text-white">Editify Studios</h3>
-              <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm mb-6">
-                A high-performance portfolio and lead generation platform for a creative studio. Optimized for insane conversion rates and cinematic video delivery.
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7 }}
+            className="rounded-3xl flex flex-col md:flex-row overflow-hidden border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-[0_30px_60px_rgba(0,0,0,0.4)] group"
+          >
+            <div className="p-12 md:w-1/2 flex flex-col justify-center">
+              <span className="text-[var(--color-accent)] text-xs tracking-widest uppercase mb-4 block font-bold">Creative Agency Website</span>
+              <h3 className="text-3xl md:text-4xl font-bold mb-6 text-white tracking-tight">Editify Studios</h3>
+              <p className="text-gray-400 leading-relaxed text-base mb-10">
+                A high-performance portfolio and lead generation platform for a creative studio. Optimized for insane conversion rates, smooth animations, and perfect SEO scores.
               </p>
-              <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex flex-wrap gap-3 mb-10">
                 {['Next.js', 'Framer Motion', 'Tailwind CSS'].map(tech => (
-                  <span key={tech} className="px-2 py-1 text-xs border border-[var(--color-border)] text-[var(--color-text-primary)]">
+                  <span key={tech} className="px-3 py-1.5 text-xs font-semibold rounded-full bg-white/10 text-white">
                     {tech}
                   </span>
                 ))}
               </div>
-              <TerminalButton href="https://editify-studios.vercel.app" target="_blank">
-                VIEW PROJECT
-              </TerminalButton>
+              <MagneticButton href="https://editify-studios.vercel.app" target="_blank" className="self-start">
+                VIEW LIVE PROJECT
+              </MagneticButton>
             </div>
-            <div className="md:w-1/2 h-[200px] md:h-auto bg-[#050505] border-l border-[var(--color-border)] flex items-center justify-center p-4">
-              <div className="w-full h-full border border-[var(--color-border)] border-dashed flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-[var(--color-accent-glow)] opacity-20" />
-                <span className="text-[var(--color-accent)] font-bold text-xl uppercase tracking-widest relative z-10">EDITIFY_STUDIOS</span>
+            <div className="md:w-1/2 min-h-[300px] bg-gradient-to-br from-gray-900 to-black border-l border-white/10 flex items-center justify-center p-12 relative overflow-hidden">
+              <div className="absolute inset-0 bg-[var(--color-accent)] opacity-0 group-hover:opacity-10 transition-opacity duration-700" />
+              <div className="w-full h-full rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md flex items-center justify-center relative group-hover:scale-105 transition-transform duration-700 shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
+                <span className="text-white font-extrabold text-2xl uppercase tracking-widest relative z-10">EDITIFY_STUDIOS</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Project 2 */}
-          <div className="card-border flex flex-col md:flex-row-reverse shadow-[8px_8px_0_0_var(--color-border)] hover:shadow-[8px_8px_0_0_var(--color-accent)] transition-shadow">
-            <div className="p-8 md:w-1/2 flex flex-col justify-center">
-              <span className="text-[var(--color-accent)] text-xs tracking-widest uppercase mb-2 block">Web Platform</span>
-              <h3 className="text-2xl font-bold mb-4 text-white">Thumbpilot</h3>
-              <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm mb-6">
-                A robust platform built on Edge architecture (Cloudflare Workers) ensuring blazing fast global delivery and highly scalable API routes.
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7 }}
+            className="rounded-3xl flex flex-col md:flex-row-reverse overflow-hidden border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-[0_30px_60px_rgba(0,0,0,0.4)] group"
+          >
+            <div className="p-12 md:w-1/2 flex flex-col justify-center">
+              <span className="text-[var(--color-accent)] text-xs tracking-widest uppercase mb-4 block font-bold">AI Web Application</span>
+              <h3 className="text-3xl md:text-4xl font-bold mb-6 text-white tracking-tight">Thumbpilot</h3>
+              <p className="text-gray-400 leading-relaxed text-base mb-10">
+                A robust AI-powered platform built on modern architecture ensuring blazing fast global delivery, highly scalable API routes, and a premium 3D user interface.
               </p>
-              <div className="flex flex-wrap gap-2 mb-6">
-                {['React', 'Cloudflare Workers', 'TypeScript'].map(tech => (
-                  <span key={tech} className="px-2 py-1 text-xs border border-[var(--color-border)] text-[var(--color-text-primary)]">
+              <div className="flex flex-wrap gap-3 mb-10">
+                {['React', 'Edge Workers', 'TypeScript'].map(tech => (
+                  <span key={tech} className="px-3 py-1.5 text-xs font-semibold rounded-full bg-white/10 text-white">
                     {tech}
                   </span>
                 ))}
               </div>
-              <TerminalButton href="https://thumbpilot.sigmashaurya2.workers.dev" target="_blank">
-                VIEW PROJECT
-              </TerminalButton>
+              <MagneticButton href="https://thumbpilot.sigmashaurya2.workers.dev" target="_blank" className="self-start">
+                VIEW LIVE PROJECT
+              </MagneticButton>
             </div>
-            <div className="md:w-1/2 h-[200px] md:h-auto bg-[#050505] border-r border-[var(--color-border)] flex items-center justify-center p-4">
-              <div className="w-full h-full border border-[var(--color-border)] border-dashed flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-[var(--color-accent-glow)] opacity-20" />
-                <span className="text-[var(--color-accent)] font-bold text-xl uppercase tracking-widest relative z-10">THUMBPILOT</span>
+            <div className="md:w-1/2 min-h-[300px] bg-gradient-to-br from-gray-900 to-black border-r border-white/10 flex items-center justify-center p-12 relative overflow-hidden">
+              <div className="absolute inset-0 bg-[var(--color-accent)] opacity-0 group-hover:opacity-10 transition-opacity duration-700" />
+              <div className="w-full h-full rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md flex items-center justify-center relative group-hover:scale-105 transition-transform duration-700 shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
+                <span className="text-white font-extrabold text-2xl uppercase tracking-widest relative z-10">THUMBPILOT</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* 4. SERVICES & PROCESS */}
-      <section id="services" className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-          <div className="card-border p-8">
-            <h2 className="text-xl font-bold mb-8 text-[var(--color-accent)] border-b border-[var(--color-border)] pb-2">Core Services</h2>
-            <div className="space-y-6">
+      {/* 3. CORE SERVICES */}
+      <section id="services" className="py-32 px-6 md:px-12 max-w-7xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-12"
+        >
+          <TiltCard className="h-full">
+            <h2 className="text-3xl font-extrabold mb-10 text-white tracking-tight">Capabilities</h2>
+            <div className="space-y-10">
               {[
-                { icon: <Code2 size={20}/>, title: 'Full-Stack Dev', desc: 'Modern, scalable architectures (React, Node, Postgres).' },
-                { icon: <Layers size={20}/>, title: 'UI/UX Engineering', desc: 'Translating designs into pixel-perfect frontend experiences.' },
-                { icon: <Cpu size={20}/>, title: 'Optimization', desc: 'Achieving instant load times and perfect Core Web Vitals.' }
+                { icon: <Code2 size={28}/>, title: 'Full-Stack Architecture', desc: 'Secure, scalable backends paired with lightning-fast frontends.' },
+                { icon: <Layers size={28}/>, title: 'UI/UX Engineering', desc: 'Interactive 3D experiences, smooth animations, and magnetic interfaces.' },
+                { icon: <Cpu size={28}/>, title: 'Extreme Optimization', desc: 'Perfect Lighthouse scores, instant load times, and top-tier SEO indexing.' }
               ].map((service, i) => (
-                <div key={i} className="flex gap-4">
-                  <div className="text-[var(--color-accent)] mt-1">{service.icon}</div>
+                <div key={i} className="flex gap-6">
+                  <div className="text-[var(--color-accent)] mt-1 drop-shadow-[0_0_15px_var(--color-accent-glow)]">{service.icon}</div>
                   <div>
-                    <h4 className="text-base font-bold mb-1 text-white">{service.title}</h4>
-                    <p className="text-[var(--color-text-secondary)] text-sm">{service.desc}</p>
+                    <h4 className="text-xl font-bold mb-2 text-white">{service.title}</h4>
+                    <p className="text-gray-400 text-sm leading-relaxed">{service.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          </TiltCard>
           
-          <div className="card-border p-8">
-            <h2 className="text-xl font-bold mb-8 text-[var(--color-accent)] border-b border-[var(--color-border)] pb-2">Execution Pipeline</h2>
-            <div className="space-y-6">
+          <TiltCard className="h-full">
+            <h2 className="text-3xl font-extrabold mb-10 text-white tracking-tight">Execution Pipeline</h2>
+            <div className="space-y-6 mt-4">
               {[
-                'Discovery & Planning',
-                'Design & Wireframing',
-                'Building & Development',
-                'Testing & Refinement',
-                'Launch & Support'
+                'Discovery & Architecture Planning',
+                'UI/UX Design & 3D Prototyping',
+                'Full-Stack Development & API Integration',
+                'Performance Tuning & SEO Optimization',
+                'Launch, Deployment & Ongoing Support'
               ].map((step, i) => (
-                <div key={i} className="flex items-start gap-4">
-                  <div className="text-[var(--color-accent)] font-bold text-sm">0{i + 1}</div>
-                  <p className="text-[var(--color-text-primary)] text-sm">{step}</p>
+                <div key={i} className="flex items-center gap-6 p-5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all duration-300">
+                  <div className="text-[var(--color-accent)] font-bold text-xl font-mono opacity-80">0{i + 1}</div>
+                  <p className="text-white text-sm font-semibold tracking-wide">{step}</p>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
+          </TiltCard>
+        </motion.div>
       </section>
 
-      {/* 4.5 PRICING */}
-      <section id="pricing" className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
-        <div className="mb-12 border-b border-[var(--color-border)] pb-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-2">PRICING TIERS</h2>
-          <p className="text-sm text-[var(--color-text-secondary)] uppercase">
-            Clear pricing for high-quality websites.
+      {/* 4. AUTHENTIC PRICING */}
+      <section id="pricing" className="py-32 px-6 md:px-12 max-w-7xl mx-auto relative">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-16 border-b border-white/10 pb-8 text-center"
+        >
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-3 tracking-tight">INVESTMENT</h2>
+          <p className="text-sm text-[var(--color-accent)] font-semibold uppercase tracking-widest">
+            Transparent Pricing for Premium Quality
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           
-          {/* Tier 1 */}
-          <div className="card-border p-6 flex flex-col">
-            <h3 className="text-sm font-bold text-[var(--color-text-secondary)] mb-2 uppercase border-b border-[var(--color-border)] pb-2">Starter</h3>
-            <div className="mb-6 mt-4">
-              <span className="text-3xl font-bold text-white">$80</span>
+          {/* Agency */}
+          <motion.div whileHover={{ y: -10 }} className="rounded-3xl p-8 flex flex-col bg-white/[0.02] border border-white/10 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)] transition-all duration-500">
+            <h3 className="text-xl font-bold text-white mb-2 tracking-tight">Agency</h3>
+            <p className="text-xs text-gray-400 border-b border-white/10 pb-5 mb-6">High-conversion portfolio & lead gen.</p>
+            <div className="mb-8">
+              <span className="text-5xl font-extrabold text-white">$70</span>
+              <span className="text-xs text-gray-500 block mt-2 font-bold uppercase tracking-widest">Starting Price</span>
             </div>
-            <ul className="space-y-3 mb-8 flex-grow">
-              {['Functional website', '1-3 Pages', '2 Revisions', 'Content upload', 'Basic Speed opt', 'Social icons'].map((feature, i) => (
-                <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
-                  <span className="text-[var(--color-accent)]">•</span>
+            <ul className="space-y-4 mb-10 flex-grow">
+              {['Custom UI/UX Design', 'Smooth Animations', 'SEO & Speed Opt', 'Contact Forms', '5–14 Days Delivery', '3 Free Revisions'].map((feature, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm text-gray-300 font-medium">
+                  <span className="text-[var(--color-accent)] mt-0.5">●</span>
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
-            <TerminalButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center">
-              SELECT PLAN
-            </TerminalButton>
-          </div>
+            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center">
+              BOOK AGENCY
+            </MagneticButton>
+          </motion.div>
 
-          {/* Tier 2 */}
-          <div className="card-border p-6 flex flex-col border-[var(--color-accent)] shadow-[0_0_15px_var(--color-accent-glow)] relative mt-[-10px] mb-[-10px] bg-[var(--color-bg-elevated)] z-10">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--color-accent)] text-white text-[10px] font-bold uppercase tracking-widest py-1 px-3">
-              RECOMMENDED
+          {/* Business */}
+          <motion.div whileHover={{ y: -10 }} className="rounded-3xl p-8 flex flex-col bg-white/[0.05] border border-[var(--color-accent)]/50 backdrop-blur-xl shadow-[0_20px_50px_rgba(176,38,255,0.15)] hover:shadow-[0_30px_70px_rgba(176,38,255,0.25)] transition-all duration-500 relative lg:-mt-4 lg:mb-4">
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[var(--color-accent)] text-white text-xs font-bold uppercase tracking-widest py-1.5 px-5 rounded-full shadow-[0_10px_20px_rgba(176,38,255,0.4)]">
+              MOST POPULAR
             </div>
-            <h3 className="text-sm font-bold text-[var(--color-accent)] mb-2 uppercase border-b border-[var(--color-border)] pb-2">Professional</h3>
-            <div className="mb-6 mt-4">
-              <span className="text-3xl font-bold text-white">$140</span>
+            <h3 className="text-xl font-bold text-white mb-2 tracking-tight mt-2">Business</h3>
+            <p className="text-xs text-gray-400 border-b border-white/10 pb-5 mb-6">Advanced functionality for companies.</p>
+            <div className="mb-8">
+              <span className="text-5xl font-extrabold text-white">$80</span>
+              <span className="text-xs text-gray-500 block mt-2 font-bold uppercase tracking-widest">Starting Price</span>
             </div>
-            <ul className="space-y-3 mb-8 flex-grow">
-              {['Functional website', 'Up to 5 Pages', '5 Revisions', 'Content upload', 'Plugins setup', 'Opt-in form', 'Speed opt', 'Hosting setup', 'Social icons'].map((feature, i) => (
-                <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
-                  <span className="text-[var(--color-accent)]">•</span>
+            <ul className="space-y-4 mb-10 flex-grow">
+              {['Everything in Agency', 'Booking Systems', 'Google Maps / Local SEO', 'Testimonials & FAQs', '7–14 Days Delivery', '3 Free Revisions'].map((feature, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm text-white font-semibold">
+                  <span className="text-[var(--color-accent)] mt-0.5">●</span>
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
-            <TerminalButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center bg-[var(--color-accent)] text-white hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-accent)]">
-              SELECT PLAN
-            </TerminalButton>
-          </div>
+            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center bg-white text-black font-bold">
+              BOOK BUSINESS
+            </MagneticButton>
+          </motion.div>
 
-          {/* Tier 3 */}
-          <div className="card-border p-6 flex flex-col">
-            <h3 className="text-sm font-bold text-[var(--color-text-secondary)] mb-2 uppercase border-b border-[var(--color-border)] pb-2">E-Commerce</h3>
-            <div className="mb-6 mt-4">
-              <span className="text-3xl font-bold text-white">$300</span>
+          {/* E-Commerce */}
+          <motion.div whileHover={{ y: -10 }} className="rounded-3xl p-8 flex flex-col bg-white/[0.02] border border-white/10 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)] transition-all duration-500">
+            <h3 className="text-xl font-bold text-white mb-2 tracking-tight">E-Commerce</h3>
+            <p className="text-xs text-gray-400 border-b border-white/10 pb-5 mb-6">Fully functional online stores.</p>
+            <div className="mb-8">
+              <span className="text-5xl font-extrabold text-white">$250</span>
+              <span className="text-xs text-gray-500 block mt-2 font-bold uppercase tracking-widest">Starting Price</span>
             </div>
-            <ul className="space-y-3 mb-8 flex-grow">
-              {['Functional website', 'Up to 10 Pages', 'Unltd Revisions', 'E-commerce func', 'Up to 50 Products', 'Payment Config', 'Autoresponder', 'Speed opt', 'Hosting setup'].map((feature, i) => (
-                <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
-                  <span className="text-[var(--color-accent)]">•</span>
+            <ul className="space-y-4 mb-10 flex-grow">
+              {['Custom Product Pages', 'Secure Cart & Checkout', 'Stripe/PayPal Gateways', 'Inventory Management', '2–4 Weeks Delivery', 'Full SEO Optimization'].map((feature, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm text-gray-300 font-medium">
+                  <span className="text-[var(--color-accent)] mt-0.5">●</span>
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
-            <TerminalButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center">
-              SELECT PLAN
-            </TerminalButton>
-          </div>
+            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center">
+              BOOK E-COM
+            </MagneticButton>
+          </motion.div>
 
-          {/* Tier 4 */}
-          <div className="card-border p-6 flex flex-col bg-[#050505]">
-            <h3 className="text-sm font-bold text-[var(--color-text-secondary)] mb-2 uppercase border-b border-[var(--color-border)] pb-2">Bespoke</h3>
-            <div className="mb-6 mt-4">
-              <span className="text-2xl font-bold text-white">LET'S TALK</span>
+          {/* SaaS */}
+          <motion.div whileHover={{ y: -10 }} className="rounded-3xl p-8 flex flex-col bg-white/[0.02] border border-white/10 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)] transition-all duration-500">
+            <h3 className="text-xl font-bold text-white mb-2 tracking-tight">SaaS Apps</h3>
+            <p className="text-xs text-gray-400 border-b border-white/10 pb-5 mb-6">Complex software architectures.</p>
+            <div className="mb-8">
+              <span className="text-5xl font-extrabold text-white">$500</span>
+              <span className="text-xs text-gray-500 block mt-2 font-bold uppercase tracking-widest">Starting Price</span>
             </div>
-            <ul className="space-y-3 mb-8 flex-grow">
-              {['Your Unique Vision', 'Complex Integrations', 'AI/LLM Capabilities', 'Bespoke Animations', 'Custom Architecture', 'Dedicated Support'].map((feature, i) => (
-                <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
-                  <span className="text-[var(--color-accent)]">•</span>
+            <ul className="space-y-4 mb-10 flex-grow">
+              {['Secure Authentication', 'Database Integration', 'Custom Admin Dashboards', 'API Development', '3–8 Weeks Delivery', 'Scalable Architecture'].map((feature, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm text-gray-300 font-medium">
+                  <span className="text-[var(--color-accent)] mt-0.5">●</span>
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
-            <TerminalButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center">
-              CONTACT
-            </TerminalButton>
-          </div>
+            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center">
+              BOOK SAAS
+            </MagneticButton>
+          </motion.div>
 
         </div>
       </section>
 
-      {/* 5. TESTIMONIALS */}
-      <section className="py-20 px-6 md:px-12 max-w-4xl mx-auto">
-        <h2 className="text-xl font-bold mb-8 text-[var(--color-accent)] border-b border-[var(--color-border)] pb-2">CLIENT REVIEWS</h2>
-        <div className="grid grid-cols-1 gap-6">
-          <div className="card-border p-8 border-l-4 border-l-[var(--color-accent)]">
-            <div className="flex gap-1 mb-6 text-[var(--color-accent)]">
-              {[1,2,3,4,5].map(i => <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>)}
-            </div>
-            <p className="text-sm leading-relaxed mb-8 text-white">
-              "Shaurya is a 10/10 website builder, highly recommended. He offers the best prices in the market."
-            </p>
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-black border border-[var(--color-border)] flex items-center justify-center p-1.5 grayscale">
-                <img src="/editify-logo.png" alt="Editify Studios" loading="lazy" className="w-full h-full object-contain" />
+      {/* 5. AUTHENTIC TESTIMONIALS */}
+      <section className="py-32 px-6 md:px-12 max-w-5xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <TiltCard className="p-12 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-2 h-full bg-[var(--color-accent)]"></div>
+            <h2 className="text-lg font-bold mb-10 text-[var(--color-accent)] tracking-widest uppercase text-center md:text-left">Client Verification</h2>
+            <div className="flex flex-col md:flex-row gap-12 items-center">
+              <div className="flex-grow">
+                <div className="flex gap-2 mb-8 text-[var(--color-accent)] drop-shadow-[0_0_8px_var(--color-accent-glow)]">
+                  {[1,2,3,4,5].map(i => <svg key={i} className="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>)}
+                </div>
+                <p className="text-xl leading-relaxed mb-10 text-white font-medium italic">
+                  "Shaurya is a 10/10 website builder, highly recommended. He offers the best prices in the market and delivers exceptional quality."
+                </p>
+                <div className="flex items-center gap-4">
+                  <div>
+                    <h4 className="font-bold text-lg text-white">Founder</h4>
+                    <p className="text-xs text-[var(--color-accent)] uppercase tracking-widest font-bold mt-1">Editify Studios</p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h4 className="font-bold text-sm text-[var(--color-accent)]">Founder</h4>
-                <p className="text-xs text-[var(--color-text-secondary)] uppercase">Editify Studios</p>
+              <div className="w-32 h-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-6 shadow-[0_15px_30px_rgba(0,0,0,0.4)] flex-shrink-0 backdrop-blur-md">
+                <img src="/editify-logo.png" alt="Editify Studios" loading="lazy" className="w-full h-full object-contain filter contrast-125 drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" />
               </div>
             </div>
-          </div>
-        </div>
+          </TiltCard>
+        </motion.div>
       </section>
 
-      {/* 6. CONTACT */}
-      <section id="contact" className="py-20 px-6 md:px-12 max-w-4xl mx-auto text-center border-t border-[var(--color-border)] mt-10">
-        <h2 className="text-3xl font-bold mb-4 text-white">Ready to Build?</h2>
-        <p className="text-sm text-[var(--color-text-secondary)] mb-8 max-w-2xl mx-auto uppercase">
-          Let's discuss your product goals and how a custom website can help your business grow.
-        </p>
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-          <TerminalButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full sm:w-auto text-center">
-            shaurya.studios.dev@gmail.com
-          </TerminalButton>
-          <div className="flex gap-4">
-            <TerminalButton href="https://discord.com/users/1338926430679076925" target="_blank">
-              DISCORD
-            </TerminalButton>
-            <TerminalButton href="https://www.fiverr.com/s/6Yl5a2r" target="_blank">
-              FIVERR
-            </TerminalButton>
+      {/* 6. CONTACT FOOTER */}
+      <section id="contact" className="py-40 px-6 md:px-12 max-w-4xl mx-auto text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <div className="inline-block mb-10 px-8 py-4 rounded-3xl bg-white/5 border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.3)] backdrop-blur-md transform -rotate-2 hover:rotate-0 transition-transform duration-500 cursor-pointer">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">INITIATE DEPLOYMENT</h2>
           </div>
-        </div>
+          <p className="text-sm text-gray-400 mb-16 max-w-2xl mx-auto uppercase tracking-widest font-semibold leading-relaxed">
+            Currently accepting new clients. Let's discuss your product goals and architect a custom solution for your business.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
+            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full sm:w-auto text-center bg-white text-black hover:bg-gray-200 py-4 px-10 font-bold text-sm shadow-[0_15px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_20px_40px_rgba(255,255,255,0.3)]">
+              EMAIL INQUIRY
+            </MagneticButton>
+            <div className="flex gap-4 w-full sm:w-auto">
+              <MagneticButton href="https://discord.com/users/1338926430679076925" target="_blank" className="flex-1 text-center py-4 px-8">
+                DISCORD
+              </MagneticButton>
+              <MagneticButton href="https://www.fiverr.com/s/6Yl5a2r" target="_blank" className="flex-1 text-center py-4 px-8">
+                FIVERR
+              </MagneticButton>
+            </div>
+          </div>
+        </motion.div>
       </section>
 
     </div>
