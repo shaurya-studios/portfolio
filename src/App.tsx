@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // Components
 import Navigation from './components/Navigation';
@@ -41,6 +42,7 @@ function App() {
           </main>
         </motion.div>
       </SmoothScroll>
+      <SpeedInsights />
     </Router>
   );
 }
