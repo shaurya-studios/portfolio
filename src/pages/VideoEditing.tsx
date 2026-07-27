@@ -103,7 +103,7 @@ export default function VideoEditing() {
             <span className="text-[var(--color-accent)] drop-shadow-[0_0_20px_var(--color-accent-glow)]">Video Editing.</span>
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
-            From dynamic YouTube edits to sleek, high-retention social media content. I cut, color, and composite to bring your vision to life.
+            Specializing in high-retention gaming videos and general YouTube content. I cut, color, and composite to bring your vision to life and keep your audience engaged.
           </p>
         </motion.div>
 
