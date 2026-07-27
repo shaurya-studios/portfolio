@@ -70,8 +70,8 @@ export default function Chatbot() {
   return (
     <div className="fixed bottom-6 right-6 z-50 font-mono">
       {isOpen ? (
-        <div className="w-[350px] h-[500px] bg-[#0a0a0a] border border-[var(--color-border)] flex flex-col shadow-[8px_8px_0_0_var(--color-accent-glow)]">
-          <div className="border-b border-[var(--color-border)] p-4 flex justify-between items-center bg-[#111111]">
+        <div className="w-[350px] h-[500px] bg-[var(--color-bg)] border border-[var(--color-border)] flex flex-col shadow-[8px_8px_0_0_var(--color-accent-glow)]">
+          <div className="border-b border-[var(--color-border)] p-4 flex justify-between items-center bg-[var(--color-bg-elevated)]">
             <div className="flex items-center gap-2 text-[var(--color-accent)] font-bold text-sm uppercase">
               <div className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
               BUGGIE_v1.0
@@ -84,7 +84,7 @@ export default function Chatbot() {
           <div className="flex-grow p-4 overflow-y-auto space-y-4">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] p-3 text-sm whitespace-pre-wrap ${m.role === 'user' ? 'bg-[var(--color-accent)] text-black' : 'bg-[#111] text-[var(--color-text-primary)] border border-[var(--color-border)]'}`}>
+                <div className={`max-w-[85%] p-3 text-sm whitespace-pre-wrap ${m.role === 'user' ? 'bg-[var(--color-accent)] text-black' : 'bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] border border-[var(--color-border)]'}`}>
                   {m.role === 'assistant' && !m.typed ? (
                     <TypewriterText 
                       text={m.content} 
@@ -100,7 +100,7 @@ export default function Chatbot() {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] p-3 text-sm bg-[#111] text-[var(--color-accent)] border border-[var(--color-border)] animate-pulse rounded-lg rounded-tl-none">
+                <div className="max-w-[85%] p-3 text-sm bg-[var(--color-bg-elevated)] text-[var(--color-accent)] border border-[var(--color-border)] animate-pulse rounded-lg rounded-tl-none">
                   Buggie is typing...
                 </div>
               </div>
@@ -108,7 +108,7 @@ export default function Chatbot() {
             <div ref={endRef} />
           </div>
           
-          <form onSubmit={handleSubmit} className="border-t border-[var(--color-border)] p-3 bg-[#111] flex gap-2">
+          <form onSubmit={handleSubmit} className="border-t border-[var(--color-border)] p-3 bg-[var(--color-bg-elevated)] flex gap-2">
             <input 
               type="text" 
               value={input}

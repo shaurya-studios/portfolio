@@ -19,7 +19,7 @@ export default function Navbar() {
       animate={{ y: 0 }}
       transition={{ duration: 0.8, type: "spring", bounce: 0.2 }}
       className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-[90%] max-w-4xl ${
-        scrolled ? 'bg-[#111111]/70 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.5)] py-3 px-8 rounded-full' : 'bg-transparent py-4 px-4'
+        scrolled ? 'bg-[var(--color-bg-elevated)]/70 backdrop-blur-2xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.5)] py-3 px-8 rounded-full' : 'bg-transparent py-4 px-4'
       }`}
     >
       <div className="flex items-center justify-between">

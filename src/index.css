@@ -6,16 +6,18 @@
   --font-display: 'JetBrains Mono', monospace;
   --font-mono: 'JetBrains Mono', monospace;
   
-  --color-bg: #0a0a0a;
-  --color-bg-elevated: #111111;
-  --color-bg-subtle: #050505;
-  --color-border: #222222;
+  /* Midnight Sapphire & Electric Coral Theme */
+  --color-bg: #040914;
+  --color-bg-elevated: #0b132b;
+  --color-bg-subtle: #02050b;
+  --color-border: #1a2542;
   
-  --color-text-primary: #e0e0e0;
-  --color-text-secondary: #888888;
+  --color-text-primary: #f0f4f8;
+  --color-text-secondary: #8c9bba;
   
-  --color-accent: #b026ff;
-  --color-accent-glow: rgba(176, 38, 255, 0.15);
+  --color-accent: #ff4d6d;
+  --color-accent-secondary: #00f5d4;
+  --color-accent-glow: rgba(255, 77, 109, 0.2);
 }
 
 html {

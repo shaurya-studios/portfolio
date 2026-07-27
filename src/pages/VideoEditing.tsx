@@ -83,6 +83,89 @@ const TiltVideoCard = ({ video, index }: { video: typeof videos[0], index: numbe
   );
 };
 
+const HolographicPricingCard = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x, { stiffness: 150, damping: 15 });
+  const mouseYSpring = useSpring(y, { stiffness: 150, damping: 15 });
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, delay: 0.6, type: "spring" }}
+      className="perspective-1000 h-full min-h-[400px]"
+    >
+      <motion.div
+        ref={ref}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{
+          rotateX,
+          rotateY,
+          transformStyle: "preserve-3d",
+        }}
+        className="relative rounded-3xl bg-gradient-to-br from-[var(--color-accent)]/20 via-[var(--color-bg-elevated)] to-transparent border border-[var(--color-accent)]/30 backdrop-blur-2xl p-10 shadow-[0_30px_60px_rgba(0,0,0,0.5)] flex flex-col justify-center items-center text-center space-y-8 h-full group overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-accent-secondary)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+        
+        <div style={{ transform: "translateZ(50px)" }} className="relative z-10 space-y-4">
+          <h3 className="text-3xl font-bold text-white tracking-tight drop-shadow-md">Ready to Elevate Your Content?</h3>
+          
+          <div className="flex flex-col xl:flex-row gap-6 justify-center items-center py-6">
+            <div className="bg-[var(--color-bg-subtle)]/50 border border-[var(--color-border)] p-4 rounded-xl backdrop-blur-md shadow-inner w-full">
+              <span className="block text-xs uppercase tracking-widest text-[var(--color-text-secondary)] mb-1">Pricing</span>
+              <strong className="text-2xl text-[var(--color-accent)] drop-shadow-[0_0_10px_var(--color-accent-glow)]">$10 - $80</strong>
+              <span className="block text-xs text-[var(--color-text-secondary)] mt-1">per video</span>
+            </div>
+            
+            <div className="bg-[var(--color-bg-subtle)]/50 border border-[var(--color-border)] p-4 rounded-xl backdrop-blur-md shadow-inner w-full">
+              <span className="block text-xs uppercase tracking-widest text-[var(--color-text-secondary)] mb-1">Timeline</span>
+              <strong className="text-2xl text-[var(--color-accent-secondary)] drop-shadow-[0_0_10px_rgba(0,245,212,0.3)]">1 - 7 Days</strong>
+              <span className="block text-xs text-[var(--color-text-secondary)] mt-1">delivery</span>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ transform: "translateZ(80px)" }}>
+          <a 
+            href="https://discord.com" 
+            target="_blank" 
+            rel="noreferrer"
+            className="px-8 py-4 rounded-full bg-white text-black text-sm uppercase tracking-widest font-bold transition-all duration-300 shadow-[0_10px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_15px_40px_rgba(255,255,255,0.4)] hover:bg-[var(--color-accent)] hover:text-white inline-block"
+          >
+            Order Video Editing
+          </a>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 export default function VideoEditing() {
   return (
     <div className="min-h-screen pt-32 pb-24 px-6 relative z-10 font-mono">
@@ -99,7 +182,7 @@ export default function VideoEditing() {
             Visual Storytelling
           </div>
           <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tighter">
-            World-Class <br className="hidden md:block" />
+            Next-Level <br className="hidden md:block" />
             <span className="text-[var(--color-accent)] drop-shadow-[0_0_20px_var(--color-accent-glow)]">Video Editing.</span>
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
@@ -114,26 +197,7 @@ export default function VideoEditing() {
           ))}
           
           {/* Call to Action Card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.6, type: "spring" }}
-            className="rounded-3xl bg-gradient-to-br from-[var(--color-accent)]/20 to-transparent border border-[var(--color-accent)]/30 backdrop-blur-2xl p-10 shadow-[0_30px_60px_rgba(0,0,0,0.4)] flex flex-col justify-center items-center text-center space-y-8 h-full min-h-[400px]"
-          >
-            <h3 className="text-3xl font-bold text-white tracking-tight">Ready to Elevate Your Content?</h3>
-            <p className="text-gray-300">
-              Pricing ranges from <strong className="text-white">$10 to $80</strong> per video depending on length and complexity. Fast delivery within <strong className="text-white">1 to 7 days</strong>.
-            </p>
-            <a 
-              href="https://discord.com" 
-              target="_blank" 
-              rel="noreferrer"
-              className="px-8 py-4 rounded-full bg-white text-black text-sm uppercase tracking-widest font-bold transition-all duration-300 shadow-[0_10px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_15px_40px_rgba(255,255,255,0.4)] hover:scale-105"
-            >
-              Order Video Editing
-            </a>
-          </motion.div>
+          <HolographicPricingCard />
         </div>
 
       </div>
