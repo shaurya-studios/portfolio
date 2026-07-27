@@ -3,6 +3,7 @@ import WebGLBackground from './components/WebGLBackground';
 import Navbar from './components/Navbar';
 import Chatbot from './components/Chatbot';
 import Home from './pages/Home';
+import VideoEditing from './pages/VideoEditing';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/video-editing" element={<VideoEditing />} />
           </Routes>
         </main>
       </div>

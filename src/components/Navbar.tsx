@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -28,12 +29,13 @@ export default function Navbar() {
         </a>
         
         <nav className="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest font-semibold">
-          <a href="#work" className="text-gray-400 hover:text-white transition-colors duration-300">Showcase</a>
-          <a href="#services" className="text-gray-400 hover:text-white transition-colors duration-300">Services</a>
-          <a href="#pricing" className="text-gray-400 hover:text-white transition-colors duration-300">Pricing</a>
-          <a href="#contact" className="px-5 py-2 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-white transition-all duration-300 backdrop-blur-md">
+          <Link to="/#work" className="text-gray-400 hover:text-white transition-colors duration-300">Showcase</Link>
+          <Link to="/#services" className="text-gray-400 hover:text-white transition-colors duration-300">Services</Link>
+          <Link to="/#pricing" className="text-gray-400 hover:text-white transition-colors duration-300">Pricing</Link>
+          <Link to="/video-editing" className="text-[var(--color-accent)] hover:text-white transition-colors duration-300">Video Editing</Link>
+          <Link to="/#contact" className="px-5 py-2 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-white transition-all duration-300 backdrop-blur-md">
             CONNECT
-          </a>
+          </Link>
         </nav>
       </div>
     </motion.header>
