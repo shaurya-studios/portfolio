@@ -1,267 +1,224 @@
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { useRef } from 'react';
 import ContactFooter from '../components/ContactFooter';
+import { useContact } from '../context/ContactContext';
 import { Film, Scissors, Sparkles, MonitorPlay } from 'lucide-react';
 
+// ==========================================
+// REUSABLE COMPONENTS (Matches Home.tsx)
+// ==========================================
+
+const SectionDivider = ({ number, title }: { number: string, title: string }) => (
+  <div className="section-divider max-w-7xl mx-auto px-6">
+    <span className="section-label whitespace-nowrap">—— {number} / {title} ——</span>
+  </div>
+);
+
+const MagneticButton = ({ children, onClick, href, primary = false, className = '' }: { children: React.ReactNode, onClick?: () => void, href?: string, primary?: boolean, className?: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const springConfig = { damping: 30, stiffness: 600, mass: 0.3 };
+  const springX = useSpring(x, springConfig);
+  const springY = useSpring(y, springConfig);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!ref.current) return;
+    const { clientX, clientY } = e;
+    const { height, width, left, top } = ref.current.getBoundingClientRect();
+    const middleX = clientX - (left + width / 2);
+    const middleY = clientY - (top + height / 2);
+    x.set(middleX * 0.2);
+    y.set(middleY * 0.2);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  const Component = href ? 'a' : 'button';
+  const baseClasses = "relative px-8 py-3 uppercase tracking-widest font-semibold transition-all duration-300 block text-xs";
+  
+  const styleClasses = primary 
+    ? "rounded-full gold-fill gold-shine shadow-[0_8px_20px_rgba(232,182,52,0.2)] hover:shadow-[0_12px_24px_rgba(232,182,52,0.4)]"
+    : "rounded-[4px] bg-[var(--color-bg-surface)] text-[var(--color-text)] border border-[var(--color-border)] hover:border-[var(--color-border-active)] hover:bg-[var(--color-bg-inset)]";
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ x: springX, y: springY }}
+      className="inline-block"
+    >
+      <Component 
+        href={href} 
+        onClick={onClick}
+        className={`${baseClasses} ${styleClasses} ${className}`}
+      >
+        {children}
+      </Component>
+    </motion.div>
+  );
+};
+
+// ==========================================
+// MAIN PAGE
+// ==========================================
+
 const videos = [
-  { id: 1, title: 'Sample Project 1', src: '/videos/sample1.mp4' },
-  { id: 2, title: 'Sample Project 2', src: '/videos/sample2.mp4' },
-  { id: 3, title: 'Sample Project 3', src: '/videos/sample3.mp4' },
+  { id: 1, title: 'Gaming Montage / Fast Paced', src: '/videos/sample1.mp4' },
+  { id: 2, title: 'YouTube Documentary / Narrative', src: '/videos/sample2.mp4' },
+  { id: 3, title: 'Short Form / High Retention', src: '/videos/sample3.mp4' },
 ];
 
-const TiltVideoCard = ({ video, index }: { video: typeof videos[0], index: number }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x, { stiffness: 150, damping: 15 });
-  const mouseYSpring = useSpring(y, { stiffness: 150, damping: 15 });
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-    x.set(xPct);
-    y.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.8, delay: index * 0.2, type: "spring" }}
-      className="perspective-1000"
-    >
-      <motion.div
-        ref={ref}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          rotateX,
-          rotateY,
-          transformStyle: "preserve-3d",
-        }}
-        className="relative rounded-3xl bg-white/5 border border-white/10 backdrop-blur-2xl p-4 shadow-[0_30px_60px_rgba(0,0,0,0.4)] overflow-hidden group"
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl pointer-events-none" />
-        
-        <div 
-          className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black"
-          style={{ transform: "translateZ(30px)" }}
-        >
-          <video 
-            controls 
-            preload="metadata"
-            className="w-full aspect-video object-cover"
-          >
-            <source src={video.src} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        <div 
-          className="mt-6 flex justify-between items-center px-2"
-          style={{ transform: "translateZ(40px)" }}
-        >
-          <h3 className="text-xl font-bold text-white tracking-tight">{video.title}</h3>
-          <span className="text-xs uppercase tracking-widest text-[var(--color-accent)] font-semibold">Premium Edit</span>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-};
-
-const HolographicPricingCard = () => {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x, { stiffness: 150, damping: 15 });
-  const mouseYSpring = useSpring(y, { stiffness: 150, damping: 15 });
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-    x.set(xPct);
-    y.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, delay: 0.6, type: "spring" }}
-      className="perspective-1000 h-full min-h-[400px]"
-    >
-      <motion.div
-        ref={ref}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          rotateX,
-          rotateY,
-          transformStyle: "preserve-3d",
-        }}
-        className="relative rounded-3xl bg-gradient-to-br from-[var(--color-accent)]/20 via-[var(--color-bg-elevated)] to-transparent border border-[var(--color-accent)]/30 backdrop-blur-2xl p-10 shadow-[0_30px_60px_rgba(0,0,0,0.5)] flex flex-col justify-center items-center text-center space-y-8 h-full group overflow-hidden"
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-accent-secondary)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-        
-        <div style={{ transform: "translateZ(50px)" }} className="relative z-10 space-y-4">
-          <h3 className="text-3xl font-bold text-white tracking-tight drop-shadow-md">Ready to Elevate Your Content?</h3>
-          
-          <div className="flex flex-col xl:flex-row gap-6 justify-center items-center py-6">
-            <div className="bg-[var(--color-bg-subtle)]/50 border border-[var(--color-border)] p-4 rounded-xl backdrop-blur-md shadow-inner w-full">
-              <span className="block text-xs uppercase tracking-widest text-[var(--color-text-secondary)] mb-1">Pricing</span>
-              <strong className="text-2xl text-[var(--color-accent)] drop-shadow-[0_0_10px_var(--color-accent-glow)]">$10 - $80</strong>
-              <span className="block text-xs text-[var(--color-text-secondary)] mt-1">per video</span>
-            </div>
-            
-            <div className="bg-[var(--color-bg-subtle)]/50 border border-[var(--color-border)] p-4 rounded-xl backdrop-blur-md shadow-inner w-full">
-              <span className="block text-xs uppercase tracking-widest text-[var(--color-text-secondary)] mb-1">Timeline</span>
-              <strong className="text-2xl text-[var(--color-accent-secondary)] drop-shadow-[0_0_10px_rgba(0,245,212,0.3)]">1 - 7 Days</strong>
-              <span className="block text-xs text-[var(--color-text-secondary)] mt-1">delivery</span>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ transform: "translateZ(80px)" }}>
-          <a 
-            href="https://discord.com" 
-            target="_blank" 
-            rel="noreferrer"
-            className="px-8 py-4 rounded-full bg-white text-black text-sm uppercase tracking-widest font-bold transition-all duration-300 shadow-[0_10px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_15px_40px_rgba(255,255,255,0.4)] hover:bg-[var(--color-accent)] hover:text-white inline-block"
-          >
-            Order Video Editing
-          </a>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-};
-
 export default function VideoEditing() {
-  return (
-    <div className="min-h-screen pt-32 pb-24 px-6 relative z-10 font-mono">
-      <div className="max-w-6xl mx-auto space-y-16">
-        
-        {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, type: "spring" }}
-          className="text-center space-y-6"
-        >
-          <div className="inline-block px-4 py-1.5 rounded-full border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/10 text-[var(--color-accent)] text-xs font-semibold tracking-widest uppercase mb-4 shadow-[0_0_20px_rgba(var(--color-accent-rgb),0.2)]">
-            Post-Production
-          </div>
-          <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tighter">
-            Premium <br className="hidden md:block" />
-            <span className="text-[var(--color-accent)] drop-shadow-[0_0_20px_var(--color-accent-glow)]">Video Editing.</span>
-          </h1>
-          <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
-            Specializing in high-retention gaming videos and general YouTube content. I cut, color, and composite to bring your vision to life and keep your audience engaged.
-          </p>
-        </motion.div>
+  const { openContact } = useContact();
 
-        {/* Video Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-16">
+  return (
+    <div className="flex flex-col min-h-screen">
+      
+      {/* 01 / HERO */}
+      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden px-6 pt-32 pb-16">
+        <div className="w-full max-w-4xl mx-auto text-center relative z-10 flex flex-col items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 60, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <span className="section-label mb-6 block text-[var(--color-gold)]">POST-PRODUCTION / SYS.02</span>
+            <h1 className="font-display text-5xl md:text-7xl font-bold leading-[1.1] mb-8 tracking-[-0.03em]">
+              ENGINEERED <br />
+              FOR <span className="gold-text">RETENTION</span>_
+            </h1>
+            <p className="text-[var(--color-text-muted)] text-base md:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+              I edit gaming videos and general YouTube content. Precision cuts, algorithmic pacing, and sound design built to maximize audience retention. Not just flashy—effective.
+            </p>
+            
+            <div className="flex flex-wrap gap-4 items-center justify-center">
+              <MagneticButton primary onClick={openContact}>COMMENCE EDIT</MagneticButton>
+              <MagneticButton href="#portfolio">VIEW TIMELINES</MagneticButton>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      <SectionDivider number="02" title="PORTFOLIO" />
+
+      {/* 02 / PORTFOLIO */}
+      <section id="portfolio" className="py-24 px-6 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {videos.map((video, idx) => (
-            <TiltVideoCard key={video.id} video={video} index={idx} />
+            <motion.div
+              key={video.id}
+              initial={{ opacity: 0, y: 60, scale: 0.97 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, delay: idx * 0.12, ease: [0.16, 1, 0.3, 1] }}
+              className={`island p-4 flex flex-col ${idx === 0 ? 'corner-brackets border-[var(--color-border-active)] shadow-[0_10px_30px_var(--color-gold-glow)]' : ''}`}
+            >
+              <div className="aspect-video bg-[var(--color-bg-inset)] rounded border border-[var(--color-border)] overflow-hidden relative mb-4">
+                {/* Fallback pattern since real videos might not exist in public/videos */}
+                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,var(--color-text)_1px,transparent_1px)] bg-[length:10px_10px]" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface)] flex items-center justify-center text-[var(--color-text-muted)]">
+                    <MonitorPlay size={20} />
+                  </div>
+                </div>
+                {/* <video src={video.src} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-60" /> */}
+                <div className="absolute top-2 left-2 px-2 py-1 bg-black/80 backdrop-blur text-[0.6rem] font-mono tracking-widest text-[var(--color-gold)] border border-[var(--color-border)] rounded">REC</div>
+              </div>
+              <div className="section-label mb-1">FILE.0{video.id}</div>
+              <h3 className="font-display font-bold text-lg">{video.title}</h3>
+            </motion.div>
           ))}
-          
-          {/* Call to Action Card */}
-          <HolographicPricingCard />
         </div>
 
-        {/* Workflow Section */}
-        <section className="py-24">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-16 border-b border-white/10 pb-8"
-          >
-            <h2 className="text-4xl font-extrabold text-white mb-3 tracking-tight">THE WORKFLOW</h2>
-            <p className="text-sm text-[var(--color-accent)] font-semibold uppercase tracking-widest">
-              From Raw Footage to Final Export
-            </p>
-          </motion.div>
+        {/* Holographic Pricing Card (Main Conversion Element) */}
+        <motion.div
+          initial={{ opacity: 0, y: 60, scale: 0.97 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="island corner-brackets p-10 md:p-16 max-w-4xl mx-auto border-[var(--color-border-active)] shadow-[0_10px_40px_var(--color-gold-glow)] relative overflow-hidden text-center"
+        >
+          <div className="absolute top-0 left-0 w-full h-[2px] gold-fill" />
+          <div className="section-label mb-4 gold-text">SERVICE.01 / VIDEO PRODUCTION</div>
+          <h3 className="font-display text-3xl md:text-5xl font-bold mb-4">Flat Rate Editing</h3>
+          <p className="text-[var(--color-text-muted)] text-sm md:text-base max-w-2xl mx-auto mb-8">
+            High-retention edits tailored for Gaming & YouTube. Includes sound design, VFX, pacing, and color grading. Pricing scales with raw footage length and complexity.
+          </p>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-10">
+            <div>
+              <div className="text-[0.65rem] tracking-widest text-[var(--color-text-muted)] mb-1 uppercase">ESTIMATED COST</div>
+              <div className="text-4xl font-display font-bold gold-text">$10 - $80</div>
+            </div>
+            <div className="hidden md:block w-px h-12 bg-[var(--color-border)]" />
+            <div>
+              <div className="text-[0.65rem] tracking-widest text-[var(--color-text-muted)] mb-1 uppercase">TURNAROUND</div>
+              <div className="text-2xl font-display font-bold text-[var(--color-text)] mt-2">1 Day - 1 Week</div>
+            </div>
+          </div>
+          <MagneticButton primary onClick={openContact} className="mx-auto">INITIATE INQUIRY</MagneticButton>
+        </motion.div>
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { icon: <Film size={24} />, title: "1. Footage Review", desc: "Analyzing raw clips and planning the narrative flow." },
-              { icon: <Scissors size={24} />, title: "2. The Rough Cut", desc: "Splicing the best moments to build pacing and structure." },
-              { icon: <Sparkles size={24} />, title: "3. VFX & Color", desc: "Adding motion graphics, color grading, and visual polish." },
-              { icon: <MonitorPlay size={24} />, title: "4. Final Render", desc: "Sound design mixing and high-bitrate export for publishing." }
-            ].map((step, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1, duration: 0.5 }}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md hover:bg-white/10 transition-colors"
-              >
-                <div className="text-[var(--color-accent)] mb-4 bg-[var(--color-accent)]/10 w-12 h-12 flex items-center justify-center rounded-xl">
-                  {step.icon}
-                </div>
-                <h3 className="text-white font-bold text-lg mb-2">{step.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{step.desc}</p>
-              </motion.div>
+      <SectionDivider number="03" title="PROCESS" />
+
+      {/* 03 / PROCESS */}
+      <section className="py-24 px-6 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { icon: <Film size={20} />, title: "1. ACQUISITION", desc: "Analyzing raw clips and planning the narrative flow for maximum retention." },
+            { icon: <Scissors size={20} />, title: "2. ASSEMBLY", desc: "Splicing the best moments to build pacing and core structural timeline." },
+            { icon: <Sparkles size={20} />, title: "3. EFFECTS", desc: "Adding motion graphics, VFX, and color grading for visual polish." },
+            { icon: <MonitorPlay size={20} />, title: "4. MASTERING", desc: "Sound design mixing and high-bitrate export for publishing." }
+          ].map((step, idx) => (
+            <motion.div 
+              key={idx}
+              initial={{ opacity: 0, y: 60, scale: 0.97 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6, delay: idx * 0.12, ease: [0.16, 1, 0.3, 1] }}
+              className="island p-8"
+            >
+              <div className="w-10 h-10 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-inset)] flex items-center justify-center mb-6 text-[var(--color-gold)]">
+                {step.icon}
+              </div>
+              <h3 className="font-display text-xl font-bold mb-3">{step.title}</h3>
+              <p className="text-[var(--color-text-muted)] text-sm leading-relaxed">{step.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      <SectionDivider number="04" title="TOOLS" />
+
+      {/* 04 / TOOLS */}
+      <section className="py-24 px-6 max-w-3xl mx-auto w-full mb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 60, scale: 0.97 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="island p-10 flex flex-col items-center text-center bg-[var(--color-bg-inset)]"
+        >
+          <div className="section-label mb-8">SOFTWARE STACK</div>
+          <div className="flex flex-wrap justify-center gap-4">
+            {['Premiere Pro', 'CapCut Pro', 'After Effects', 'Photoshop'].map((tool, i) => (
+              <div key={i} className="px-5 py-2 text-sm font-bold border border-[var(--color-border)] rounded-full text-[var(--color-text)] bg-[var(--color-bg-surface)]">
+                {tool}
+              </div>
             ))}
           </div>
-        </section>
+        </motion.div>
+      </section>
 
-        {/* Software Stack Section */}
-        <section className="py-12 border-t border-white/10">
-          <div className="flex flex-col items-center text-center">
-            <p className="text-gray-400 uppercase tracking-widest text-xs font-bold mb-8">Industry Standard Tools</p>
-            <div className="flex flex-wrap justify-center gap-6">
-              <div className="px-6 py-3 rounded-full bg-[#9999FF]/10 border border-[#9999FF]/30 text-[#9999FF] font-bold shadow-[0_0_15px_rgba(153,153,255,0.2)]">
-                Premiere Pro
-              </div>
-              <div className="px-6 py-3 rounded-full bg-white/10 border border-white/30 text-white font-bold shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-                CapCut Pro
-              </div>
-              <div className="px-6 py-3 rounded-full bg-[#D28CFC]/10 border border-[#D28CFC]/30 text-[#D28CFC] font-bold shadow-[0_0_15px_rgba(210,140,252,0.2)]">
-                After Effects
-              </div>
-            </div>
-          </div>
-        </section>
+      {/* 05 / CONTACT FOOTER */}
+      <ContactFooter />
 
-        {/* Unified Contact Footer */}
-        <ContactFooter />
-      </div>
     </div>
   );
 }

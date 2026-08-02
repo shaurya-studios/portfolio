@@ -1,15 +1,26 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Code2, Layers, Cpu } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import ContactFooter from '../components/ContactFooter';
+import { useContact } from '../context/ContactContext';
+import { Code2, Layers, Cpu, Check, ExternalLink } from 'lucide-react';
 
-// Apple-style Magnetic Button Component (Rounded, soft shadow)
-const MagneticButton = ({ children, className = '', href, target }: { children: React.ReactNode, className?: string, href?: string, target?: string }) => {
+// ==========================================
+// REUSABLE COMPONENTS
+// ==========================================
+
+const SectionDivider = ({ number, title }: { number: string, title: string }) => (
+  <div className="section-divider max-w-7xl mx-auto px-6">
+    <span className="section-label whitespace-nowrap">—— {number} / {title} ——</span>
+  </div>
+);
+
+// Magnetic button with industrial styling
+const MagneticButton = ({ children, onClick, href, primary = false, className = '' }: { children: React.ReactNode, onClick?: () => void, href?: string, primary?: boolean, className?: string }) => {
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  const springConfig = { damping: 20, stiffness: 200, mass: 0.1 };
+  const springConfig = { damping: 30, stiffness: 600, mass: 0.3 };
   const springX = useSpring(x, springConfig);
   const springY = useSpring(y, springConfig);
 
@@ -19,9 +30,8 @@ const MagneticButton = ({ children, className = '', href, target }: { children: 
     const { height, width, left, top } = ref.current.getBoundingClientRect();
     const middleX = clientX - (left + width / 2);
     const middleY = clientY - (top + height / 2);
-    // Subtle movement for high performance
-    x.set(middleX * 0.15);
-    y.set(middleY * 0.15);
+    x.set(middleX * 0.2);
+    y.set(middleY * 0.2);
   };
 
   const handleMouseLeave = () => {
@@ -30,11 +40,13 @@ const MagneticButton = ({ children, className = '', href, target }: { children: 
   };
 
   const Component = href ? 'a' : 'button';
-
-  const isWhiteBg = className.includes('bg-white');
-  const textClass = isWhiteBg ? 'text-black' : 'text-white';
-  const borderClass = isWhiteBg ? '' : 'border border-white/10';
-  const hoverClass = isWhiteBg ? '' : 'hover:bg-white/10';
+  const baseClasses = "relative px-8 py-3 uppercase tracking-widest font-semibold transition-all duration-300 block text-xs";
+  
+  // Primary CTA gets rounded-full, gold finish
+  // Secondary gets 4px radius, structural border
+  const styleClasses = primary 
+    ? "rounded-full gold-fill gold-shine shadow-[0_8px_20px_rgba(232,182,52,0.2)] hover:shadow-[0_12px_24px_rgba(232,182,52,0.4)]"
+    : "rounded-[4px] bg-[var(--color-bg-surface)] text-[var(--color-text)] border border-[var(--color-border)] hover:border-[var(--color-border-active)] hover:bg-[var(--color-bg-inset)]";
 
   return (
     <motion.div
@@ -46,8 +58,8 @@ const MagneticButton = ({ children, className = '', href, target }: { children: 
     >
       <Component 
         href={href} 
-        target={target} 
-        className={`px-8 py-3.5 rounded-full backdrop-blur-md text-xs uppercase tracking-widest font-semibold transition-all duration-300 shadow-[0_8px_16px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.5)] block ${textClass} ${borderClass} ${hoverClass} ${className}`}
+        onClick={onClick}
+        className={`${baseClasses} ${styleClasses} ${className}`}
       >
         {children}
       </Component>
@@ -55,440 +67,400 @@ const MagneticButton = ({ children, className = '', href, target }: { children: 
   );
 };
 
-// Apple-style Glassmorphic Tilt Card Component
-const TiltCard = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x, { stiffness: 400, damping: 30 });
-  const mouseYSpring = useSpring(y, { stiffness: 400, damping: 30 });
-
-  // Very subtle rotation for premium Apple feel (max 4 degrees)
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["4deg", "-4deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-4deg", "4deg"]);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-    x.set(xPct);
-    y.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className={`rounded-3xl bg-white/[0.02] border border-white/10 backdrop-blur-xl p-8 shadow-[0_20px_40px_rgba(0,0,0,0.4)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.6)] transition-shadow duration-500 ${className}`}
-    >
-      <div style={{ transform: "translateZ(20px)" }}>
-        {children}
-      </div>
-    </motion.div>
-  );
-};
+// ==========================================
+// MAIN PAGE
+// ==========================================
 
 export default function Home() {
-  const words = ["AGENCY WEBSITES", "BUSINESS PLATFORMS", "SAAS APPLICATIONS", "E-COMMERCE STORES", "WEB EXPERIENCES"];
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [currentText, setCurrentText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { openContact } = useContact();
+  
+  // Hero Parallax Setup
+  const heroRef = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
 
+  const handleHeroMouseMove = (e: React.MouseEvent) => {
+    if (!heroRef.current) return;
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+    
+    // Normalize -1 to 1
+    const normX = (clientX / innerWidth) * 2 - 1;
+    const normY = (clientY / innerHeight) * 2 - 1;
+    
+    mouseX.set(normX);
+    mouseY.set(normY);
+  };
+
+  // Parallax Springs (heavy mass for sluggish diorama feel)
+  const springConfig = { damping: 20, stiffness: 150, mass: 1.2 };
+  const sX = useSpring(mouseX, springConfig);
+  const sY = useSpring(mouseY, springConfig);
+
+  // Layer Offsets
+  const layer0X = useTransform(sX, [-1, 1], [-15, 15]);
+  const layer0Y = useTransform(sY, [-1, 1], [-15, 15]);
+  
+  const layer1X = useTransform(sX, [-1, 1], [-35, 35]);
+  const layer1Y = useTransform(sY, [-1, 1], [-35, 35]);
+  
+  const layer2X = useTransform(sX, [-1, 1], [-50, 50]);
+  const layer2Y = useTransform(sY, [-1, 1], [-50, 50]);
+  
+  const layer3X = useTransform(sX, [-1, 1], [-80, 80]);
+  const layer3Y = useTransform(sY, [-1, 1], [-80, 80]);
+  
+  const layer4X = useTransform(sX, [-1, 1], [-100, 100]);
+
+  // Independent Wobble for Badges
+  const badge1Y = useSpring(useTransform(sY, [-1, 1], [-120, 120]), { damping: 15, stiffness: 120, mass: 1.5 });
+  const badge2Y = useSpring(useTransform(sY, [-1, 1], [-90, 90]), { damping: 25, stiffness: 180, mass: 0.8 });
+  const badge3Y = useSpring(useTransform(sY, [-1, 1], [-110, 110]), { damping: 20, stiffness: 140, mass: 1.1 });
+
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const fullWord = words[currentWordIndex];
-      
-      if (!isDeleting) {
-        setCurrentText(fullWord.substring(0, currentText.length + 1));
-        if (currentText.length === fullWord.length) {
-          setTimeout(() => setIsDeleting(true), 2000);
-        }
-      } else {
-        setCurrentText(fullWord.substring(0, currentText.length - 1));
-        if (currentText.length === 0) {
-          setIsDeleting(false);
-          setCurrentWordIndex((prev) => (prev + 1) % words.length);
-        }
-      }
-    }, isDeleting ? 30 : 80);
-
-    return () => clearTimeout(timeoutId);
-  }, [currentText, isDeleting, currentWordIndex]);
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   return (
-    <div id="home" className="w-full pb-16 font-sans selection:bg-[var(--color-accent)] selection:text-white relative z-10 pt-32 overflow-hidden">
+    <div className="flex flex-col min-h-screen">
       
-      {/* Soft glowing ambient background elements */}
-      <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[var(--color-accent)]/10 blur-[120px] pointer-events-none -z-10"></div>
-      <div className="fixed bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/10 blur-[120px] pointer-events-none -z-10"></div>
-
-      {/* 1. INTERACTIVE 3D HERO */}
-      <section className="min-h-[85vh] flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto">
+      {/* 01 / HERO */}
+      <section 
+        ref={heroRef}
+        onMouseMove={!isMobile ? handleHeroMouseMove : undefined}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+        style={{ perspective: isMobile ? 'none' : '1400px' }}
+      >
+        {/* Layer 0 (Z: -80px) Ambient Background */}
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col md:flex-row items-center gap-12"
+          className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none"
+          style={{ x: isMobile ? 0 : layer0X, y: isMobile ? 0 : layer0Y, translateZ: isMobile ? 0 : -80 }}
         >
+          <div className="w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] bg-[var(--color-gold)] opacity-[0.03] rounded-full blur-[120px]" />
+        </motion.div>
+
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center pt-24 lg:pt-0 h-full">
           
-          <div className="w-full md:w-3/5" style={{ perspective: 1000 }}>
-            <motion.div className="mb-8 text-[var(--color-accent)] text-xs font-semibold tracking-widest flex items-center gap-3 uppercase"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
+          {/* Left Column - Copy */}
+          <div className="flex flex-col justify-center h-full transform-style-3d">
+            {/* Layer 1 (Z: -20px) Label */}
+            <motion.div
+              style={{ x: isMobile ? 0 : layer1X, y: isMobile ? 0 : layer1Y, translateZ: isMobile ? 0 : -20 }}
+              initial={{ opacity: 0, y: 60, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             >
-              <div className="w-2 h-2 rounded-full bg-[var(--color-accent)] shadow-[0_0_10px_var(--color-accent-glow)] animate-pulse" />
-              <span>SHAURYA AGARWAL // DEVELOPER</span>
+              <span className="section-label mb-6 block">SHAURYA AGARWAL / SYS.01</span>
             </motion.div>
 
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-              className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-500 min-h-[140px] tracking-tight"
+            {/* Layer 2 (Z: 0) Headline */}
+            <motion.div
+              style={{ x: isMobile ? 0 : layer2X, y: isMobile ? 0 : layer2Y, translateZ: 0 }}
+              initial={{ opacity: 0, y: 60, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             >
-              CRAFTING <br/>PREMIUM <br/><span className="text-[var(--color-accent)] drop-shadow-[0_0_15px_rgba(176,38,255,0.3)]">{currentText}</span><span className="text-[var(--color-accent)] animate-blink">_</span>
-            </motion.h1>
-
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="text-lg md:text-xl text-gray-400 max-w-2xl leading-relaxed mb-10 font-medium"
-            >
-              I partner with forward-thinking founders to design and build premium software that converts, scales, and stands out. 
-            </motion.p>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-              className="flex flex-wrap items-center gap-6"
-            >
-              <MagneticButton href="#pricing" className="bg-white !text-black hover:bg-gray-200 border-none shadow-[0_10px_30px_rgba(255,255,255,0.2)]">
-                VIEW PRICING
-              </MagneticButton>
-              <MagneticButton href="#work">
-                SHOWCASE
-              </MagneticButton>
+              <h1 className="font-display text-5xl md:text-7xl font-bold leading-[1.1] mb-8 tracking-[-0.03em]">
+                BUILDING <br />
+                DIGITAL <br />
+                <span className="gold-text">ARTIFACTS</span>_
+              </h1>
+              <p className="text-[var(--color-text-muted)] text-base md:text-lg max-w-md mb-10 leading-relaxed">
+                I engineer highly tactile, performant web applications for founders who treat their digital presence as a physical asset.
+              </p>
+              
+              <div className="flex flex-wrap gap-4 items-center">
+                <MagneticButton primary onClick={openContact}>INITIATE PROJECT</MagneticButton>
+                <MagneticButton href="#work">VIEW LOG</MagneticButton>
+              </div>
             </motion.div>
           </div>
 
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="w-full md:w-2/5 relative hidden md:block perspective-[1000px]"
-          >
-            <TiltCard>
-              <div className="border-b border-white/10 pb-4 mb-6 flex justify-between items-center text-xs text-gray-400 font-medium tracking-wide">
-                <span>CORE_STACK</span>
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 bg-red-500/80 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-                  <div className="w-3 h-3 bg-yellow-500/80 rounded-full shadow-[0_0_8px_rgba(234,179,8,0.5)]" />
-                  <div className="w-3 h-3 bg-green-500/80 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+          {/* Right Column - Browser Mockup & Badges */}
+          <div className="relative h-[60vh] min-h-[400px] lg:h-full flex items-center justify-center transform-style-3d mt-12 lg:mt-0">
+            
+            {/* Layer 3 (Z: +50px) Browser Mockup */}
+            <motion.div
+              style={{ x: isMobile ? 0 : layer3X, y: isMobile ? 0 : layer3Y, translateZ: isMobile ? 0 : 50 }}
+              initial={{ opacity: 0, scale: 0.9, rotateX: 10 }}
+              animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+              transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute w-full max-w-[500px] z-10"
+            >
+              <div className="glass-panel corner-brackets rounded-lg p-2 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                {/* Browser bar */}
+                <div className="flex items-center gap-2 mb-3 px-2 pt-1 border-b border-[var(--color-border)] pb-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[var(--color-border)]" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[var(--color-border)]" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[var(--color-border)]" />
+                  <div className="ml-4 section-label text-[0.6rem] !tracking-widest">EDITIFY-STUDIOS.VERCEL.APP</div>
+                </div>
+                {/* Mockup content */}
+                <div className="aspect-[4/3] bg-[var(--color-bg-inset)] rounded border border-[var(--color-border)] overflow-hidden relative group cursor-pointer">
+                  <img src="/editify-logo.png" alt="Editify Studios" className="absolute inset-0 w-full h-full object-contain p-12 opacity-80 filter brightness-150 contrast-150 group-hover:scale-105 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-inset)] via-transparent to-transparent" />
                 </div>
               </div>
-              <div className="space-y-4 text-sm text-gray-300 font-mono">
-                <p><span className="text-[var(--color-accent)]">❯</span> loading dependencies...</p>
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {['React', 'Next.js', 'TypeScript', 'Tailwind', 'Node.js', 'Vercel', 'Postgres', 'Framer'].map(tech => (
-                    <span key={tech} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white backdrop-blur-md">
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-                <p className="pt-4 text-emerald-400 font-medium">❯ STATUS: ONLINE (99.99% UPTIME)</p>
-              </div>
-            </TiltCard>
-          </motion.div>
+            </motion.div>
 
-        </motion.div>
-      </section>
+            {/* Layer 4 (Z: +90px) Floating Badges */}
+            <div className={`absolute inset-0 z-20 pointer-events-none ${isMobile ? 'flex flex-wrap justify-center content-end gap-4 pb-10' : ''}`}>
+              
+              <motion.div
+                style={isMobile ? {} : { x: layer4X, y: badge1Y, translateZ: 90 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: isMobile ? 0.9 : 1 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className={`${isMobile ? 'relative' : 'absolute top-[20%] right-[10%]'} glass-panel px-5 py-3 rounded-full flex items-center gap-3`}
+              >
+                <div className="w-2 h-2 rounded-full bg-[var(--color-gold)] shadow-[0_0_8px_var(--color-gold)]" />
+                <span className="font-display font-bold text-sm">2+ YEARS</span>
+              </motion.div>
 
-      {/* 2. 3D PROJECT SHOWCASE */}
-      <section id="work" className="py-32 px-6 md:px-12 max-w-7xl mx-auto">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-16 border-b border-white/10 pb-8"
-        >
-          <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-3 tracking-tight">PAST WORKS</h2>
-          <p className="text-sm text-[var(--color-accent)] font-semibold uppercase tracking-widest">
-            ENGINEERED FOR SCALABILITY & SPEED
-          </p>
-        </motion.div>
+              <motion.div
+                style={isMobile ? {} : { x: layer4X, y: badge2Y, translateZ: 90 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: isMobile ? 0.9 : 1 }}
+                transition={{ duration: 0.8, delay: 0.48 }}
+                className={`${isMobile ? 'relative' : 'absolute bottom-[30%] left-[5%]'} glass-panel px-5 py-3 rounded-full corner-brackets border-[var(--color-border-active)] shadow-[0_10px_20px_var(--color-gold-glow)]`}
+              >
+                <span className="gold-text font-display font-bold text-lg leading-none tracking-tight">10+ BUILDS</span>
+              </motion.div>
 
-        <div className="grid grid-cols-1 gap-24 perspective-[1200px]">
-          {/* Project 1 */}
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7 }}
-            className="rounded-3xl flex flex-col md:flex-row overflow-hidden border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-[0_30px_60px_rgba(0,0,0,0.4)] group"
-          >
-            <div className="p-12 md:w-1/2 flex flex-col justify-center">
-              <span className="text-[var(--color-accent)] text-xs tracking-widest uppercase mb-4 block font-bold">Creative Agency Website</span>
-              <h3 className="text-3xl md:text-4xl font-bold mb-6 text-white tracking-tight">Editify Studios</h3>
-              <p className="text-gray-400 leading-relaxed text-base mb-10">
-                A high-performance portfolio and lead generation platform for a creative studio. Optimized for insane conversion rates, smooth animations, and perfect SEO scores.
-              </p>
-              <div className="flex flex-wrap gap-3 mb-10">
-                {['Next.js', 'Framer Motion', 'Tailwind CSS'].map(tech => (
-                  <span key={tech} className="px-3 py-1.5 text-xs font-semibold rounded-full bg-white/10 text-white">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-              <MagneticButton href="https://editify-studios.vercel.app" target="_blank" className="self-start">
-                VIEW LIVE PROJECT
-              </MagneticButton>
-            </div>
-            <div className="md:w-1/2 min-h-[300px] bg-gradient-to-br from-gray-900 to-black border-l border-white/10 flex items-center justify-center p-12 relative overflow-hidden">
-              <div className="absolute inset-0 bg-[var(--color-accent)] opacity-0 group-hover:opacity-10 transition-opacity duration-700" />
-              <div className="w-full h-full rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md flex items-center justify-center relative group-hover:scale-105 transition-transform duration-700 shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
-                <span className="text-white font-extrabold text-2xl uppercase tracking-widest relative z-10">EDITIFY_STUDIOS</span>
-              </div>
-            </div>
-          </motion.div>
+              <motion.div
+                style={isMobile ? {} : { x: layer4X, y: badge3Y, translateZ: 90 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: isMobile ? 0.9 : 1 }}
+                transition={{ duration: 0.8, delay: 0.56 }}
+                className={`${isMobile ? 'relative' : 'absolute bottom-[15%] right-[20%]'} glass-panel px-5 py-3 rounded-full`}
+              >
+                <span className="font-display font-bold text-sm">5★ RATED</span>
+              </motion.div>
 
-          {/* Project 2 */}
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7 }}
-            className="rounded-3xl flex flex-col md:flex-row-reverse overflow-hidden border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-[0_30px_60px_rgba(0,0,0,0.4)] group"
-          >
-            <div className="p-12 md:w-1/2 flex flex-col justify-center">
-              <span className="text-[var(--color-accent)] text-xs tracking-widest uppercase mb-4 block font-bold">AI Web Application</span>
-              <h3 className="text-3xl md:text-4xl font-bold mb-6 text-white tracking-tight">Thumbpilot</h3>
-              <p className="text-gray-400 leading-relaxed text-base mb-10">
-                A robust AI-powered platform built on modern architecture ensuring blazing fast global delivery, highly scalable API routes, and a premium 3D user interface.
-              </p>
-              <div className="flex flex-wrap gap-3 mb-10">
-                {['React', 'Edge Workers', 'TypeScript'].map(tech => (
-                  <span key={tech} className="px-3 py-1.5 text-xs font-semibold rounded-full bg-white/10 text-white">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-              <MagneticButton href="https://thumbpilot.sigmashaurya2.workers.dev" target="_blank" className="self-start">
-                VIEW LIVE PROJECT
-              </MagneticButton>
             </div>
-            <div className="md:w-1/2 min-h-[300px] bg-gradient-to-br from-gray-900 to-black border-r border-white/10 flex items-center justify-center p-12 relative overflow-hidden">
-              <div className="absolute inset-0 bg-[var(--color-accent)] opacity-0 group-hover:opacity-10 transition-opacity duration-700" />
-              <div className="w-full h-full rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md flex items-center justify-center relative group-hover:scale-105 transition-transform duration-700 shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
-                <span className="text-white font-extrabold text-2xl uppercase tracking-widest relative z-10">THUMBPILOT</span>
-              </div>
-            </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* 3. CORE SERVICES */}
-      <section id="services" className="py-32 px-6 md:px-12 max-w-7xl mx-auto">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-12"
-        >
-          <TiltCard className="h-full">
-            <h2 className="text-3xl font-extrabold mb-10 text-white tracking-tight">Capabilities</h2>
-            <div className="space-y-10">
-              {[
-                { icon: <Code2 size={28}/>, title: 'Full-Stack Architecture', desc: 'Secure, scalable backends paired with lightning-fast frontends.' },
-                { icon: <Layers size={28}/>, title: 'UI/UX Engineering', desc: 'Interactive 3D experiences, smooth animations, and magnetic interfaces.' },
-                { icon: <Cpu size={28}/>, title: 'Extreme Optimization', desc: 'Perfect Lighthouse scores, instant load times, and top-tier SEO indexing.' }
-              ].map((service, i) => (
-                <div key={i} className="flex gap-6">
-                  <div className="text-[var(--color-accent)] mt-1 drop-shadow-[0_0_15px_var(--color-accent-glow)]">{service.icon}</div>
-                  <div>
-                    <h4 className="text-xl font-bold mb-2 text-white">{service.title}</h4>
-                    <p className="text-gray-400 text-sm leading-relaxed">{service.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </TiltCard>
-          
-          <TiltCard className="h-full">
-            <h2 className="text-3xl font-extrabold mb-10 text-white tracking-tight">Execution Pipeline</h2>
-            <div className="space-y-6 mt-4">
-              {[
-                'Discovery & Architecture Planning',
-                'UI/UX Design & 3D Prototyping',
-                'Full-Stack Development & API Integration',
-                'Performance Tuning & SEO Optimization',
-                'Launch, Deployment & Ongoing Support'
-              ].map((step, i) => (
-                <div key={i} className="flex items-center gap-6 p-5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all duration-300">
-                  <div className="text-[var(--color-accent)] font-bold text-xl font-mono opacity-80">0{i + 1}</div>
-                  <p className="text-white text-sm font-semibold tracking-wide">{step}</p>
-                </div>
-              ))}
-            </div>
-          </TiltCard>
-        </motion.div>
-      </section>
+      <SectionDivider number="02" title="WORK" />
 
-      {/* 4. AUTHENTIC PRICING */}
-      <section id="pricing" className="py-32 px-6 md:px-12 max-w-7xl mx-auto relative">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-16 border-b border-white/10 pb-8 text-center"
-        >
-          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-3 tracking-tight">INVESTMENT</h2>
-          <p className="text-sm text-[var(--color-accent)] font-semibold uppercase tracking-widest">
-            Transparent Pricing for Premium Quality
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {/* 02 / WORK */}
+      <section id="work" className="py-24 px-6 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          {/* Agency */}
-          <motion.div whileHover={{ y: -10 }} className="rounded-3xl p-8 flex flex-col bg-white/[0.02] border border-white/10 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)] transition-all duration-500">
-            <h3 className="text-xl font-bold text-white mb-2 tracking-tight">Agency</h3>
-            <p className="text-xs text-gray-400 border-b border-white/10 pb-5 mb-6">High-conversion portfolio & lead gen.</p>
-            <div className="mb-8">
-              <span className="text-5xl font-extrabold text-white">$70</span>
-              <span className="text-xs text-gray-500 block mt-2 font-bold uppercase tracking-widest">Starting Price</span>
+          {/* Editify Project Island */}
+          <motion.div 
+            initial={{ opacity: 0, y: 60, scale: 0.97 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="island corner-brackets flex flex-col md:flex-row overflow-hidden group h-full"
+          >
+            <div className="md:w-1/2 bg-[var(--color-bg-inset)] relative p-8 flex items-center justify-center border-b md:border-b-0 md:border-r border-[var(--color-border)] overflow-hidden">
+              <img src="/editify-logo.png" alt="Editify Studios" className="w-32 opacity-70 group-hover:scale-110 group-hover:opacity-100 transition-all duration-700 filter contrast-125" />
             </div>
-            <ul className="space-y-4 mb-10 flex-grow">
-              {['Custom UI/UX Design', 'Smooth Animations', 'SEO & Speed Opt', 'Contact Forms', '5–14 Days Delivery', '3 Free Revisions'].map((feature, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-gray-300 font-medium">
-                  <span className="text-[var(--color-accent)] mt-0.5">●</span>
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center">
-              BOOK AGENCY
-            </MagneticButton>
+            <div className="p-8 md:w-1/2 flex flex-col justify-center">
+              <div className="section-label mb-3">CLIENT.01</div>
+              <h3 className="font-display text-2xl font-bold mb-3">Editify Platform</h3>
+              <p className="text-[var(--color-text-muted)] text-sm mb-8 leading-relaxed">
+                Full-stack portfolio architecture engineered for extreme performance and conversion.
+              </p>
+              <a href="https://editify-studios.vercel.app" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs uppercase tracking-widest font-bold gold-text hover:text-white transition-colors">
+                Initialize <ExternalLink size={14} />
+              </a>
+            </div>
           </motion.div>
 
-          {/* Business */}
-          <motion.div whileHover={{ y: -10 }} className="rounded-3xl p-8 flex flex-col bg-white/[0.05] border border-[var(--color-accent)]/50 backdrop-blur-xl shadow-[0_20px_50px_rgba(176,38,255,0.15)] hover:shadow-[0_30px_70px_rgba(176,38,255,0.25)] transition-all duration-500 relative lg:-mt-4 lg:mb-4">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[var(--color-accent)] text-white text-xs font-bold uppercase tracking-widest py-1.5 px-5 rounded-full shadow-[0_10px_20px_rgba(176,38,255,0.4)]">
-              MOST POPULAR
+          {/* Thumbpilot Project Island */}
+          <motion.div 
+            initial={{ opacity: 0, y: 60, scale: 0.97 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
+            className="island flex flex-col md:flex-row overflow-hidden group h-full"
+          >
+            <div className="md:w-1/2 bg-[var(--color-bg-inset)] relative p-8 flex items-center justify-center border-b md:border-b-0 md:border-r border-[var(--color-border)] overflow-hidden">
+              <div className="font-display text-4xl font-bold text-[var(--color-text-muted)] group-hover:scale-110 group-hover:text-white transition-all duration-700">THUMB.</div>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2 tracking-tight mt-2">Business</h3>
-            <p className="text-xs text-gray-400 border-b border-white/10 pb-5 mb-6">Advanced functionality for companies.</p>
-            <div className="mb-8">
-              <span className="text-5xl font-extrabold text-white">$80</span>
-              <span className="text-xs text-gray-500 block mt-2 font-bold uppercase tracking-widest">Starting Price</span>
+            <div className="p-8 md:w-1/2 flex flex-col justify-center">
+              <div className="section-label mb-3">CLIENT.02</div>
+              <h3 className="font-display text-2xl font-bold mb-3">Thumbpilot</h3>
+              <p className="text-[var(--color-text-muted)] text-sm mb-8 leading-relaxed">
+                High-converting landing page designed to rapidly funnel traffic and maximize lead capture.
+              </p>
+              <div className="flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-[var(--color-text-muted)] cursor-not-allowed">
+                Classified
+              </div>
             </div>
-            <ul className="space-y-4 mb-10 flex-grow">
-              {['Everything in Agency', 'Booking Systems', 'Google Maps / Local SEO', 'Testimonials & FAQs', '7–14 Days Delivery', '3 Free Revisions'].map((feature, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-white font-semibold">
-                  <span className="text-[var(--color-accent)] mt-0.5">●</span>
-                  <span>{feature}</span>
+          </motion.div>
+
+        </div>
+      </section>
+
+      <SectionDivider number="03" title="CAPABILITIES" />
+
+      {/* 03 / CAPABILITIES */}
+      <section id="services" className="py-24 px-6 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          {[
+            { icon: <Code2 size={20} />, title: "SYS.ARCH", desc: "React, Node, Next.js. I build scalable foundations, not fragile templates." },
+            { icon: <Layers size={20} />, title: "INTERFACE", desc: "Framer Motion, CSS 3D, WebGL. Interfaces that feel like physical objects." },
+            { icon: <Cpu size={20} />, title: "OPTIMIZE", desc: "Lighthouse 100s. Zero layout shift. Instantly interactive." }
+          ].map((item, idx) => (
+            <motion.div 
+              key={idx}
+              initial={{ opacity: 0, y: 60, scale: 0.97 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6, delay: idx * 0.12, ease: [0.16, 1, 0.3, 1] }}
+              className="island p-8"
+            >
+              <div className="w-10 h-10 rounded-full border border-[var(--color-border)] flex items-center justify-center mb-6 text-[var(--color-text-muted)]">
+                {item.icon}
+              </div>
+              <h3 className="font-display text-xl font-bold mb-3">{item.title}</h3>
+              <p className="text-[var(--color-text-muted)] text-sm leading-relaxed">{item.desc}</p>
+            </motion.div>
+          ))}
+          
+        </div>
+      </section>
+
+      <SectionDivider number="04" title="INVESTMENT" />
+
+      {/* 04 / INVESTMENT */}
+      <section id="pricing" className="py-24 px-6 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          {/* Starter */}
+          <motion.div 
+            initial={{ opacity: 0, y: 60, scale: 0.97 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6, delay: 0, ease: [0.16, 1, 0.3, 1] }}
+            className="island p-8 flex flex-col"
+          >
+            <div className="section-label mb-2">TIER.01</div>
+            <h3 className="font-display text-2xl font-bold mb-1">Starter</h3>
+            <div className="text-3xl font-display font-bold mt-4 mb-6">$80</div>
+            <ul className="space-y-3 mb-8 flex-grow">
+              {['1 Page Portfolio', 'Responsive Design', 'Basic SEO', '3 Days Delivery'].map((ft, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm text-[var(--color-text-muted)]">
+                  <Check size={14} className="text-[var(--color-gold)]" /> {ft}
                 </li>
               ))}
             </ul>
-            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center bg-white !text-black font-bold border-none">
-              BOOK BUSINESS
-            </MagneticButton>
+            <MagneticButton onClick={openContact} className="w-full text-center">DEPLOY</MagneticButton>
+          </motion.div>
+
+          {/* Professional (Featured) */}
+          <motion.div 
+            initial={{ opacity: 0, y: 60, scale: 0.97 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
+            className="island corner-brackets p-8 flex flex-col border-[var(--color-border-active)] shadow-[0_10px_30px_var(--color-gold-glow)] relative overflow-hidden"
+          >
+            {/* Gold highlight line at top */}
+            <div className="absolute top-0 left-0 w-full h-[2px] gold-fill" />
+            
+            <div className="section-label mb-2 gold-text">TIER.02 / POPULAR</div>
+            <h3 className="font-display text-2xl font-bold mb-1">Professional</h3>
+            <div className="text-4xl font-display font-bold mt-4 mb-6 gold-text">$140</div>
+            <ul className="space-y-3 mb-8 flex-grow">
+              {['Up to 5 Pages', 'Custom Animations', 'Advanced SEO', 'Contact Forms', '1 Week Delivery'].map((ft, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm text-[var(--color-text)]">
+                  <Check size={14} className="text-[var(--color-gold-bright)]" /> {ft}
+                </li>
+              ))}
+            </ul>
+            <MagneticButton primary onClick={openContact} className="w-full text-center">DEPLOY</MagneticButton>
           </motion.div>
 
           {/* E-Commerce */}
-          <motion.div whileHover={{ y: -10 }} className="rounded-3xl p-8 flex flex-col bg-white/[0.02] border border-white/10 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)] transition-all duration-500">
-            <h3 className="text-xl font-bold text-white mb-2 tracking-tight">E-Commerce</h3>
-            <p className="text-xs text-gray-400 border-b border-white/10 pb-5 mb-6">Fully functional online stores.</p>
-            <div className="mb-8">
-              <span className="text-5xl font-extrabold text-white">$250</span>
-              <span className="text-xs text-gray-500 block mt-2 font-bold uppercase tracking-widest">Starting Price</span>
-            </div>
-            <ul className="space-y-4 mb-10 flex-grow">
-              {['Custom Product Pages', 'Secure Cart & Checkout', 'Stripe/PayPal Gateways', 'Inventory Management', '2–4 Weeks Delivery', 'Full SEO Optimization'].map((feature, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-gray-300 font-medium">
-                  <span className="text-[var(--color-accent)] mt-0.5">●</span>
-                  <span>{feature}</span>
+          <motion.div 
+            initial={{ opacity: 0, y: 60, scale: 0.97 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
+            className="island p-8 flex flex-col"
+          >
+            <div className="section-label mb-2">TIER.03</div>
+            <h3 className="font-display text-2xl font-bold mb-1">E-Commerce</h3>
+            <div className="text-3xl font-display font-bold mt-4 mb-6">$300</div>
+            <ul className="space-y-3 mb-8 flex-grow">
+              {['Full Online Store', 'Payment Gateway', 'Admin Dashboard', 'Product Management', '2 Weeks Delivery'].map((ft, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm text-[var(--color-text-muted)]">
+                  <Check size={14} className="text-[var(--color-gold)]" /> {ft}
                 </li>
               ))}
             </ul>
-            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center">
-              BOOK E-COM
-            </MagneticButton>
+            <MagneticButton onClick={openContact} className="w-full text-center">DEPLOY</MagneticButton>
           </motion.div>
 
-          {/* SaaS */}
-          <motion.div whileHover={{ y: -10 }} className="rounded-3xl p-8 flex flex-col bg-white/[0.02] border border-white/10 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)] transition-all duration-500">
-            <h3 className="text-xl font-bold text-white mb-2 tracking-tight">SaaS Apps</h3>
-            <p className="text-xs text-gray-400 border-b border-white/10 pb-5 mb-6">Complex software architectures.</p>
-            <div className="mb-8">
-              <span className="text-5xl font-extrabold text-white">$500</span>
-              <span className="text-xs text-gray-500 block mt-2 font-bold uppercase tracking-widest">Starting Price</span>
-            </div>
-            <ul className="space-y-4 mb-10 flex-grow">
-              {['Secure Authentication', 'Database Integration', 'Custom Admin Dashboards', 'API Development', '3–8 Weeks Delivery', 'Scalable Architecture'].map((feature, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-gray-300 font-medium">
-                  <span className="text-[var(--color-accent)] mt-0.5">●</span>
-                  <span>{feature}</span>
+          {/* Custom */}
+          <motion.div 
+            initial={{ opacity: 0, y: 60, scale: 0.97 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
+            className="island p-8 flex flex-col bg-[var(--color-bg-inset)]"
+          >
+            <div className="section-label mb-2">TIER.04</div>
+            <h3 className="font-display text-2xl font-bold mb-1">SaaS / Web App</h3>
+            <div className="text-3xl font-display font-bold mt-4 mb-6 text-[var(--color-text-muted)]">CUSTOM</div>
+            <ul className="space-y-3 mb-8 flex-grow">
+              {['Complex Architecture', 'Database Design', 'Authentication', 'API Integration', 'Timeline TBD'].map((ft, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm text-[var(--color-text-muted)]">
+                  <Check size={14} className="text-[var(--color-text-muted)]" /> {ft}
                 </li>
               ))}
             </ul>
-            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full text-center">
-              BOOK SAAS
-            </MagneticButton>
+            <MagneticButton onClick={openContact} className="w-full text-center">QUERY</MagneticButton>
           </motion.div>
 
         </div>
       </section>
 
-      {/* 5. AUTHENTIC TESTIMONIALS */}
-      <section className="py-32 px-6 md:px-12 max-w-5xl mx-auto">
+      <SectionDivider number="05" title="PROOF" />
+
+      {/* 05 / PROOF */}
+      <section className="py-24 px-6 max-w-4xl mx-auto w-full">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          initial={{ opacity: 0, y: 60, scale: 0.97 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="island p-10 md:p-16 flex flex-col md:flex-row items-center gap-12"
         >
-          <TiltCard className="p-12 relative overflow-hidden">
-            <h2 className="text-lg font-bold mb-10 text-[var(--color-accent)] tracking-widest uppercase text-center md:text-left">Client Verification</h2>
-            <div className="flex flex-col md:flex-row gap-12 items-center">
-              <div className="flex-grow">
-                <div className="flex gap-2 mb-8 text-[var(--color-accent)] drop-shadow-[0_0_8px_var(--color-accent-glow)]">
-                  {[1,2,3,4,5].map(i => <svg key={i} className="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>)}
-                </div>
-                <p className="text-xl leading-relaxed mb-10 text-white font-medium italic">
-                  "Shaurya is a 10/10 website builder, highly recommended. He offers the best prices in the market and delivers exceptional quality."
-                </p>
-                <div className="flex items-center gap-4">
-                  <div>
-                    <h4 className="font-bold text-lg text-white">Founder</h4>
-                    <p className="text-xs text-[var(--color-accent)] uppercase tracking-widest font-bold mt-1">Editify Studios</p>
-                  </div>
-                </div>
-              </div>
-              <div className="w-32 h-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-6 shadow-[0_15px_30px_rgba(0,0,0,0.4)] flex-shrink-0 backdrop-blur-md">
-                <img src="/editify-logo.png" alt="Editify Studios" loading="lazy" className="w-full h-full object-contain filter contrast-125 drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" />
-              </div>
+          <div className="flex-grow">
+            <div className="flex gap-1 mb-8">
+              {[1,2,3,4,5].map(i => (
+                <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill="var(--color-gold)" className="drop-shadow-[0_0_4px_var(--color-gold)]">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                </svg>
+              ))}
             </div>
-          </TiltCard>
+            <h3 className="font-display text-2xl md:text-3xl font-bold mb-8 leading-tight">
+              "Shaurya is a 10/10 website builder, highly recommended. He delivers exceptional quality."
+            </h3>
+            <div>
+              <div className="font-bold text-[var(--color-text)]">Founder</div>
+              <div className="section-label !text-[0.65rem] mt-1">EDITIFY STUDIOS</div>
+            </div>
+          </div>
+          <div className="w-32 h-32 rounded-lg bg-[var(--color-bg-inset)] border border-[var(--color-border)] flex items-center justify-center p-6 flex-shrink-0">
+            <img src="/editify-logo.png" alt="Editify Studios" className="w-full h-full object-contain filter contrast-125" />
+          </div>
         </motion.div>
       </section>
 
-      {/* 6. CONTACT FOOTER */}
+      {/* 06 / CONTACT FOOTER */}
       <ContactFooter />
 
     </div>

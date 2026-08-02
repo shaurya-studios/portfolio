@@ -30,8 +30,6 @@ export default function Chatbot() {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Only scroll smoothly when messages change, but don't force a bottom scroll 
-    // while the typewriter is expanding the text, to avoid scrolling past the top.
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length, isOpen, isLoading]);
 
@@ -70,13 +68,13 @@ export default function Chatbot() {
   return (
     <div className="fixed bottom-6 right-6 z-50 font-mono">
       {isOpen ? (
-        <div className="w-[350px] h-[500px] bg-[var(--color-bg)] border border-[var(--color-border)] flex flex-col shadow-[8px_8px_0_0_var(--color-accent-glow)]">
-          <div className="border-b border-[var(--color-border)] p-4 flex justify-between items-center bg-[var(--color-bg-elevated)]">
-            <div className="flex items-center gap-2 text-[var(--color-accent)] font-bold text-sm uppercase">
-              <div className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
+        <div className="island corner-brackets w-[350px] h-[500px] flex flex-col overflow-hidden">
+          <div className="border-b border-[var(--color-border)] p-4 flex justify-between items-center bg-[var(--color-bg-inset)]">
+            <div className="flex items-center gap-2 text-[var(--color-gold)] font-bold text-sm uppercase">
+              <div className="w-2 h-2 rounded-full bg-[var(--color-gold)] animate-pulse shadow-[0_0_8px_var(--color-gold-glow)]" />
               BUGGIE_v1.0
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-[var(--color-text-secondary)] hover:text-white">
+            <button onClick={() => setIsOpen(false)} className="text-[var(--color-text-muted)] hover:text-white">
               <X size={18} />
             </button>
           </div>
@@ -84,7 +82,7 @@ export default function Chatbot() {
           <div className="flex-grow p-4 overflow-y-auto space-y-4">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] p-3 text-sm whitespace-pre-wrap ${m.role === 'user' ? 'bg-[var(--color-accent)] text-black' : 'bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] border border-[var(--color-border)]'}`}>
+                <div className={`max-w-[85%] p-3 text-sm whitespace-pre-wrap rounded-[4px] ${m.role === 'user' ? 'gold-fill text-black font-semibold' : 'bg-[var(--color-bg-inset)] text-[var(--color-text)] border border-[var(--color-border)]'}`}>
                   {m.role === 'assistant' && !m.typed ? (
                     <TypewriterText 
                       text={m.content} 
@@ -100,7 +98,7 @@ export default function Chatbot() {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] p-3 text-sm bg-[var(--color-bg-elevated)] text-[var(--color-accent)] border border-[var(--color-border)] animate-pulse rounded-lg rounded-tl-none">
+                <div className="max-w-[85%] p-3 text-sm bg-[var(--color-bg-inset)] text-[var(--color-gold)] border border-[var(--color-border)] animate-pulse rounded-[4px]">
                   Buggie is typing...
                 </div>
               </div>
@@ -108,15 +106,15 @@ export default function Chatbot() {
             <div ref={endRef} />
           </div>
           
-          <form onSubmit={handleSubmit} className="border-t border-[var(--color-border)] p-3 bg-[var(--color-bg-elevated)] flex gap-2">
+          <form onSubmit={handleSubmit} className="border-t border-[var(--color-border)] p-3 bg-[var(--color-bg-inset)] flex gap-2">
             <input 
               type="text" 
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="&gt; Type command..." 
-              className="flex-grow bg-transparent border-none outline-none text-sm text-white placeholder:text-[var(--color-text-secondary)]"
+              className="flex-grow bg-transparent border-none outline-none text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]"
             />
-            <button type="submit" className="text-[var(--color-accent)] hover:text-white disabled:opacity-50" disabled={!input.trim()}>
+            <button type="submit" className="text-[var(--color-gold)] hover:text-white disabled:opacity-50" disabled={!input.trim()}>
               <Send size={18} />
             </button>
           </form>
@@ -125,7 +123,7 @@ export default function Chatbot() {
         <button 
           onClick={() => setIsOpen(true)}
           aria-label="Open AI Chatbot"
-          className="w-14 h-14 bg-[var(--color-accent)] text-black flex items-center justify-center hover:-translate-y-1 transition-transform border border-[var(--color-border)] shadow-[4px_4px_0_0_var(--color-border)]"
+          className="w-14 h-14 rounded-full gold-fill gold-shine shadow-[0_8px_20px_rgba(232,182,52,0.2)] hover:shadow-[0_12px_24px_rgba(232,182,52,0.4)] text-black flex items-center justify-center transition-all duration-300"
         >
           <MessageSquare size={24} />
         </button>
