@@ -1,6 +1,7 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Code2, Layers, Cpu } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import ContactFooter from '../components/ContactFooter';
 
 // Apple-style Magnetic Button Component (Rounded, soft shadow)
 const MagneticButton = ({ children, className = '', href, target }: { children: React.ReactNode, className?: string, href?: string, target?: string }) => {
@@ -150,7 +151,7 @@ export default function Home() {
               transition={{ delay: 0.2 }}
             >
               <div className="w-2 h-2 rounded-full bg-[var(--color-accent)] shadow-[0_0_10px_var(--color-accent-glow)] animate-pulse" />
-              <span>SHAURYA.DEV // SYSTEM_ONLINE</span>
+              <span>SHAURYA AGARWAL // DEVELOPER</span>
             </motion.div>
 
             <motion.h1 
@@ -159,7 +160,7 @@ export default function Home() {
               transition={{ duration: 0.7, delay: 0.3 }}
               className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-500 min-h-[140px] tracking-tight"
             >
-              ENGINEERING <br/>WORLD-CLASS <br/><span className="text-[var(--color-accent)] drop-shadow-[0_0_15px_rgba(176,38,255,0.3)]">{currentText}</span><span className="text-[var(--color-accent)] animate-blink">_</span>
+              CRAFTING <br/>PREMIUM <br/><span className="text-[var(--color-accent)] drop-shadow-[0_0_15px_rgba(176,38,255,0.3)]">{currentText}</span><span className="text-[var(--color-accent)] animate-blink">_</span>
             </motion.h1>
 
             <motion.p 
@@ -488,34 +489,7 @@ export default function Home() {
       </section>
 
       {/* 6. CONTACT FOOTER */}
-      <section id="contact" className="py-40 px-6 md:px-12 max-w-4xl mx-auto text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="inline-block mb-10 px-8 py-4 rounded-3xl bg-white/5 border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.3)] backdrop-blur-md transform -rotate-2 hover:rotate-0 transition-transform duration-500 cursor-pointer">
-            <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">INITIATE DEPLOYMENT</h2>
-          </div>
-          <p className="text-sm text-gray-400 mb-16 max-w-2xl mx-auto uppercase tracking-widest font-semibold leading-relaxed">
-            Currently accepting new clients. Let's discuss your product goals and architect a custom solution for your business.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
-            <MagneticButton href="mailto:shaurya.studios.dev@gmail.com" className="w-full sm:w-auto text-center bg-white !text-black hover:bg-gray-200 py-4 px-10 font-bold text-sm shadow-[0_15px_30px_rgba(255,255,255,0.2)] hover:shadow-[0_20px_40px_rgba(255,255,255,0.3)] border-none">
-              EMAIL INQUIRY
-            </MagneticButton>
-            <div className="flex gap-4 w-full sm:w-auto">
-              <MagneticButton href="https://discord.com/users/1338926430679076925" target="_blank" className="flex-1 text-center py-4 px-8">
-                DISCORD
-              </MagneticButton>
-              <MagneticButton href="https://www.fiverr.com/s/6Yl5a2r" target="_blank" className="flex-1 text-center py-4 px-8">
-                FIVERR
-              </MagneticButton>
-            </div>
-          </div>
-        </motion.div>
-      </section>
+      <ContactFooter />
 
     </div>
   );

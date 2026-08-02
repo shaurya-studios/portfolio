@@ -1,5 +1,7 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useRef } from 'react';
+import ContactFooter from '../components/ContactFooter';
+import { Film, Scissors, Sparkles, MonitorPlay } from 'lucide-react';
 
 const videos = [
   { id: 1, title: 'Sample Project 1', src: '/videos/sample1.mp4' },
@@ -179,10 +181,10 @@ export default function VideoEditing() {
           className="text-center space-y-6"
         >
           <div className="inline-block px-4 py-1.5 rounded-full border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/10 text-[var(--color-accent)] text-xs font-semibold tracking-widest uppercase mb-4 shadow-[0_0_20px_rgba(var(--color-accent-rgb),0.2)]">
-            Visual Storytelling
+            Post-Production
           </div>
           <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tighter">
-            Next-Level <br className="hidden md:block" />
+            Premium <br className="hidden md:block" />
             <span className="text-[var(--color-accent)] drop-shadow-[0_0_20px_var(--color-accent-glow)]">Video Editing.</span>
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
@@ -200,6 +202,65 @@ export default function VideoEditing() {
           <HolographicPricingCard />
         </div>
 
+        {/* Workflow Section */}
+        <section className="py-24">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-16 border-b border-white/10 pb-8"
+          >
+            <h2 className="text-4xl font-extrabold text-white mb-3 tracking-tight">THE WORKFLOW</h2>
+            <p className="text-sm text-[var(--color-accent)] font-semibold uppercase tracking-widest">
+              From Raw Footage to Final Export
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { icon: <Film size={24} />, title: "1. Footage Review", desc: "Analyzing raw clips and planning the narrative flow." },
+              { icon: <Scissors size={24} />, title: "2. The Rough Cut", desc: "Splicing the best moments to build pacing and structure." },
+              { icon: <Sparkles size={24} />, title: "3. VFX & Color", desc: "Adding motion graphics, color grading, and visual polish." },
+              { icon: <MonitorPlay size={24} />, title: "4. Final Render", desc: "Sound design mixing and high-bitrate export for publishing." }
+            ].map((step, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1, duration: 0.5 }}
+                className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md hover:bg-white/10 transition-colors"
+              >
+                <div className="text-[var(--color-accent)] mb-4 bg-[var(--color-accent)]/10 w-12 h-12 flex items-center justify-center rounded-xl">
+                  {step.icon}
+                </div>
+                <h3 className="text-white font-bold text-lg mb-2">{step.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Software Stack Section */}
+        <section className="py-12 border-t border-white/10">
+          <div className="flex flex-col items-center text-center">
+            <p className="text-gray-400 uppercase tracking-widest text-xs font-bold mb-8">Industry Standard Tools</p>
+            <div className="flex flex-wrap justify-center gap-6">
+              <div className="px-6 py-3 rounded-full bg-[#9999FF]/10 border border-[#9999FF]/30 text-[#9999FF] font-bold shadow-[0_0_15px_rgba(153,153,255,0.2)]">
+                Premiere Pro
+              </div>
+              <div className="px-6 py-3 rounded-full bg-white/10 border border-white/30 text-white font-bold shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                CapCut Pro
+              </div>
+              <div className="px-6 py-3 rounded-full bg-[#D28CFC]/10 border border-[#D28CFC]/30 text-[#D28CFC] font-bold shadow-[0_0_15px_rgba(210,140,252,0.2)]">
+                After Effects
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Unified Contact Footer */}
+        <ContactFooter />
       </div>
     </div>
   );
