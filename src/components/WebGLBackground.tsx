@@ -1,22 +1,20 @@
 export default function WebGLBackground() {
   return (
-    <div className="fixed inset-0 z-[-1] bg-[#121212] overflow-hidden pointer-events-none">
-      {/* Base Grid */}
+    <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none" style={{ backgroundColor: 'var(--color-bg)' }}>
+      {/* Blueprint dot grid */}
       <div 
-        className="absolute inset-0 opacity-[0.03]" 
+        className="absolute inset-0" 
         style={{
-          backgroundImage: 'linear-gradient(var(--color-accent) 1px, transparent 1px), linear-gradient(90deg, var(--color-accent) 1px, transparent 1px)',
-          backgroundSize: '40px 40px'
+          backgroundImage: 'radial-gradient(circle, var(--color-border) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
+          opacity: 0.04,
         }}
       />
       
-      {/* CRT Scanlines Overlay */}
-      <div className="absolute inset-0 scanlines z-10" />
-      
-      {/* Subtle Vignette for old monitor curve feel */}
+      {/* Subtle vignette — darker edges, lighter center */}
       <div 
-        className="absolute inset-0 z-20" 
-        style={{ background: 'radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.8) 100%)' }} 
+        className="absolute inset-0" 
+        style={{ background: 'radial-gradient(ellipse at 50% 30%, transparent 30%, rgba(0,0,0,0.6) 100%)' }} 
       />
     </div>
   );

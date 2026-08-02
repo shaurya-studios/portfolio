@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import VideoEditing from './pages/VideoEditing';
 import { ContactProvider } from './context/ContactContext';
 import ContactModal from './components/ContactModal';
+import Cursor from './components/Cursor';
 
 function App() {
   useEffect(() => {
@@ -34,10 +35,11 @@ function App() {
     <ContactProvider>
       <Router>
         <WebGLBackground />
+        <Cursor />
         <Navbar />
         <ContactModal />
         <Chatbot />
-        <div className="relative z-10 min-h-screen flex flex-col text-[var(--color-text-primary)]">
+        <div className="relative z-10 min-h-screen flex flex-col text-[var(--color-text)]">
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Home />} />
