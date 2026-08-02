@@ -8,7 +8,10 @@ export default async function handler(req, res) {
   const { message } = req.body;
 
   try {
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AQ.Ab8RN6KuZ6LhsRosn9EkRcMQWUSdibhApc35DoZgc7gSANw1JA";
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    if (!GEMINI_API_KEY) {
+      return res.status(500).json({ error: 'API key not configured. Set GEMINI_API_KEY in environment variables.' });
+    }
     const systemInstruction = knowledgeBase;
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent`, {
