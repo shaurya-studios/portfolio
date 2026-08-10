@@ -141,7 +141,7 @@ export default function Home() {
             desc="Full-stack portfolio architecture engineered for extreme performance and conversion."
             label="CLIENT.01"
             link="https://editify-studios.vercel.app"
-            imageSrc="/placeholder1.jpg"
+            imageSrc=""
           />
 
           <ProjectShowcase 
@@ -149,7 +149,7 @@ export default function Home() {
             desc="High-converting landing page designed to rapidly funnel traffic and maximize lead capture."
             label="CLIENT.02"
             link="#"
-            imageSrc="/placeholder2.jpg"
+            imageSrc=""
             reversed={true}
           />
 

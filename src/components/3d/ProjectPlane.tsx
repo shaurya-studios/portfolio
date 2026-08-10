@@ -1,8 +1,15 @@
-import { useRef, useState, Suspense } from 'react';
+import { useRef, useState, Suspense, Component } from 'react';
+import type { ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useTransform, useSpring, MotionValue } from 'framer-motion';
 import { useTexture, useVideoTexture } from '@react-three/drei';
 import * as THREE from 'three';
+
+class ErrorBoundary extends Component<{children: ReactNode, fallback: ReactNode}, {hasError: boolean}> {
+  constructor(props: any) { super(props); this.state = { hasError: false }; }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() { return this.state.hasError ? this.props.fallback : this.props.children; }
+}
 
 interface ProjectPlaneProps {
   videoSrc?: string;
@@ -70,11 +77,11 @@ export default function ProjectPlane({ videoSrc, imageSrc, scrollProgress }: Pro
       onPointerOut={() => setHovered(false)}
     >
       <planeGeometry args={[16, 9, 32, 32]} />
-      <Suspense fallback={
-        <meshPhysicalMaterial color="#050505" wireframe />
-      }>
-        <TextureMaterial videoSrc={videoSrc} imageSrc={imageSrc} />
-      </Suspense>
+      <ErrorBoundary fallback={<meshPhysicalMaterial color="#050505" wireframe />}>
+        <Suspense fallback={<meshPhysicalMaterial color="#050505" wireframe />}>
+          <TextureMaterial videoSrc={videoSrc} imageSrc={imageSrc} />
+        </Suspense>
+      </ErrorBoundary>
     </mesh>
   );
 }

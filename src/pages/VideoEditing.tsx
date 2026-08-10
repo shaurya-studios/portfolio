@@ -22,9 +22,9 @@ const SectionDivider = ({ number, title }: { number: string, title: string }) =>
 // ==========================================
 
 const videos = [
-  { id: 1, title: 'Gaming Montage / Fast Paced', src: '/videos/sample1.mp4' },
-  { id: 2, title: 'YouTube Documentary / Narrative', src: '/videos/sample2.mp4' },
-  { id: 3, title: 'Short Form / High Retention', src: '/videos/sample3.mp4' },
+  { id: 1, title: 'Gaming Montage / Fast Paced', src: '' },
+  { id: 2, title: 'YouTube Documentary / Narrative', src: '' },
+  { id: 3, title: 'Short Form / High Retention', src: '' },
 ];
 
 const ProjectCard = ({ video, idx }: { video: any, idx: number }) => {
