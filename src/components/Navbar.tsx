@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useContact } from '../context/ContactContext';
+import { MagneticWrapper, MagneticButton } from './MagneticUI';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -45,17 +46,22 @@ export default function Navbar() {
           SHAURYA<span className="gold-text">.DEV</span>
         </Link>
         
-        <nav className="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest font-semibold font-mono">
-          <a href="#work" onClick={(e) => handleNav(e, '#work')} className="text-[var(--color-text-muted)] hover:text-white transition-colors duration-300">Showcase</a>
-          <a href="#services" onClick={(e) => handleNav(e, '#services')} className="text-[var(--color-text-muted)] hover:text-white transition-colors duration-300">Capabilities</a>
-          <a href="#pricing" onClick={(e) => handleNav(e, '#pricing')} className="text-[var(--color-text-muted)] hover:text-white transition-colors duration-300">Investment</a>
-          <Link to="/video-editing" className="text-[var(--color-gold)] hover:text-white transition-colors duration-300 drop-shadow-[0_0_8px_var(--color-gold-glow)]">Video Editing</Link>
-          <button 
-            onClick={openContact}
-            className="px-6 py-2.5 rounded-[4px] gold-fill gold-shine text-black transition-all duration-300 shadow-[0_4px_12px_rgba(232,182,52,0.2)] hover:shadow-[0_8px_20px_rgba(232,182,52,0.4)] cursor-pointer"
-          >
-            CONNECT
-          </button>
+        <nav className="hidden md:flex items-center gap-6 text-xs uppercase tracking-[0.15em] font-semibold font-mono pointer-events-auto">
+          <MagneticWrapper strength={0.2}>
+            <a href="#work" onClick={(e) => handleNav(e, '#work')} className="text-[var(--color-text-muted)] hover:text-white transition-colors duration-300 py-2 px-2">Showcase</a>
+          </MagneticWrapper>
+          <MagneticWrapper strength={0.2}>
+            <a href="#services" onClick={(e) => handleNav(e, '#services')} className="text-[var(--color-text-muted)] hover:text-white transition-colors duration-300 py-2 px-2">Capabilities</a>
+          </MagneticWrapper>
+          <MagneticWrapper strength={0.2}>
+            <a href="#pricing" onClick={(e) => handleNav(e, '#pricing')} className="text-[var(--color-text-muted)] hover:text-white transition-colors duration-300 py-2 px-2">Investment</a>
+          </MagneticWrapper>
+          <MagneticWrapper strength={0.2}>
+            <Link to="/video-editing" className="text-[var(--color-gold)] hover:text-white transition-colors duration-300 drop-shadow-[0_0_8px_var(--color-gold-glow)] py-2 px-2">Video Editing</Link>
+          </MagneticWrapper>
+          <div className="ml-4">
+            <MagneticButton primary onClick={openContact}>CONNECT</MagneticButton>
+          </div>
         </nav>
       </div>
     </motion.header>

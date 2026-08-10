@@ -1,7 +1,11 @@
-import { motion } from 'framer-motion';
+import { motion, useScroll } from 'framer-motion';
+import { useRef } from 'react';
 import ContactFooter from '../components/ContactFooter';
 import { useContact } from '../context/ContactContext';
 import { Code2, Layers, Cpu, Check, ExternalLink } from 'lucide-react';
+import { MagneticButton } from '../components/MagneticUI';
+import { View } from '@react-three/drei';
+import ProjectPlane from '../components/3d/ProjectPlane';
 
 // ==========================================
 // REUSABLE COMPONENTS
@@ -9,37 +13,48 @@ import { Code2, Layers, Cpu, Check, ExternalLink } from 'lucide-react';
 
 const SectionDivider = ({ number, title }: { number: string, title: string }) => (
   <div className="section-divider max-w-7xl mx-auto px-6 pointer-events-none">
-    <span className="section-label whitespace-nowrap">—— {number} / {title} ——</span>
+    <h2 className="section-label whitespace-nowrap m-0 font-normal text-[10px]">—— {number} / {title} ——</h2>
   </div>
 );
-
-// Magnetic button with industrial styling
-const MagneticButton = ({ children, onClick, href, primary = false, className = '' }: { children: React.ReactNode, onClick?: () => void, href?: string, primary?: boolean, className?: string }) => {
-  const Component = href ? 'a' : 'button';
-  const baseClasses = "relative px-8 py-3 uppercase tracking-widest font-semibold transition-all duration-300 block text-xs pointer-events-auto";
-  
-  // Primary CTA gets rounded-full, gold finish
-  // Secondary gets 4px radius, structural border
-  const styleClasses = primary 
-    ? "rounded-full gold-fill gold-shine shadow-[0_8px_20px_rgba(232,182,52,0.2)] hover:shadow-[0_12px_24px_rgba(232,182,52,0.4)]"
-    : "rounded-[4px] bg-[var(--color-bg-surface)] text-[var(--color-text)] border border-[var(--color-border)] hover:border-[var(--color-border-active)] hover:bg-[var(--color-bg-inset)]";
-
-  return (
-    <div className="inline-block pointer-events-auto">
-      <Component 
-        href={href} 
-        onClick={onClick}
-        className={`${baseClasses} ${styleClasses} ${className}`}
-      >
-        {children}
-      </Component>
-    </div>
-  );
-};
 
 // ==========================================
 // MAIN PAGE
 // ==========================================
+
+const ProjectShowcase = ({ title, desc, link, label, imageSrc, reversed = false }: any) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+
+  return (
+    <motion.div 
+      ref={ref}
+      initial={{ opacity: 0, y: 60 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className={`col-span-12 lg:col-span-10 ${reversed ? 'lg:col-start-1' : 'lg:col-start-2'} island corner-brackets flex flex-col md:flex-row overflow-hidden group min-h-[400px] pointer-events-none`}
+    >
+      <div className={`md:w-[60%] bg-[var(--color-bg-inset)] relative p-8 flex items-center justify-center border-b md:border-b-0 border-[var(--color-border)] overflow-hidden ${reversed ? 'order-1 md:order-2 md:border-l' : 'order-1 md:border-r'}`}>
+        <View className="absolute inset-0 w-full h-full pointer-events-none">
+          <ProjectPlane imageSrc={imageSrc} scrollProgress={scrollYProgress} />
+        </View>
+      </div>
+      <div className={`p-12 md:w-[40%] flex flex-col justify-center pointer-events-auto ${reversed ? 'order-2 md:order-1' : 'order-2'}`}>
+        <div className="section-label mb-4 text-[var(--color-gold)]">{label}</div>
+        <h3 className="font-display text-4xl font-bold mb-4 tracking-tight">{title}</h3>
+        <p className="font-mono text-[var(--color-text-muted)] text-sm mb-10 leading-relaxed">
+          {desc}
+        </p>
+        <a href={link} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm uppercase tracking-[0.2em] font-bold gold-text hover:text-white transition-colors">
+          Initialize <ExternalLink size={16} />
+        </a>
+      </div>
+    </motion.div>
+  );
+};
 
 export default function Home() {
   const { openContact } = useContact();
@@ -49,10 +64,10 @@ export default function Home() {
       
       {/* 01 / HERO */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center pt-24 lg:pt-0 h-full">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-8 items-center pt-24 lg:pt-0 h-full">
           
           {/* Left Column - Copy */}
-          <div className="flex flex-col justify-center h-full">
+          <div className="flex flex-col justify-center h-full col-span-12 lg:col-span-6 xl:col-span-5">
             <motion.div
               initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
@@ -66,7 +81,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             >
-              <h1 className="font-display text-5xl md:text-7xl font-bold leading-[1.1] mb-8 tracking-[-0.03em] pointer-events-auto">
+              <h1 className="font-display text-[clamp(3.5rem,8vw,7rem)] font-bold leading-[1.05] mb-8 tracking-[-0.04em] pointer-events-auto">
                 BUILDING <br />
                 DIGITAL <br />
                 <span className="gold-text">ARTIFACTS</span>_
@@ -118,52 +133,25 @@ export default function Home() {
       <SectionDivider number="02" title="WORK" />
 
       {/* 02 / WORK */}
-      <section id="work" className="py-24 px-6 max-w-7xl mx-auto w-full pointer-events-none">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pointer-events-auto">
+      <section id="work" className="py-32 px-6 max-w-7xl mx-auto w-full pointer-events-none relative">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-24">
           
-          <motion.div 
-            initial={{ opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="island corner-brackets flex flex-col md:flex-row overflow-hidden group h-full"
-          >
-            <div className="md:w-1/2 bg-[var(--color-bg-inset)] relative p-8 flex items-center justify-center border-b md:border-b-0 md:border-r border-[var(--color-border)] overflow-hidden">
-              <img src="/editify-logo.png" alt="Editify Studios" className="w-32 opacity-70 group-hover:scale-110 group-hover:opacity-100 transition-all duration-700 filter contrast-125" />
-            </div>
-            <div className="p-8 md:w-1/2 flex flex-col justify-center">
-              <div className="section-label mb-3">CLIENT.01</div>
-              <h3 className="font-display text-2xl font-bold mb-3">Editify Platform</h3>
-              <p className="text-[var(--color-text-muted)] text-sm mb-8 leading-relaxed">
-                Full-stack portfolio architecture engineered for extreme performance and conversion.
-              </p>
-              <a href="https://editify-studios.vercel.app" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs uppercase tracking-widest font-bold gold-text hover:text-white transition-colors">
-                Initialize <ExternalLink size={14} />
-              </a>
-            </div>
-          </motion.div>
+          <ProjectShowcase 
+            title="Editify Platform"
+            desc="Full-stack portfolio architecture engineered for extreme performance and conversion."
+            label="CLIENT.01"
+            link="https://editify-studios.vercel.app"
+            imageSrc="/placeholder1.jpg"
+          />
 
-          <motion.div 
-            initial={{ opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
-            className="island flex flex-col md:flex-row overflow-hidden group h-full"
-          >
-            <div className="md:w-1/2 bg-[var(--color-bg-inset)] relative p-8 flex items-center justify-center border-b md:border-b-0 md:border-r border-[var(--color-border)] overflow-hidden">
-              <div className="font-display text-4xl font-bold text-[var(--color-text-muted)] group-hover:scale-110 group-hover:text-white transition-all duration-700">THUMB.</div>
-            </div>
-            <div className="p-8 md:w-1/2 flex flex-col justify-center">
-              <div className="section-label mb-3">CLIENT.02</div>
-              <h3 className="font-display text-2xl font-bold mb-3">Thumbpilot</h3>
-              <p className="text-[var(--color-text-muted)] text-sm mb-8 leading-relaxed">
-                High-converting landing page designed to rapidly funnel traffic and maximize lead capture.
-              </p>
-              <div className="flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-[var(--color-text-muted)] cursor-not-allowed">
-                Classified
-              </div>
-            </div>
-          </motion.div>
+          <ProjectShowcase 
+            title="Thumbpilot"
+            desc="High-converting landing page designed to rapidly funnel traffic and maximize lead capture."
+            label="CLIENT.02"
+            link="#"
+            imageSrc="/placeholder2.jpg"
+            reversed={true}
+          />
 
         </div>
       </section>

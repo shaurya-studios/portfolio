@@ -1,7 +1,11 @@
-import { motion } from 'framer-motion';
+import { motion, useScroll } from 'framer-motion';
+import { useRef } from 'react';
 import ContactFooter from '../components/ContactFooter';
 import { useContact } from '../context/ContactContext';
 import { Film, Scissors, Sparkles, MonitorPlay } from 'lucide-react';
+import { MagneticButton } from '../components/MagneticUI';
+import { View } from '@react-three/drei';
+import ProjectPlane from '../components/3d/ProjectPlane';
 
 // ==========================================
 // REUSABLE COMPONENTS
@@ -9,30 +13,9 @@ import { Film, Scissors, Sparkles, MonitorPlay } from 'lucide-react';
 
 const SectionDivider = ({ number, title }: { number: string, title: string }) => (
   <div className="section-divider max-w-7xl mx-auto px-6 pointer-events-none">
-    <span className="section-label whitespace-nowrap">—— {number} / {title} ——</span>
+    <h2 className="section-label whitespace-nowrap m-0 font-normal text-[10px]">—— {number} / {title} ——</h2>
   </div>
 );
-
-const MagneticButton = ({ children, onClick, href, primary = false, className = '' }: { children: React.ReactNode, onClick?: () => void, href?: string, primary?: boolean, className?: string }) => {
-  const Component = href ? 'a' : 'button';
-  const baseClasses = "relative px-8 py-3 uppercase tracking-widest font-semibold transition-all duration-300 block text-xs pointer-events-auto";
-  
-  const styleClasses = primary 
-    ? "rounded-full gold-fill gold-shine shadow-[0_8px_20px_rgba(232,182,52,0.2)] hover:shadow-[0_12px_24px_rgba(232,182,52,0.4)]"
-    : "rounded-[4px] bg-[var(--color-bg-surface)] text-[var(--color-text)] border border-[var(--color-border)] hover:border-[var(--color-border-active)] hover:bg-[var(--color-bg-inset)]";
-
-  return (
-    <div className="inline-block pointer-events-auto">
-      <Component 
-        href={href} 
-        onClick={onClick}
-        className={`${baseClasses} ${styleClasses} ${className}`}
-      >
-        {children}
-      </Component>
-    </div>
-  );
-};
 
 // ==========================================
 // MAIN PAGE
@@ -44,6 +27,34 @@ const videos = [
   { id: 3, title: 'Short Form / High Retention', src: '/videos/sample3.mp4' },
 ];
 
+const ProjectCard = ({ video, idx }: { video: any, idx: number }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 60 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.8, delay: idx * 0.12, ease: [0.16, 1, 0.3, 1] }}
+      className={`island p-4 flex flex-col ${idx === 0 ? 'corner-brackets border-[var(--color-border-active)] shadow-[0_10px_30px_var(--color-gold-glow)]' : ''}`}
+    >
+      <div className="aspect-video bg-[var(--color-bg-inset)] rounded border border-[var(--color-border)] overflow-hidden relative mb-4">
+        <View className="absolute inset-0 w-full h-full pointer-events-none">
+          <ProjectPlane videoSrc={video.src} scrollProgress={scrollYProgress} />
+        </View>
+        <div className="absolute top-2 left-2 px-2 py-1 bg-black/80 backdrop-blur text-[0.6rem] font-mono tracking-widest text-[var(--color-gold)] border border-[var(--color-border)] rounded pointer-events-auto">REC</div>
+      </div>
+      <div className="section-label mb-1">FILE.0{video.id}</div>
+      <h3 className="font-display font-bold text-lg pointer-events-auto">{video.title}</h3>
+    </motion.div>
+  );
+};
+
 export default function VideoEditing() {
   const { openContact } = useContact();
 
@@ -51,19 +62,19 @@ export default function VideoEditing() {
     <div className="flex flex-col min-h-screen pointer-events-none">
       
       {/* 01 / HERO */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden px-6 pt-32 pb-16">
-        <div className="w-full max-w-4xl mx-auto text-center relative z-10 flex flex-col items-center">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6 pt-32 pb-16">
+        <div className="w-full max-w-6xl mx-auto text-center relative z-10 flex flex-col items-center">
           <motion.div
             initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           >
-            <span className="section-label mb-6 block text-[var(--color-gold)] pointer-events-auto">POST-PRODUCTION / SYS.02</span>
-            <h1 className="font-display text-5xl md:text-7xl font-bold leading-[1.1] mb-8 tracking-[-0.03em] pointer-events-auto">
+            <span className="section-label mb-8 block text-[var(--color-gold)] pointer-events-auto">POST-PRODUCTION / SYS.02</span>
+            <h1 className="font-display text-[clamp(3rem,7vw,7rem)] font-bold leading-[1.05] mb-10 tracking-[-0.04em] pointer-events-auto">
               ENGINEERED <br />
               FOR <span className="gold-text">RETENTION</span>_
             </h1>
-            <p className="text-[var(--color-text-muted)] text-base md:text-lg max-w-2xl mx-auto mb-10 leading-relaxed pointer-events-auto">
+            <p className="font-mono text-[var(--color-text-muted)] text-base md:text-lg max-w-2xl mx-auto mb-12 leading-relaxed pointer-events-auto">
               I edit gaming videos and general YouTube content. Precision cuts, algorithmic pacing, and sound design built to maximize audience retention. Not just flashy—effective.
             </p>
             
@@ -79,28 +90,9 @@ export default function VideoEditing() {
 
       {/* 02 / PORTFOLIO */}
       <section id="portfolio" className="py-24 px-6 max-w-7xl mx-auto w-full pointer-events-none">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16 pointer-events-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16 pointer-events-none">
           {videos.map((video, idx) => (
-            <motion.div
-              key={video.id}
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8, delay: idx * 0.12, ease: [0.16, 1, 0.3, 1] }}
-              className={`island p-4 flex flex-col ${idx === 0 ? 'corner-brackets border-[var(--color-border-active)] shadow-[0_10px_30px_var(--color-gold-glow)]' : ''}`}
-            >
-              <div className="aspect-video bg-[var(--color-bg-inset)] rounded border border-[var(--color-border)] overflow-hidden relative mb-4">
-                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,var(--color-text)_1px,transparent_1px)] bg-[length:10px_10px]" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface)] flex items-center justify-center text-[var(--color-text-muted)]">
-                    <MonitorPlay size={20} />
-                  </div>
-                </div>
-                <div className="absolute top-2 left-2 px-2 py-1 bg-black/80 backdrop-blur text-[0.6rem] font-mono tracking-widest text-[var(--color-gold)] border border-[var(--color-border)] rounded">REC</div>
-              </div>
-              <div className="section-label mb-1">FILE.0{video.id}</div>
-              <h3 className="font-display font-bold text-lg">{video.title}</h3>
-            </motion.div>
+            <ProjectCard key={video.id} video={video} idx={idx} />
           ))}
         </div>
 

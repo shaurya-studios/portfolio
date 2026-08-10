@@ -8,17 +8,17 @@
   --font-mono: 'JetBrains Mono', monospace;
 
   /* Gold Flash + Industrial — Color Tokens */
-  --color-bg: #06090f;
-  --color-bg-surface: #0c1118;
-  --color-bg-inset: #080b12;
+  --color-bg: #050505;
+  --color-bg-surface: #0a0a0a;
+  --color-bg-inset: #080808;
 
   --color-gold: #e8b634;
   --color-gold-bright: #f4d03f;
   --color-gold-deep: #c49a1e;
   --color-gold-glow: rgba(232, 182, 52, 0.15);
 
-  --color-text: #e8ecf1;
-  --color-text-muted: #5a6a82;
+  --color-text: #f3f4f6;
+  --color-text-muted: #e5e7eb;
 
   --color-border: #1a2030;
   --color-border-active: rgba(232, 182, 52, 0.3);
@@ -38,6 +38,7 @@ body {
   color: var(--color-text);
   overflow-x: hidden;
   font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
