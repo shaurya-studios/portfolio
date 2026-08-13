@@ -12,7 +12,7 @@ import ProjectPlane from '../components/3d/ProjectPlane';
 // ==========================================
 
 const SectionDivider = ({ number, title }: { number: string, title: string }) => (
-  <div className="section-divider max-w-7xl mx-auto px-6 pointer-events-none">
+  <div className="section-divider max-w-7xl mx-auto px-6">
     <h2 className="section-label whitespace-nowrap m-0 font-normal text-[10px]">—— {number} / {title} ——</h2>
   </div>
 );
@@ -35,14 +35,14 @@ const ProjectShowcase = ({ title, desc, link, label, imageSrc, reversed = false 
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className={`col-span-12 lg:col-span-10 ${reversed ? 'lg:col-start-1' : 'lg:col-start-2'} island corner-brackets flex flex-col md:flex-row overflow-hidden group min-h-[400px] pointer-events-none`}
+      className={`col-span-12 lg:col-span-10 ${reversed ? 'lg:col-start-1' : 'lg:col-start-2'} island corner-brackets flex flex-col md:flex-row overflow-hidden group min-h-[400px]`}
     >
       <div className={`md:w-[60%] bg-[var(--color-bg-inset)] relative p-8 flex items-center justify-center border-b md:border-b-0 border-[var(--color-border)] overflow-hidden ${reversed ? 'order-1 md:order-2 md:border-l' : 'order-1 md:border-r'}`}>
-        <View className="absolute inset-0 w-full h-full pointer-events-none">
+        <View className="absolute inset-0 w-full h-full">
           <ProjectPlane imageSrc={imageSrc} scrollProgress={scrollYProgress} />
         </View>
       </div>
-      <div className={`p-12 md:w-[40%] flex flex-col justify-center pointer-events-auto ${reversed ? 'order-2 md:order-1' : 'order-2'}`}>
+      <div className={`p-12 md:w-[40%] flex flex-col justify-center ${reversed ? 'order-2 md:order-1' : 'order-2'}`}>
         <div className="section-label mb-4 text-[var(--color-gold)]">{label}</div>
         <h3 className="font-display text-4xl font-bold mb-4 tracking-tight">{title}</h3>
         <p className="font-mono text-[var(--color-text-muted)] text-sm mb-10 leading-relaxed">
@@ -60,7 +60,7 @@ export default function Home() {
   const { openContact } = useContact();
 
   return (
-    <div className="flex flex-col min-h-screen pointer-events-none">
+    <div className="flex flex-col min-h-screen">
       
       {/* 01 / HERO */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -81,12 +81,12 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             >
-              <h1 className="font-display text-[clamp(3.5rem,8vw,7rem)] font-bold leading-[1.05] mb-8 tracking-[-0.04em] pointer-events-auto">
+              <h1 className="font-display text-[clamp(3.5rem,8vw,7rem)] font-bold leading-[1.05] mb-8 tracking-[-0.04em]">
                 BUILDING <br />
                 DIGITAL <br />
                 <span className="gold-text">ARTIFACTS</span>_
               </h1>
-              <p className="text-[var(--color-text-muted)] text-base md:text-lg max-w-md mb-10 leading-relaxed pointer-events-auto">
+              <p className="text-[var(--color-text-muted)] text-base md:text-lg max-w-md mb-10 leading-relaxed">
                 I engineer highly tactile, performant web applications for founders who treat their digital presence as a physical asset.
               </p>
               
@@ -98,12 +98,12 @@ export default function Home() {
           </div>
 
           {/* Right Column - Removed CSS 3D Mockup, space is reserved for the R3F Monolith */}
-          <div className="relative h-[60vh] min-h-[400px] lg:h-full flex items-center justify-center mt-12 lg:mt-0 pointer-events-none">
+          <div className="relative h-[60vh] min-h-[400px] lg:h-full flex items-center justify-center mt-12 lg:mt-0">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className={`absolute top-[20%] right-[10%] glass-panel px-5 py-3 rounded-full flex items-center gap-3 pointer-events-auto`}
+              className={`absolute top-[20%] right-[10%] glass-panel px-5 py-3 rounded-full flex items-center gap-3`}
             >
               <div className="w-2 h-2 rounded-full bg-[var(--color-gold)] shadow-[0_0_8px_var(--color-gold)]" />
               <span className="font-display font-bold text-sm">2+ YEARS</span>
@@ -113,7 +113,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.48 }}
-              className={`absolute bottom-[30%] left-[5%] glass-panel px-5 py-3 rounded-full corner-brackets border-[var(--color-border-active)] shadow-[0_10px_20px_var(--color-gold-glow)] pointer-events-auto`}
+              className={`absolute bottom-[30%] left-[5%] glass-panel px-5 py-3 rounded-full corner-brackets border-[var(--color-border-active)] shadow-[0_10px_20px_var(--color-gold-glow)]`}
             >
               <span className="gold-text font-display font-bold text-lg leading-none tracking-tight">10+ BUILDS</span>
             </motion.div>
@@ -122,7 +122,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.56 }}
-              className={`absolute bottom-[15%] right-[20%] glass-panel px-5 py-3 rounded-full pointer-events-auto`}
+              className={`absolute bottom-[15%] right-[20%] glass-panel px-5 py-3 rounded-full`}
             >
               <span className="font-display font-bold text-sm">5★ RATED</span>
             </motion.div>
@@ -133,7 +133,7 @@ export default function Home() {
       <SectionDivider number="02" title="WORK" />
 
       {/* 02 / WORK */}
-      <section id="work" className="py-32 px-6 max-w-7xl mx-auto w-full pointer-events-none relative">
+      <section id="work" className="py-32 px-6 max-w-7xl mx-auto w-full relative">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-24">
           
           <ProjectShowcase 
@@ -159,8 +159,8 @@ export default function Home() {
       <SectionDivider number="03" title="CAPABILITIES" />
 
       {/* 03 / CAPABILITIES */}
-      <section id="services" className="py-24 px-6 max-w-7xl mx-auto w-full pointer-events-none">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pointer-events-auto">
+      <section id="services" className="py-24 px-6 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {[
             { icon: <Code2 size={20} />, title: "SYS.ARCH", desc: "React, Node, Next.js. I build scalable foundations, not fragile templates." },
@@ -189,8 +189,8 @@ export default function Home() {
       <SectionDivider number="04" title="INVESTMENT" />
 
       {/* 04 / INVESTMENT */}
-      <section id="pricing" className="py-24 px-6 max-w-7xl mx-auto w-full pointer-events-none">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pointer-events-auto">
+      <section id="pricing" className="py-24 px-6 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
           {/* Starter */}
           <motion.div 
@@ -285,13 +285,13 @@ export default function Home() {
       <SectionDivider number="05" title="PROOF" />
 
       {/* 05 / PROOF */}
-      <section className="py-24 px-6 max-w-4xl mx-auto w-full pointer-events-none">
+      <section className="py-24 px-6 max-w-4xl mx-auto w-full">
         <motion.div 
           initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="island p-10 md:p-16 flex flex-col md:flex-row items-center gap-12 pointer-events-auto"
+          className="island p-10 md:p-16 flex flex-col md:flex-row items-center gap-12"
         >
           <div className="flex-grow">
             <div className="flex gap-1 mb-8">

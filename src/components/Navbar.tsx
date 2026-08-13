@@ -46,7 +46,7 @@ export default function Navbar() {
           SHAURYA<span className="gold-text">.DEV</span>
         </Link>
         
-        <nav className="hidden md:flex items-center gap-6 text-xs uppercase tracking-[0.15em] font-semibold font-mono pointer-events-auto">
+        <nav className="hidden md:flex items-center gap-6 text-xs uppercase tracking-[0.15em] font-semibold font-mono">
           <MagneticWrapper strength={0.2}>
             <a href="#work" onClick={(e) => handleNav(e, '#work')} className="text-[var(--color-text-muted)] hover:text-white transition-colors duration-300 py-2 px-2">Showcase</a>
           </MagneticWrapper>

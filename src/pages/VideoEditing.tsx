@@ -12,7 +12,7 @@ import ProjectPlane from '../components/3d/ProjectPlane';
 // ==========================================
 
 const SectionDivider = ({ number, title }: { number: string, title: string }) => (
-  <div className="section-divider max-w-7xl mx-auto px-6 pointer-events-none">
+  <div className="section-divider max-w-7xl mx-auto px-6">
     <h2 className="section-label whitespace-nowrap m-0 font-normal text-[10px]">—— {number} / {title} ——</h2>
   </div>
 );
@@ -44,13 +44,13 @@ const ProjectCard = ({ video, idx }: { video: any, idx: number }) => {
       className={`island p-4 flex flex-col ${idx === 0 ? 'corner-brackets border-[var(--color-border-active)] shadow-[0_10px_30px_var(--color-gold-glow)]' : ''}`}
     >
       <div className="aspect-video bg-[var(--color-bg-inset)] rounded border border-[var(--color-border)] overflow-hidden relative mb-4">
-        <View className="absolute inset-0 w-full h-full pointer-events-none">
+        <View className="absolute inset-0 w-full h-full">
           <ProjectPlane videoSrc={video.src} scrollProgress={scrollYProgress} />
         </View>
-        <div className="absolute top-2 left-2 px-2 py-1 bg-black/80 backdrop-blur text-[0.6rem] font-mono tracking-widest text-[var(--color-gold)] border border-[var(--color-border)] rounded pointer-events-auto">REC</div>
+        <div className="absolute top-2 left-2 px-2 py-1 bg-black/80 backdrop-blur text-[0.6rem] font-mono tracking-widest text-[var(--color-gold)] border border-[var(--color-border)] rounded">REC</div>
       </div>
       <div className="section-label mb-1">FILE.0{video.id}</div>
-      <h3 className="font-display font-bold text-lg pointer-events-auto">{video.title}</h3>
+      <h3 className="font-display font-bold text-lg">{video.title}</h3>
     </motion.div>
   );
 };
@@ -59,7 +59,7 @@ export default function VideoEditing() {
   const { openContact } = useContact();
 
   return (
-    <div className="flex flex-col min-h-screen pointer-events-none">
+    <div className="flex flex-col min-h-screen">
       
       {/* 01 / HERO */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6 pt-32 pb-16">
@@ -69,12 +69,12 @@ export default function VideoEditing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           >
-            <span className="section-label mb-8 block text-[var(--color-gold)] pointer-events-auto">POST-PRODUCTION / SYS.02</span>
-            <h1 className="font-display text-[clamp(3rem,7vw,7rem)] font-bold leading-[1.05] mb-10 tracking-[-0.04em] pointer-events-auto">
+            <span className="section-label mb-8 block text-[var(--color-gold)]">POST-PRODUCTION / SYS.02</span>
+            <h1 className="font-display text-[clamp(3rem,7vw,7rem)] font-bold leading-[1.05] mb-10 tracking-[-0.04em]">
               ENGINEERED <br />
               FOR <span className="gold-text">RETENTION</span>_
             </h1>
-            <p className="font-mono text-[var(--color-text-muted)] text-base md:text-lg max-w-2xl mx-auto mb-12 leading-relaxed pointer-events-auto">
+            <p className="font-mono text-[var(--color-text-muted)] text-base md:text-lg max-w-2xl mx-auto mb-12 leading-relaxed">
               I edit gaming videos and general YouTube content. Precision cuts, algorithmic pacing, and sound design built to maximize audience retention. Not just flashy—effective.
             </p>
             
@@ -89,8 +89,8 @@ export default function VideoEditing() {
       <SectionDivider number="02" title="PORTFOLIO" />
 
       {/* 02 / PORTFOLIO */}
-      <section id="portfolio" className="py-24 px-6 max-w-7xl mx-auto w-full pointer-events-none">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16 pointer-events-none">
+      <section id="portfolio" className="py-24 px-6 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {videos.map((video, idx) => (
             <ProjectCard key={video.id} video={video} idx={idx} />
           ))}
@@ -102,7 +102,7 @@ export default function VideoEditing() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="island corner-brackets p-10 md:p-16 max-w-4xl mx-auto border-[var(--color-border-active)] shadow-[0_10px_40px_var(--color-gold-glow)] relative overflow-hidden text-center pointer-events-auto"
+          className="island corner-brackets p-10 md:p-16 max-w-4xl mx-auto border-[var(--color-border-active)] shadow-[0_10px_40px_var(--color-gold-glow)] relative overflow-hidden text-center"
         >
           <div className="absolute top-0 left-0 w-full h-[2px] gold-fill" />
           <div className="section-label mb-4 gold-text">SERVICE.01 / VIDEO PRODUCTION</div>
@@ -128,8 +128,8 @@ export default function VideoEditing() {
       <SectionDivider number="03" title="PROCESS" />
 
       {/* 03 / PROCESS */}
-      <section className="py-24 px-6 max-w-7xl mx-auto w-full pointer-events-none">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pointer-events-auto">
+      <section className="py-24 px-6 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { icon: <Film size={20} />, title: "1. ACQUISITION", desc: "Analyzing raw clips and planning the narrative flow for maximum retention." },
             { icon: <Scissors size={20} />, title: "2. ASSEMBLY", desc: "Splicing the best moments to build pacing and core structural timeline." },
@@ -157,13 +157,13 @@ export default function VideoEditing() {
       <SectionDivider number="04" title="TOOLS" />
 
       {/* 04 / TOOLS */}
-      <section className="py-24 px-6 max-w-3xl mx-auto w-full mb-12 pointer-events-none">
+      <section className="py-24 px-6 max-w-3xl mx-auto w-full mb-12">
         <motion.div
           initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="island p-10 flex flex-col items-center text-center bg-[var(--color-bg-inset)] pointer-events-auto"
+          className="island p-10 flex flex-col items-center text-center bg-[var(--color-bg-inset)]"
         >
           <div className="section-label mb-8">SOFTWARE STACK</div>
           <div className="flex flex-wrap justify-center gap-4">

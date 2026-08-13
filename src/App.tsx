@@ -59,9 +59,9 @@ function App() {
             </Canvas>
           </div>
           
-          {/* Layer 1: HTML Overlay - Pointer events none on container, auto on children */}
-          <div className="relative z-10 min-h-screen flex flex-col text-[var(--color-text)] pointer-events-none">
-            <div className="pointer-events-auto">
+          {/* Layer 1: HTML Overlay */}
+          <div className="relative z-10 min-h-screen flex flex-col text-[var(--color-text)]">
+            <div>
               <Navbar />
             </div>
             
@@ -72,7 +72,7 @@ function App() {
               </Routes>
             </main>
 
-            <div className="pointer-events-auto">
+            <div>
               <ContactModal />
               <Chatbot />
             </div>

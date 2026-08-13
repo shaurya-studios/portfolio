@@ -39,7 +39,7 @@ export const MagneticWrapper = ({ children, className = '', strength = 0.2 }: Ma
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ x: springX, y: springY }}
-      className={`inline-block pointer-events-auto ${className}`}
+      className={`inline-block ${className}`}
     >
       {children}
     </motion.div>
