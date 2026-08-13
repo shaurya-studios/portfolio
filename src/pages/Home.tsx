@@ -35,15 +35,15 @@ const ProjectShowcase = ({ title, desc, link, label, imageSrc, reversed = false 
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className={`col-span-12 lg:col-span-10 ${reversed ? 'lg:col-start-1' : 'lg:col-start-2'} island corner-brackets flex flex-col md:flex-row overflow-hidden group min-h-[400px]`}
+      className={`col-span-12 lg:col-span-10 ${reversed ? 'lg:col-start-1' : 'lg:col-start-2'} flex flex-col md:flex-row min-h-[500px] mb-24`}
     >
-      <div className={`md:w-[60%] bg-[var(--color-bg-inset)] relative p-8 flex items-center justify-center border-b md:border-b-0 border-[var(--color-border)] overflow-hidden ${reversed ? 'order-1 md:order-2 md:border-l' : 'order-1 md:border-r'}`}>
+      <div className={`md:w-[60%] relative overflow-hidden ${reversed ? 'order-1 md:order-2' : 'order-1'}`}>
         <View className="absolute inset-0 w-full h-full">
           <ProjectPlane imageSrc={imageSrc} scrollProgress={scrollYProgress} />
         </View>
       </div>
-      <div className={`p-12 md:w-[40%] flex flex-col justify-center ${reversed ? 'order-2 md:order-1' : 'order-2'}`}>
-        <div className="section-label mb-4 text-[var(--color-gold)]">{label}</div>
+      <div className={`p-8 md:w-[40%] flex flex-col justify-center ${reversed ? 'order-2 md:order-1' : 'order-2'}`}>
+        <div className="section-label mb-4">{label}</div>
         <h3 className="font-display text-4xl font-bold mb-4 tracking-tight">{title}</h3>
         <p className="font-mono text-[var(--color-text-muted)] text-sm mb-10 leading-relaxed">
           {desc}
@@ -97,35 +97,9 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* Right Column - Removed CSS 3D Mockup, space is reserved for the R3F Monolith */}
+          {/* Right Column - Raw 3D Monolith Area */}
           <div className="relative h-[60vh] min-h-[400px] lg:h-full flex items-center justify-center mt-12 lg:mt-0">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className={`absolute top-[20%] right-[10%] glass-panel px-5 py-3 rounded-full flex items-center gap-3`}
-            >
-              <div className="w-2 h-2 rounded-full bg-[var(--color-gold)] shadow-[0_0_8px_var(--color-gold)]" />
-              <span className="font-display font-bold text-sm">2+ YEARS</span>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.48 }}
-              className={`absolute bottom-[30%] left-[5%] glass-panel px-5 py-3 rounded-full corner-brackets border-[var(--color-border-active)] shadow-[0_10px_20px_var(--color-gold-glow)]`}
-            >
-              <span className="gold-text font-display font-bold text-lg leading-none tracking-tight">10+ BUILDS</span>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.56 }}
-              className={`absolute bottom-[15%] right-[20%] glass-panel px-5 py-3 rounded-full`}
-            >
-              <span className="font-display font-bold text-sm">5★ RATED</span>
-            </motion.div>
+            {/* Minimalist 3D space, no floating glass panels */}
           </div>
         </div>
       </section>
@@ -219,7 +193,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.6, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
-            className="island corner-brackets p-8 flex flex-col border-[var(--color-border-active)] shadow-[0_10px_30px_var(--color-gold-glow)] relative overflow-hidden"
+            className="flex flex-col gap-4"
           >
             {/* Gold highlight line at top */}
             <div className="absolute top-0 left-0 w-full h-[2px] gold-fill" />
@@ -291,7 +265,7 @@ export default function Home() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="island p-10 md:p-16 flex flex-col md:flex-row items-center gap-12"
+          className="flex flex-col md:flex-row items-center gap-12"
         >
           <div className="flex-grow">
             <div className="flex gap-1 mb-8">

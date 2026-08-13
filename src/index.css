@@ -119,32 +119,6 @@ body::after {
    STRUCTURAL ELEMENTS — INDUSTRIAL FRAME
    ============================================ */
 
-/* Corner brackets / reticles — applied via data attribute */
-.corner-brackets {
-  position: relative;
-}
-.corner-brackets::before,
-.corner-brackets::after {
-  content: '';
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  pointer-events: none;
-  z-index: 10;
-}
-/* Top-left and bottom-right corners */
-.corner-brackets::before {
-  top: -1px;
-  left: -1px;
-  border-top: 2px solid var(--color-gold);
-  border-left: 2px solid var(--color-gold);
-}
-.corner-brackets::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom: 2px solid var(--color-gold);
-  border-right: 2px solid var(--color-gold);
-}
 
 /* Section divider with numbered label */
 .section-divider {
@@ -161,39 +135,6 @@ body::after {
   background: var(--color-border);
 }
 
-/* ============================================
-   SURFACE MATERIALS
-   ============================================ */
-
-/* Glass panel — floating island surface */
-.glass-panel {
-  background: rgba(12, 17, 24, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-border);
-  transition: border-color 0.4s ease, box-shadow 0.4s ease;
-}
-.glass-panel:hover {
-  border-color: var(--color-border-active);
-}
-
-/* Island card — structural card with industrial shadow hierarchy */
-.island {
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  box-shadow:
-    0 1px 0 0 var(--color-border),
-    0 8px 24px rgba(0, 0, 0, 0.4);
-  transition: border-color 0.3s ease, box-shadow 0.4s ease, transform 0.3s ease;
-}
-.island:hover {
-  border-color: var(--color-border-active);
-  box-shadow:
-    0 1px 0 0 var(--color-border-active),
-    0 16px 40px rgba(0, 0, 0, 0.5),
-    0 0 30px var(--color-gold-glow);
-}
 
 /* ============================================
    SCROLLBAR

@@ -41,13 +41,12 @@ const ProjectCard = ({ video, idx }: { video: any, idx: number }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.8, delay: idx * 0.12, ease: [0.16, 1, 0.3, 1] }}
-      className={`island p-4 flex flex-col ${idx === 0 ? 'corner-brackets border-[var(--color-border-active)] shadow-[0_10px_30px_var(--color-gold-glow)]' : ''}`}
+      className={`flex flex-col mb-12`}
     >
-      <div className="aspect-video bg-[var(--color-bg-inset)] rounded border border-[var(--color-border)] overflow-hidden relative mb-4">
+      <div className="aspect-video overflow-hidden relative mb-4">
         <View className="absolute inset-0 w-full h-full">
           <ProjectPlane videoSrc={video.src} scrollProgress={scrollYProgress} />
         </View>
-        <div className="absolute top-2 left-2 px-2 py-1 bg-black/80 backdrop-blur text-[0.6rem] font-mono tracking-widest text-[var(--color-gold)] border border-[var(--color-border)] rounded">REC</div>
       </div>
       <div className="section-label mb-1">FILE.0{video.id}</div>
       <h3 className="font-display font-bold text-lg">{video.title}</h3>
@@ -102,10 +101,9 @@ export default function VideoEditing() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="island corner-brackets p-10 md:p-16 max-w-4xl mx-auto border-[var(--color-border-active)] shadow-[0_10px_40px_var(--color-gold-glow)] relative overflow-hidden text-center"
+          className="max-w-4xl mx-auto relative overflow-hidden text-center"
         >
-          <div className="absolute top-0 left-0 w-full h-[2px] gold-fill" />
-          <div className="section-label mb-4 gold-text">SERVICE.01 / VIDEO PRODUCTION</div>
+          <div className="section-label mb-4 text-[var(--color-text-muted)]">SERVICE.01 / VIDEO PRODUCTION</div>
           <h3 className="font-display text-3xl md:text-5xl font-bold mb-4">Flat Rate Editing</h3>
           <p className="text-[var(--color-text-muted)] text-sm md:text-base max-w-2xl mx-auto mb-8">
             High-retention edits tailored for Gaming & YouTube. Includes sound design, VFX, pacing, and color grading. Pricing scales with raw footage length and complexity.
@@ -142,7 +140,7 @@ export default function VideoEditing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.6, delay: idx * 0.12, ease: [0.16, 1, 0.3, 1] }}
-              className="island p-8"
+              className="flex flex-col gap-2"
             >
               <div className="w-10 h-10 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-inset)] flex items-center justify-center mb-6 text-[var(--color-gold)]">
                 {step.icon}
@@ -163,12 +161,12 @@ export default function VideoEditing() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="island p-10 flex flex-col items-center text-center bg-[var(--color-bg-inset)]"
+          className="flex flex-col items-center text-center"
         >
           <div className="section-label mb-8">SOFTWARE STACK</div>
           <div className="flex flex-wrap justify-center gap-4">
             {['Premiere Pro', 'CapCut Pro', 'After Effects', 'Photoshop'].map((tool, i) => (
-              <div key={i} className="px-5 py-2 text-sm font-bold border border-[var(--color-border)] rounded-full text-[var(--color-text)] bg-[var(--color-bg-surface)]">
+              <div key={i} className="px-5 py-2 text-sm font-mono text-[var(--color-text-muted)] border border-[var(--color-border)] rounded-full">
                 {tool}
               </div>
             ))}
