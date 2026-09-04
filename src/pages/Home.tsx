@@ -63,44 +63,38 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       
       {/* 01 / HERO */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-8 items-center pt-24 lg:pt-0 h-full">
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pointer-events-none">
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col items-center justify-center text-center pt-24 lg:pt-0 pointer-events-auto">
           
-          {/* Left Column - Copy */}
-          <div className="flex flex-col justify-center h-full col-span-12 lg:col-span-6 xl:col-span-5">
-            <motion.div
-              initial={{ opacity: 0, y: 60 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <span className="section-label mb-6 block">SHAURYA AGARWAL / SYS.01</span>
-            </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <span className="font-mono text-xs md:text-sm tracking-[0.3em] uppercase text-[var(--color-text-muted)] mb-8 block">
+              System Online
+            </span>
+          </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 60 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <h1 className="font-display text-[clamp(3.5rem,8vw,7rem)] font-bold leading-[1.05] mb-8 tracking-[-0.04em]">
-                BUILDING <br />
-                DIGITAL <br />
-                <span className="gold-text">ARTIFACTS</span>_
-              </h1>
-              <p className="text-[var(--color-text-muted)] text-base md:text-lg max-w-md mb-10 leading-relaxed">
-                I engineer highly tactile, performant web applications for founders who treat their digital presence as a physical asset.
-              </p>
-              
-              <div className="flex flex-wrap gap-4 items-center">
-                <MagneticButton primary onClick={openContact}>INITIATE PROJECT</MagneticButton>
-                <MagneticButton href="#work">VIEW LOG</MagneticButton>
-              </div>
-            </motion.div>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col items-center"
+          >
+            <h1 className="font-display text-[clamp(4rem,10vw,9rem)] font-bold leading-[0.9] mb-8 tracking-tighter">
+              DIGITAL <br />
+              <span className="gold-text">ARTIFACTS</span>
+            </h1>
+            <p className="font-sans text-[var(--color-text-muted)] text-base md:text-xl max-w-lg mb-12 leading-relaxed">
+              Engineering highly tactile, performant web applications for those who treat their digital presence as a physical asset.
+            </p>
+            
+            <div className="flex flex-col items-center">
+              <MagneticButton primary onClick={openContact}>INITIATE PROJECT</MagneticButton>
+            </div>
+          </motion.div>
 
-          {/* Right Column - Raw 3D Monolith Area */}
-          <div className="relative h-[60vh] min-h-[400px] lg:h-full flex items-center justify-center mt-12 lg:mt-0">
-            {/* Minimalist 3D space, no floating glass panels */}
-          </div>
         </div>
       </section>
 

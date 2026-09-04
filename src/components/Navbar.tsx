@@ -41,9 +41,8 @@ export default function Navbar() {
       }`}
     >
       <div className="flex items-center justify-between">
-        <Link to="/" className="font-display font-bold text-lg tracking-tight flex items-center gap-2 group text-white">
-          <div className="w-2.5 h-2.5 bg-[var(--color-gold)] group-hover:scale-125 transition-transform duration-300 shadow-[0_0_12px_var(--color-gold-glow)] corner-brackets"></div>
-          SHAURYA<span className="gold-text">.DEV</span>
+        <Link to="/" className="font-mono text-sm tracking-[0.2em] uppercase text-white hover:text-[var(--color-text-muted)] transition-colors">
+          SHAURYA AGARWAL
         </Link>
         
         <nav className="hidden md:flex items-center gap-6 text-xs uppercase tracking-[0.15em] font-semibold font-mono">
