@@ -48,25 +48,26 @@ export default function ContactModal() {
             </div>
 
             <div className="space-y-4">
-              {/* Discord */}
-              <div className="flex items-center justify-between p-4 bg-[var(--color-bg-inset)] border border-[var(--color-border)] hover:border-[#5865F2] hover:shadow-[0_0_20px_rgba(88,101,242,0.15)] transition-all group rounded-[4px]">
+              {/* Discord Link */}
+              <a 
+                href="https://discord.gg/GFbtCSYJnP" 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex items-center justify-between p-4 bg-[var(--color-bg-inset)] border border-[var(--color-border)] hover:border-[#5865F2] hover:shadow-[0_0_20px_rgba(88,101,242,0.15)] transition-all group rounded-[4px]"
+              >
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[#5865F2] flex items-center justify-center rounded-[4px]">
                     <MessageSquare size={18} />
                   </div>
                   <div>
                     <span className="block text-[0.65rem] uppercase tracking-widest text-[var(--color-text-muted)] font-bold">Discord</span>
-                    <strong className="text-white font-mono text-sm">shauryaa74</strong>
+                    <strong className="text-white font-mono text-sm">Content Creation Help</strong>
                   </div>
                 </div>
-                <button 
-                  onClick={() => handleCopy('shauryaa74', 'discord')}
-                  className="p-2 bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-white hover:border-white transition-all rounded-[4px]"
-                  title="Copy Discord ID"
-                >
-                  {copiedId === 'discord' ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
-                </button>
-              </div>
+                <div className="p-2 text-[#5865F2] group-hover:scale-110 transition-transform">
+                  <ExternalLink size={16} />
+                </div>
+              </a>
 
               {/* Email */}
               <div className="flex items-center justify-between p-4 bg-[var(--color-bg-inset)] border border-[var(--color-border)] hover:border-[var(--color-gold)] hover:shadow-[0_0_20px_var(--color-gold-glow)] transition-all group rounded-[4px]">
@@ -88,7 +89,28 @@ export default function ContactModal() {
                 </button>
               </div>
 
-              {/* Fiverr */}
+              {/* Fiverr Video */}
+              <a 
+                href="https://www.fiverr.com/s/qDExmAV" 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex items-center justify-between p-4 bg-[var(--color-bg-inset)] border border-[var(--color-border)] hover:border-[#00b22d] hover:shadow-[0_0_20px_rgba(0,178,45,0.15)] transition-all group rounded-[4px]"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[#00b22d] flex items-center justify-center font-bold text-lg rounded-[4px]">
+                    fi
+                  </div>
+                  <div>
+                    <span className="block text-[0.65rem] uppercase tracking-widest text-[var(--color-text-muted)] font-bold">Fiverr</span>
+                    <strong className="text-white font-mono text-sm">Order Video</strong>
+                  </div>
+                </div>
+                <div className="p-2 text-[#00b22d] group-hover:scale-110 transition-transform">
+                  <ExternalLink size={16} />
+                </div>
+              </a>
+
+              {/* Fiverr Web */}
               <a 
                 href="https://www.fiverr.com/s/6Yl5a2r" 
                 target="_blank" 
@@ -101,7 +123,7 @@ export default function ContactModal() {
                   </div>
                   <div>
                     <span className="block text-[0.65rem] uppercase tracking-widest text-[var(--color-text-muted)] font-bold">Fiverr</span>
-                    <strong className="text-white font-mono text-sm">Order Directly</strong>
+                    <strong className="text-white font-mono text-sm">Order Web</strong>
                   </div>
                 </div>
                 <div className="p-2 text-[#00b22d] group-hover:scale-110 transition-transform">

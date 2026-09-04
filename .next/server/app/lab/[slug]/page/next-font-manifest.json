@@ -1,0 +1,10 @@
+{
+  "pages": {},
+  "app": {
+    "[project]/src/app/lab/[slug]/page": [
+      "static/media/70bc3e132a0a741e-s.p.3t6q91iet4nsy.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pagesUsingSizeAdjust": false
+}
