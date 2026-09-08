@@ -147,11 +147,11 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="lg:col-span-5 rounded-2xl overflow-hidden border border-[var(--color-border)] aspect-[16/10] bg-[var(--color-border)]/20 relative group">
+            <div className="lg:col-span-5 rounded-2xl overflow-hidden border border-[var(--color-border)] aspect-[16/10] bg-white flex items-center justify-center p-6 relative group">
               <img 
-                src="/placeholder1.jpg" 
-                alt="Editify Studios Architecture" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                src="/editify-work.jpg" 
+                alt="Editify Studios Brand & Architecture" 
+                className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
               />
             </div>
           </motion.div>
@@ -197,21 +197,21 @@ export default function Home() {
 
               <div>
                 <a 
-                  href="https://editify-studios.vercel.app" 
+                  href="https://thumbpilot-main.vercel.app" 
                   target="_blank" 
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[var(--color-border)] hover:border-[var(--color-text)] text-xs font-mono tracking-widest uppercase text-[var(--color-text)] transition-colors"
                 >
-                  Inspect Case Overview <ArrowUpRight size={14} />
+                  Inspect Live Deployment <ArrowUpRight size={14} />
                 </a>
               </div>
             </div>
 
-            <div className="lg:col-span-5 rounded-2xl overflow-hidden border border-[var(--color-border)] aspect-[16/10] bg-[var(--color-border)]/20 relative group">
+            <div className="lg:col-span-5 rounded-2xl overflow-hidden border border-[var(--color-border)] aspect-[16/10] bg-black flex items-center justify-center p-6 relative group">
               <img 
-                src="/placeholder2.jpg" 
-                alt="ThumbPilot Platform" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                src="/thumbpilot-work.png" 
+                alt="ThumbPilot Platform Architecture" 
+                className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
               />
             </div>
           </motion.div>
