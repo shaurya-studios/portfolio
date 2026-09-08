@@ -1,32 +1,53 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   /* Typography */
-  --font-sans: 'JetBrains Mono', monospace;
+  --font-sans: 'Space Grotesk', sans-serif;
   --font-display: 'Space Grotesk', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Gold Flash + Industrial — Color Tokens */
-  --color-bg: #050505;
-  --color-bg-surface: #0a0a0a;
-  --color-bg-inset: #080808;
-
-  --color-gold: #e8b634;
-  --color-gold-bright: #f4d03f;
-  --color-gold-deep: #c49a1e;
-  --color-gold-glow: rgba(232, 182, 52, 0.15);
-
-  --color-text: #f3f4f6;
-  --color-text-muted: #e5e7eb;
-
-  --color-border: #1a2030;
-  --color-border-active: rgba(232, 182, 52, 0.3);
+  /* The Editorial Alabaster & Onyx — Color Tokens */
+  --color-alabaster: #F7F5F0;
+  --color-alabaster-deep: #EFECE4;
+  --color-onyx: #0F1115;
+  --color-onyx-card: #15181E;
+  
+  --color-taupe: #C6B8A8;
+  --color-sage: #9A9EAB;
+  --color-champagne: #E9D8A6;
+  --color-champagne-glow: rgba(233, 216, 166, 0.25);
 }
 
 /* ============================================
    BASE
    ============================================ */
+
+:root {
+  --color-bg: #F7F5F0;
+  --color-text: #0F1115;
+  --color-text-muted: #5A5E6B;
+  --color-border: rgba(15, 17, 21, 0.08);
+  --color-border-hover: rgba(15, 17, 21, 0.25);
+  --color-card-bg: rgba(247, 245, 240, 0.75);
+  --color-card-border: rgba(15, 17, 21, 0.08);
+  --color-accent: #0F1115;
+  --color-highlight: #C6B8A8;
+  --color-fog: #FBF9F6;
+}
+
+.dark {
+  --color-bg: #0A0B0E;
+  --color-text: #F7F5F0;
+  --color-text-muted: #8E929E;
+  --color-border: rgba(247, 245, 240, 0.1);
+  --color-border-hover: rgba(233, 216, 166, 0.35);
+  --color-card-bg: rgba(15, 17, 21, 0.75);
+  --color-card-border: rgba(255, 255, 255, 0.08);
+  --color-accent: #E9D8A6;
+  --color-highlight: #E9D8A6;
+  --color-fog: #0A0B0E;
+}
 
 html {
   scroll-behavior: smooth;
@@ -37,121 +58,152 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
   overflow-x: hidden;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Grotesk', sans-serif;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Noise texture overlay — analog grain on the entire viewport */
+/* Subtle architectural paper/sand grain overlay */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 9998;
   pointer-events: none;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 256px 256px;
 }
 
 /* ============================================
-   TYPOGRAPHY UTILITIES
+   TYPOGRAPHY & UTILITIES
    ============================================ */
 
 .font-display {
   font-family: 'Space Grotesk', sans-serif;
 }
 
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
 .section-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.25em;
   color: var(--color-text-muted);
 }
 
 /* ============================================
-   GOLD TREATMENTS
+   QUIET LUXURY GLASS & STRUCTURE
    ============================================ */
 
-/* Metallic gold gradient fill — for CTAs and key interactive surfaces */
-.gold-fill {
-  background: linear-gradient(135deg, var(--color-gold-deep), var(--color-gold), var(--color-gold-bright));
-  color: #06090f;
+.luxury-glass {
+  background: var(--color-card-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--color-card-border);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Gold text with ambient glow */
-.gold-text {
-  color: var(--color-gold);
-  text-shadow: 0 0 20px var(--color-gold-glow);
+.luxury-glass:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.07);
 }
 
-/* Specular shine sweep — slides across on hover */
-.gold-shine {
-  position: relative;
-  overflow: hidden;
-}
-.gold-shine::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 40%,
-    rgba(255, 255, 255, 0.15) 45%,
-    rgba(255, 255, 255, 0.25) 50%,
-    rgba(255, 255, 255, 0.15) 55%,
-    transparent 60%
-  );
-  background-size: 250% 100%;
-  background-position: 200% 0;
-  transition: background-position 0.6s ease;
-  pointer-events: none;
-}
-.gold-shine:hover::after {
-  background-position: -50% 0;
+.dark .luxury-glass:hover {
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 30px -10px rgba(233, 216, 166, 0.1);
 }
 
-/* ============================================
-   STRUCTURAL ELEMENTS — INDUSTRIAL FRAME
-   ============================================ */
-
-
-/* Section divider with numbered label */
-.section-divider {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 2rem 0;
-}
-.section-divider::before,
-.section-divider::after {
-  content: '';
-  flex: 1;
+/* 1px architectural hairline divider */
+.hairline-divider {
   height: 1px;
   background: var(--color-border);
+  width: 100%;
 }
 
+/* Button styles */
+.luxury-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  border-radius: 9999px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px -2px rgba(15, 17, 21, 0.15);
+}
+
+.luxury-btn-primary:hover {
+  transform: translateY(-2px);
+  background: #000;
+  box-shadow: 0 10px 25px -4px rgba(15, 17, 21, 0.25);
+}
+
+.dark .luxury-btn-primary {
+  background: var(--color-text);
+  color: #0A0B0E;
+  box-shadow: 0 4px 25px -2px rgba(233, 216, 166, 0.25);
+}
+
+.dark .luxury-btn-primary:hover {
+  background: #FFFFFF;
+  box-shadow: 0 10px 30px -2px rgba(233, 216, 166, 0.4);
+}
+
+.luxury-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  border-radius: 9999px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.luxury-btn-secondary:hover {
+  border-color: var(--color-text);
+  background: rgba(15, 17, 21, 0.03);
+}
+
+.dark .luxury-btn-secondary:hover {
+  background: rgba(247, 245, 240, 0.05);
+}
 
 /* ============================================
    SCROLLBAR
    ============================================ */
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
   background: var(--color-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 4px;
+  background: var(--color-taupe);
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-gold-deep);
+  background: var(--color-onyx);
 }
 
 /* ============================================
@@ -173,46 +225,4 @@ body::after {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  .gold-shine::after {
-    display: none;
-  }
 }
-
-/* ============================================
-   GLASS & SURFACE UTILITIES (EDITIFY INSPIRATION)
-   ============================================ */
-
-.glass-panel {
-  background: rgba(10, 10, 10, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.island {
-  background: rgba(12, 12, 12, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 2rem;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.island:hover {
-  border-color: rgba(234, 179, 8, 0.35);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 30px -10px rgba(234, 179, 8, 0.15);
-}
-
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(calc(-50% - 10px)); }
-}
-
-.animate-marquee {
-  animation: marquee 40s linear infinite;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
-

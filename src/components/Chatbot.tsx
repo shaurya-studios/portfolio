@@ -14,7 +14,7 @@ const TypewriterText = ({ text, onComplete }: { text: string, onComplete: () => 
         clearInterval(interval);
         onComplete();
       }
-    }, 15);
+    }, 12);
     return () => clearInterval(interval);
   }, [text]);
 
@@ -24,22 +24,11 @@ const TypewriterText = ({ text, onComplete }: { text: string, onComplete: () => 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{role: 'user' | 'assistant', content: string, typed?: boolean}[]>([
-    { role: 'assistant', content: 'System online. How can I assist you with Shaurya\'s services?', typed: true }
+    { role: 'assistant', content: 'Studio assistant active. How may I assist with Shaurya\'s services, capabilities, or pricing?', typed: true }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -65,12 +54,12 @@ export default function Chatbot() {
       
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: data.reply || `Error: ${data.error || 'Connection failed.'}` 
+        content: data.reply || `Notice: ${data.error || 'Connection failed.'}` 
       }]);
     } catch (err) {
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: 'Error: Network failure. Please try again later.' 
+        content: 'System error: Uplink interrupted. Please reach out directly via Discord or Email.' 
       }]);
     } finally {
       setIsLoading(false);
@@ -78,30 +67,39 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 pointer-events-auto">
+    <div className="fixed bottom-6 right-6 z-50 pointer-events-auto font-mono text-xs">
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 15, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute bottom-16 right-0 w-[350px] h-[500px] flex flex-col rounded-2xl glass-panel overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-[var(--color-border)]"
+            exit={{ opacity: 0, y: 15, scale: 0.96 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute bottom-16 right-0 w-[350px] sm:w-[380px] h-[520px] flex flex-col rounded-[2rem] luxury-glass overflow-hidden shadow-2xl border border-[var(--color-border)]"
           >
-            <div className="border-b border-[var(--color-border)] p-4 flex justify-between items-center bg-black/40 backdrop-blur-md">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-                <span className="font-sans text-sm font-semibold tracking-wide text-white">Assistant</span>
+            {/* Header */}
+            <div className="border-b border-[var(--color-border)] p-4 flex justify-between items-center bg-[var(--color-bg)]/80 backdrop-blur-md">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-semibold tracking-wider text-[var(--color-text)] uppercase">Buggie // Studio AI</span>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-[var(--color-text-muted)] hover:text-white transition-colors">
-                <X size={18} />
+              <button 
+                onClick={() => setIsOpen(false)} 
+                className="w-7 h-7 rounded-full border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+              >
+                <X size={14} />
               </button>
             </div>
             
-            <div className="flex-grow p-5 overflow-y-auto space-y-5 bg-black/20">
+            {/* Messages Feed */}
+            <div className="flex-grow p-4 overflow-y-auto space-y-4">
               {messages.map((m, i) => (
                 <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] p-3 text-sm whitespace-pre-wrap leading-relaxed ${m.role === 'user' ? 'bg-[var(--color-text)] text-black rounded-2xl rounded-tr-sm' : 'bg-[var(--color-bg-inset)] text-[var(--color-text)] border border-[var(--color-border)] rounded-2xl rounded-tl-sm'}`}>
+                  <div className={`max-w-[85%] p-3.5 text-xs leading-relaxed whitespace-pre-wrap ${
+                    m.role === 'user' 
+                      ? 'bg-[var(--color-text)] text-[var(--color-bg)] rounded-2xl rounded-tr-xs' 
+                      : 'bg-[var(--color-bg)] text-[var(--color-text)] border border-[var(--color-border)] rounded-2xl rounded-tl-xs shadow-sm font-sans text-sm'
+                  }`}>
                     {m.role === 'assistant' && !m.typed ? (
                       <TypewriterText 
                         text={m.content} 
@@ -117,7 +115,7 @@ export default function Chatbot() {
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="max-w-[85%] p-3 text-sm bg-[var(--color-bg-inset)] text-[var(--color-text-muted)] border border-[var(--color-border)] rounded-2xl rounded-tl-sm flex items-center gap-2">
+                  <div className="p-3 bg-[var(--color-bg)] text-[var(--color-text-muted)] border border-[var(--color-border)] rounded-2xl rounded-tl-xs flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-text-muted)] animate-bounce" />
                     <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-text-muted)] animate-bounce" style={{ animationDelay: '0.1s' }} />
                     <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-text-muted)] animate-bounce" style={{ animationDelay: '0.2s' }} />
@@ -127,32 +125,34 @@ export default function Chatbot() {
               <div ref={endRef} />
             </div>
             
-            <form onSubmit={handleSubmit} className="border-t border-[var(--color-border)] p-3 bg-black/40 backdrop-blur-md flex gap-2">
+            {/* Input Footer */}
+            <form onSubmit={handleSubmit} className="border-t border-[var(--color-border)] p-3 bg-[var(--color-bg)]/80 backdrop-blur-md flex gap-2">
               <input 
                 type="text" 
                 value={input}
                 onChange={e => setInput(e.target.value)}
-                placeholder="Ask a question..." 
-                className="flex-grow bg-[var(--color-bg-inset)] border border-[var(--color-border)] rounded-full px-4 py-2 outline-none text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-border-active)] transition-colors"
+                placeholder="Ask about scope, pricing, stack..." 
+                className="flex-grow bg-transparent border border-[var(--color-border)] rounded-full px-4 py-2.5 outline-none text-xs text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-text)] transition-colors"
               />
               <button 
                 type="submit" 
-                className="w-10 h-10 rounded-full bg-[var(--color-text)] text-black flex items-center justify-center hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 transition-all flex-shrink-0" 
+                className="w-9 h-9 rounded-full bg-[var(--color-text)] text-[var(--color-bg)] flex items-center justify-center hover:opacity-90 disabled:opacity-40 transition-all flex-shrink-0" 
                 disabled={!input.trim()}
               >
-                <Send size={16} />
+                <Send size={13} />
               </button>
             </form>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Floating Launcher Button */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle Chatbot"
-        className="w-14 h-14 rounded-full glass-panel shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.5)] flex items-center justify-center transition-all duration-300 group"
+        aria-label="Toggle Studio AI Assistant"
+        className="w-13 h-13 rounded-full luxury-glass shadow-lg flex items-center justify-center text-[var(--color-text)] hover:scale-105 transition-transform group"
       >
-        <MessageSquare size={24} className="text-[var(--color-text)] group-hover:scale-110 transition-transform" />
+        <MessageSquare size={20} className="group-hover:rotate-6 transition-transform" />
       </button>
     </div>
   );

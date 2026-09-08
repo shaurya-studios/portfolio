@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useContact } from '../context/ContactContext';
-import { Copy, Mail, MessageSquare, ExternalLink, Check } from 'lucide-react';
+import { Copy, Mail, MessageSquare, ExternalLink, Check, X } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ContactModal() {
@@ -21,93 +21,74 @@ export default function ContactModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={closeContact}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl"
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25, mass: 0.8 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ type: "spring", stiffness: 350, damping: 28 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg island corner-brackets p-8 relative overflow-hidden"
+            className="w-full max-w-lg luxury-glass p-8 md:p-10 rounded-[2.5rem] relative overflow-hidden shadow-2xl"
           >
-            {/* Background Glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1/2 bg-gradient-to-b from-[var(--color-gold)] to-transparent opacity-10 blur-[80px] -z-10 pointer-events-none" />
-
+            {/* Close Button */}
             <button 
               onClick={closeContact}
-              className="absolute top-6 right-6 text-[var(--color-text-muted)] hover:text-white transition-colors"
+              className="absolute top-6 right-6 w-9 h-9 rounded-full border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
             >
-              ✕
+              <X size={16} />
             </button>
 
-            <div className="text-center mb-8">
-              <div className="section-label mb-2">COMMUNICATION UPLINK</div>
-              <h2 className="font-display text-3xl font-bold mb-2 tracking-tight">INITIALIZE PROJECT</h2>
-              <p className="text-[var(--color-text-muted)] text-sm">Select a secure channel to commence discussion.</p>
+            {/* Header */}
+            <div className="text-left mb-8">
+              <span className="section-label mb-2 block">COMMUNICATION UPLINK</span>
+              <h2 className="font-display text-2xl md:text-3xl font-bold tracking-tight text-[var(--color-text)]">
+                Initiate Project.
+              </h2>
+              <p className="text-[var(--color-text-muted)] text-xs md:text-sm mt-1 font-mono">
+                Select a direct channel to commence discussion.
+              </p>
             </div>
 
-            <div className="space-y-4">
+            {/* Channels List */}
+            <div className="space-y-3 font-mono text-xs">
+              
               {/* Discord Link */}
               <a 
                 href="https://discord.gg/GFbtCSYJnP" 
                 target="_blank" 
                 rel="noreferrer"
-                className="flex items-center justify-between p-4 bg-[var(--color-bg-inset)] border border-[var(--color-border)] hover:border-[#5865F2] hover:shadow-[0_0_20px_rgba(88,101,242,0.15)] transition-all group rounded-[4px]"
+                className="flex items-center justify-between p-4 rounded-2xl border border-[var(--color-border)] hover:border-[var(--color-text)] transition-all bg-[var(--color-bg)] group"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[#5865F2] flex items-center justify-center rounded-[4px]">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl border border-[var(--color-border)] flex items-center justify-center text-[#5865F2]">
                     <MessageSquare size={18} />
                   </div>
                   <div>
-                    <span className="block text-[0.65rem] uppercase tracking-widest text-[var(--color-text-muted)] font-bold">Discord</span>
-                    <strong className="text-white font-mono text-sm">Content Creation Help</strong>
+                    <span className="block text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Discord Support</span>
+                    <strong className="text-[var(--color-text)] font-semibold text-sm">Content Creation Help</strong>
                   </div>
                 </div>
-                <div className="p-2 text-[#5865F2] group-hover:scale-110 transition-transform">
-                  <ExternalLink size={16} />
-                </div>
+                <ExternalLink size={15} className="text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors" />
               </a>
-
-              {/* Email */}
-              <div className="flex items-center justify-between p-4 bg-[var(--color-bg-inset)] border border-[var(--color-border)] hover:border-[var(--color-gold)] hover:shadow-[0_0_20px_var(--color-gold-glow)] transition-all group rounded-[4px]">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-gold)] flex items-center justify-center rounded-[4px]">
-                    <Mail size={18} />
-                  </div>
-                  <div>
-                    <span className="block text-[0.65rem] uppercase tracking-widest text-[var(--color-text-muted)] font-bold">Email</span>
-                    <strong className="text-white font-mono text-[0.8rem] md:text-sm truncate max-w-[150px] md:max-w-[200px] block">shaurya.studios.dev@gmail.com</strong>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => handleCopy('shaurya.studios.dev@gmail.com', 'email')}
-                  className="p-2 bg-[var(--color-bg-surface)] border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-white hover:border-white transition-all rounded-[4px] flex-shrink-0"
-                  title="Copy Email"
-                >
-                  {copiedId === 'email' ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
-                </button>
-              </div>
 
               {/* Fiverr Video */}
               <a 
                 href="https://www.fiverr.com/s/qDExmAV" 
                 target="_blank" 
                 rel="noreferrer"
-                className="flex items-center justify-between p-4 bg-[var(--color-bg-inset)] border border-[var(--color-border)] hover:border-[#00b22d] hover:shadow-[0_0_20px_rgba(0,178,45,0.15)] transition-all group rounded-[4px]"
+                className="flex items-center justify-between p-4 rounded-2xl border border-[var(--color-border)] hover:border-[var(--color-text)] transition-all bg-[var(--color-bg)] group"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[#00b22d] flex items-center justify-center font-bold text-lg rounded-[4px]">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl border border-[var(--color-border)] flex items-center justify-center text-[#1dbf73] font-bold text-base">
                     fi
                   </div>
                   <div>
-                    <span className="block text-[0.65rem] uppercase tracking-widest text-[var(--color-text-muted)] font-bold">Fiverr</span>
-                    <strong className="text-white font-mono text-sm">Order Video</strong>
+                    <span className="block text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Fiverr Direct</span>
+                    <strong className="text-[var(--color-text)] font-semibold text-sm">Order Video</strong>
                   </div>
                 </div>
-                <div className="p-2 text-[#00b22d] group-hover:scale-110 transition-transform">
-                  <ExternalLink size={16} />
-                </div>
+                <ExternalLink size={15} className="text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors" />
               </a>
 
               {/* Fiverr Web */}
@@ -115,23 +96,43 @@ export default function ContactModal() {
                 href="https://www.fiverr.com/s/6Yl5a2r" 
                 target="_blank" 
                 rel="noreferrer"
-                className="flex items-center justify-between p-4 bg-[var(--color-bg-inset)] border border-[var(--color-border)] hover:border-[#00b22d] hover:shadow-[0_0_20px_rgba(0,178,45,0.15)] transition-all group rounded-[4px]"
+                className="flex items-center justify-between p-4 rounded-2xl border border-[var(--color-border)] hover:border-[var(--color-text)] transition-all bg-[var(--color-bg)] group"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[#00b22d] flex items-center justify-center font-bold text-lg rounded-[4px]">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl border border-[var(--color-border)] flex items-center justify-center text-[#1dbf73] font-bold text-base">
                     fi
                   </div>
                   <div>
-                    <span className="block text-[0.65rem] uppercase tracking-widest text-[var(--color-text-muted)] font-bold">Fiverr</span>
-                    <strong className="text-white font-mono text-sm">Order Web</strong>
+                    <span className="block text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Fiverr Direct</span>
+                    <strong className="text-[var(--color-text)] font-semibold text-sm">Order Web</strong>
                   </div>
                 </div>
-                <div className="p-2 text-[#00b22d] group-hover:scale-110 transition-transform">
-                  <ExternalLink size={16} />
-                </div>
+                <ExternalLink size={15} className="text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors" />
               </a>
-            </div>
 
+              {/* Email */}
+              <div className="flex items-center justify-between p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text)]">
+                    <Mail size={18} />
+                  </div>
+                  <div>
+                    <span className="block text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Direct Business Email</span>
+                    <strong className="text-[var(--color-text)] font-semibold text-xs sm:text-sm truncate block max-w-[180px] sm:max-w-[240px]">
+                      shaurya.studios.dev@gmail.com
+                    </strong>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => handleCopy('shaurya.studios.dev@gmail.com', 'email')}
+                  className="p-2 rounded-lg border border-[var(--color-border)] hover:border-[var(--color-text)] transition-colors"
+                  title="Copy Email"
+                >
+                  {copiedId === 'email' ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                </button>
+              </div>
+
+            </div>
           </motion.div>
         </motion.div>
       )}

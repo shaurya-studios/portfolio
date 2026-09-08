@@ -65,27 +65,27 @@ export default function Cursor() {
 
   return (
     <>
-      {/* Outer ring — gold-tinted on interactive elements */}
+      {/* Outer ring */}
       <motion.div
-        className="fixed top-0 left-0 w-8 h-8 rounded-full pointer-events-none z-[9999]"
+        className="fixed top-0 left-0 w-7 h-7 rounded-full pointer-events-none z-[9999]"
         style={{
           x: ringX,
           y: ringY,
-          scale: isHovered ? 1.6 : 1,
-          backgroundColor: isHovered ? 'rgba(232, 182, 52, 0.08)' : 'transparent',
+          scale: isHovered ? 1.5 : 1,
+          backgroundColor: isHovered ? 'rgba(233, 216, 166, 0.15)' : 'transparent',
           border: isHovered 
-            ? '1.5px solid rgba(232, 182, 52, 0.6)' 
-            : '1.5px solid rgba(232, 236, 241, 0.3)',
+            ? '1px solid var(--color-text)' 
+            : '1px solid var(--color-border-hover)',
           transition: 'background-color 0.2s, border-color 0.2s, scale 0.2s',
         }}
       />
-      {/* Inner dot — precise, always visible */}
+      {/* Inner dot */}
       <motion.div
         className="fixed top-0 left-0 w-1.5 h-1.5 rounded-full pointer-events-none z-[10000]"
         style={{
           x: dotX,
           y: dotY,
-          backgroundColor: isHovered ? 'var(--color-gold)' : 'var(--color-text)',
+          backgroundColor: 'var(--color-text)',
           scale: isHovered ? 0 : 1,
           transition: 'background-color 0.15s, scale 0.15s',
         }}
