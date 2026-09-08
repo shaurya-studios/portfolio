@@ -1,45 +1,77 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useScroll, useTransform } from 'framer-motion';
+import { Float, RoundedBox } from '@react-three/drei';
+import { useScroll } from 'framer-motion';
+import * as THREE from 'three';
 
 export default function HeroMonolith() {
-  const meshRef = useRef<any>(null);
+  const tiltGroupRef = useRef<THREE.Group>(null);
+  const spinGroupRef = useRef<THREE.Group>(null);
+  const mouse = useRef({ x: 0, y: 0 });
+  const currentSpeed = useRef(0.005);
   const { scrollYProgress } = useScroll();
-  
-  // Tie rotation and position to scroll
-  // The monolith will sink and rotate as the user scrolls down
-  const yPos = useTransform(scrollYProgress, [0, 1], [0, -20]);
-  const rotX = useTransform(scrollYProgress, [0, 1], [0, Math.PI / 2]);
-  const rotY = useTransform(scrollYProgress, [0, 1], [0, Math.PI]);
 
-  useFrame((state) => {
-    if (!meshRef.current) return;
-    
-    // Smoothly interpolate the scroll transforms to the mesh
-    meshRef.current.position.y += (yPos.get() - meshRef.current.position.y) * 0.1;
-    meshRef.current.rotation.x += (rotX.get() - meshRef.current.rotation.x) * 0.1;
-    meshRef.current.rotation.y += (rotY.get() - meshRef.current.rotation.y + state.clock.elapsedTime * 0.05) * 0.1;
-    
-    // Add a slight floating effect
-    meshRef.current.position.y += Math.sin(state.clock.elapsedTime) * 0.005;
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  useFrame(() => {
+    if (!tiltGroupRef.current || !spinGroupRef.current) return;
+
+    // 1. Interactive Mouse Tilt (Lerped)
+    const targetTiltX = (mouse.current.x * Math.PI) / 10;
+    const targetTiltY = (mouse.current.y * Math.PI) / 10;
+
+    tiltGroupRef.current.rotation.y = THREE.MathUtils.lerp(
+      tiltGroupRef.current.rotation.y,
+      targetTiltX,
+      0.05
+    );
+    tiltGroupRef.current.rotation.x = THREE.MathUtils.lerp(
+      tiltGroupRef.current.rotation.x,
+      -targetTiltY,
+      0.05
+    );
+
+    // 2. Continuous Spin with Proximity Slowdown
+    const distFromCenter = Math.sqrt(mouse.current.x ** 2 + mouse.current.y ** 2);
+    const targetSpeed = distFromCenter < 0.4 ? 0.0006 : 0.0045;
+    currentSpeed.current = THREE.MathUtils.lerp(currentSpeed.current, targetSpeed, 0.05);
+    spinGroupRef.current.rotation.y += currentSpeed.current;
+
+    // 3. Scroll reaction: sinks and rotates gracefully down the page
+    const scroll = scrollYProgress.get();
+    tiltGroupRef.current.position.y = THREE.MathUtils.lerp(
+      tiltGroupRef.current.position.y,
+      -scroll * 12,
+      0.08
+    );
+    tiltGroupRef.current.position.z = THREE.MathUtils.lerp(
+      tiltGroupRef.current.position.z,
+      -scroll * 5,
+      0.08
+    );
   });
 
   return (
-    <mesh ref={meshRef} position={[2, 0, 0]} scale={2.5}>
-      <octahedronGeometry args={[1, 0]} />
-      <meshPhysicalMaterial 
-        color="#080b12"
-        metalness={0.1}
-        roughness={0.2}
-        transmission={1}
-        ior={1.5}
-        thickness={2}
-        clearcoat={1}
-        clearcoatRoughness={0.1}
-        emissive="#06090f"
-        emissiveIntensity={0.2}
-        wireframe={false}
-      />
-    </mesh>
+    <group ref={tiltGroupRef} position={[0, 0, 0]}>
+      <group ref={spinGroupRef}>
+        <Float speed={2} rotationIntensity={0.25} floatIntensity={0.9}>
+          <RoundedBox args={[2.5, 4.4, 1.4]} radius={0.16} smoothness={4}>
+            <meshStandardMaterial
+              color="#eab308"
+              roughness={0.14}
+              metalness={0.95}
+              envMapIntensity={2.2}
+            />
+          </RoundedBox>
+        </Float>
+      </group>
+    </group>
   );
 }
