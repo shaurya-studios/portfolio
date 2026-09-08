@@ -8,259 +8,226 @@ export default function IslandTerrain() {
   const islandGroupRef = useRef<THREE.Group>(null);
   const beaconRef = useRef<THREE.Group>(null);
   const antennaLightRef = useRef<THREE.PointLight>(null);
+  const villaInteriorLightRef = useRef<THREE.PointLight>(null);
   const pierLightRef = useRef<THREE.PointLight>(null);
-  const cliffLightRef = useRef<THREE.PointLight>(null);
   const { timeOfDay } = useScenery();
 
   // Interactive states
-  const [hoveredZone, setHoveredZone] = useState<'outpost' | 'beacon' | 'pier' | null>(null);
-  const [beaconSpeed, setBeaconSpeed] = useState(1.0);
+  const [hoveredZone, setHoveredZone] = useState<'villa' | 'sanctuary' | 'pier' | null>(null);
+  const [beaconBoost, setBeaconBoost] = useState(1.0);
 
   const isNight = timeOfDay === 'night';
 
   useFrame((state) => {
-    // 1. Subtle Island Parallax Physics based on Pointer
+    // 1. Gentle Parallax Tilt from Pointer
     if (islandGroupRef.current) {
-      const targetRotX = (state.pointer.y * Math.PI) / 28;
-      const targetRotY = (state.pointer.x * Math.PI) / 24;
+      const targetRotX = (state.pointer.y * Math.PI) / 35;
+      const targetRotY = (state.pointer.x * Math.PI) / 30;
 
       islandGroupRef.current.rotation.x = THREE.MathUtils.lerp(
         islandGroupRef.current.rotation.x,
         targetRotX,
-        0.045
+        0.04
       );
       islandGroupRef.current.rotation.y = THREE.MathUtils.lerp(
         islandGroupRef.current.rotation.y,
         targetRotY,
-        0.045
+        0.04
       );
     }
 
-    // 2. Kinetic Beacon Sculpture Dynamic Spin
+    // 2. Kinetic Sanctuary Orbit
     if (beaconRef.current) {
-      const activeSpeed = hoveredZone === 'beacon' ? 0.05 * beaconSpeed : 0.016 * beaconSpeed;
-      beaconRef.current.rotation.y += activeSpeed;
-      beaconRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.9) * 0.18;
-      
-      // Decay beacon speed boost back to normal
-      if (beaconSpeed > 1.0) {
-        setBeaconSpeed((prev) => Math.max(1.0, prev - 0.02));
+      const speed = (hoveredZone === 'sanctuary' ? 0.035 : 0.015) * beaconBoost;
+      beaconRef.current.rotation.y += speed;
+      beaconRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.7) * 0.12;
+
+      // Decay speed boost
+      if (beaconBoost > 1.0) {
+        setBeaconBoost((prev) => Math.max(1.0, prev - 0.015));
       }
     }
 
-    // 3. Tech Outpost Blinking LED Beacon
+    // 3. Delicate Mast Beacon Blink
     if (antennaLightRef.current) {
-      const pulse = Math.sin(state.clock.elapsedTime * 4) * 0.5 + 0.5;
-      antennaLightRef.current.intensity = isNight ? pulse * 3.5 : 0.4;
+      const pulse = Math.sin(state.clock.elapsedTime * 3) * 0.5 + 0.5;
+      antennaLightRef.current.intensity = isNight ? pulse * 1.5 : 0.3;
     }
 
-    // 4. Pier Docking Lights Pulse
+    // 4. Warm Interior Light
+    if (villaInteriorLightRef.current) {
+      villaInteriorLightRef.current.intensity = isNight ? 1.6 : 0.2;
+    }
+
+    // 5. Pier Dock Light
     if (pierLightRef.current) {
-      const pierPulse = Math.sin(state.clock.elapsedTime * 2.5 + 1.0) * 0.3 + 0.7;
-      pierLightRef.current.intensity = isNight ? pierPulse * 2.8 : 0.2;
-    }
-
-    // 5. Cliff Grazing Uplight Pulse
-    if (cliffLightRef.current) {
-      cliffLightRef.current.intensity = isNight ? 2.0 : 0.1;
+      pierLightRef.current.intensity = isNight ? 1.2 : 0.1;
     }
   });
 
   return (
-    <group ref={islandGroupRef} position={[0, -0.2, 0]}>
+    <group ref={islandGroupRef} position={[1.2, -0.25, 0]}>
       
       {/* ===================================================
-          1. ISLAND LANDMASS (Stepped Architectural Cliffs)
+          1. ARCHITECTURAL CONTOURED STONE LANDMASS
           =================================================== */}
       
-      {/* Main Base Island Tier (Lower Plateau) */}
-      <mesh position={[0, -0.8, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[2.8, 2.3, 1.2, 7]} />
+      {/* Submerged Reef Base (Visible through clear water) */}
+      <mesh position={[0, -1.1, 0]} receiveShadow>
+        <cylinderGeometry args={[2.8, 1.8, 1.0, 32]} />
         <meshStandardMaterial
-          color={isNight ? '#12161f' : '#dcd6cc'}
-          roughness={0.7}
-          metalness={0.1}
-          flatShading
-        />
-      </mesh>
-
-      {/* Sub-shore Reef Tiers (visible through translucent water) */}
-      <mesh position={[0, -1.3, 0]} receiveShadow>
-        <cylinderGeometry args={[2.3, 1.2, 1.0, 6]} />
-        <meshStandardMaterial
-          color={isNight ? '#080d12' : '#c8c1b4'}
+          color={isNight ? '#0b1118' : '#b8afa2'}
           roughness={0.9}
-          flatShading
         />
       </mesh>
 
-      {/* Mid Terrace (Plateau for Sanctuary & Paths) */}
-      <mesh position={[-0.2, 0.0, 0.1]} castShadow receiveShadow>
-        <cylinderGeometry args={[2.0, 2.4, 0.6, 6]} />
+      {/* Main Terraced Bedrock (Beveled, smooth architectural stone) */}
+      <mesh position={[0, -0.45, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[2.55, 2.7, 0.7, 32]} />
         <meshStandardMaterial
-          color={isNight ? '#181d26' : '#e6e1d8'}
-          roughness={0.6}
-          flatShading
-        />
-      </mesh>
-
-      {/* High Cliff Outcrop (Elevated Ridge for Tech Outpost) */}
-      <mesh position={[0.7, 0.5, -0.4]} rotation={[0, 0.4, 0]} castShadow receiveShadow>
-        <boxGeometry args={[1.5, 0.9, 1.6]} />
-        <meshStandardMaterial
-          color={isNight ? '#151922' : '#d5cfc5'}
+          color={isNight ? '#161c26' : '#ded9cf'}
           roughness={0.65}
-          flatShading
+          metalness={0.05}
+        />
+      </mesh>
+
+      {/* Mid Terrace (Living Plateau) */}
+      <mesh position={[-0.1, 0.0, 0.1]} castShadow receiveShadow>
+        <cylinderGeometry args={[2.1, 2.45, 0.45, 32]} />
+        <meshStandardMaterial
+          color={isNight ? '#1b222e' : '#eae5dc'}
+          roughness={0.6}
+        />
+      </mesh>
+
+      {/* Elevated Ridge (Foundational plinth for modernist pavilion) */}
+      <mesh position={[0.7, 0.35, -0.35]} castShadow receiveShadow>
+        <boxGeometry args={[1.5, 0.5, 1.4]} />
+        <meshStandardMaterial
+          color={isNight ? '#1e2634' : '#dfd9ce'}
+          roughness={0.55}
         />
       </mesh>
 
       {/* ===================================================
-          2. THE TECH OUTPOST (Modernist Cantilevered Lab)
+          2. MODERNIST ARCHITECTURAL PAVILION (Tech Outpost)
           =================================================== */}
       <group 
-        position={[0.75, 1.15, -0.4]} 
-        rotation={[0, -0.2, 0]}
-        onPointerOver={(e) => { e.stopPropagation(); setHoveredZone('outpost'); }}
+        position={[0.75, 0.85, -0.35]} 
+        rotation={[0, -0.15, 0]}
+        onPointerOver={(e) => { e.stopPropagation(); setHoveredZone('villa'); }}
         onPointerOut={() => setHoveredZone(null)}
       >
-        {/* Cantilevered Building Foundation */}
+        {/* Cantilevered Living Pavilion (Crisp Architectural Form) */}
         <mesh castShadow receiveShadow>
-          <boxGeometry args={[1.2, 0.45, 0.8]} />
+          <boxGeometry args={[1.25, 0.42, 0.85]} />
           <meshStandardMaterial
-            color={isNight ? (hoveredZone === 'outpost' ? '#2c3445' : '#1f2532') : '#F7F5F0'}
-            roughness={0.2}
+            color={isNight ? (hoveredZone === 'villa' ? '#262f3f' : '#1e2430') : '#F7F5F0'}
+            roughness={0.25}
+            metalness={0.2}
+          />
+        </mesh>
+
+        {/* Panoramic Recessed Glass Facade (Front) */}
+        <mesh position={[0, 0.01, 0.43]}>
+          <planeGeometry args={[1.05, 0.24]} />
+          <meshStandardMaterial
+            color={isNight ? '#fde68a' : '#111827'}
+            emissive={isNight ? '#fde68a' : '#000000'}
+            emissiveIntensity={isNight ? 1.8 : 0}
+            roughness={0.1}
             metalness={0.3}
           />
         </mesh>
 
-        {/* Panoramic Window Slot (Front - Warm Amber Glow) */}
-        <mesh position={[0, 0.02, 0.41]}>
-          <planeGeometry args={[1.0, 0.18]} />
+        {/* Rear Courtyard Glass (Subtle Cyan Data Glow) */}
+        <mesh position={[0, 0.01, -0.43]} rotation={[0, Math.PI, 0]}>
+          <planeGeometry args={[0.85, 0.2]} />
           <meshStandardMaterial
-            color={isNight ? '#e9d8a6' : '#0F1115'}
-            emissive={isNight ? '#e9d8a6' : '#000000'}
-            emissiveIntensity={isNight ? 2.5 : 0}
-            roughness={0.1}
+            color={isNight ? '#38bdf8' : '#111827'}
+            emissive={isNight ? '#38bdf8' : '#000000'}
+            emissiveIntensity={isNight ? 1.4 : 0}
           />
         </mesh>
 
-        {/* Back Tech Bay Window (Cyan Neon Glow) */}
-        <mesh position={[0, 0.02, -0.41]} rotation={[0, Math.PI, 0]}>
-          <planeGeometry args={[0.8, 0.15]} />
-          <meshStandardMaterial
-            color={isNight ? '#00f0ff' : '#0F1115'}
-            emissive={isNight ? '#00f0ff' : '#000000'}
-            emissiveIntensity={isNight ? 2.2 : 0}
-          />
-        </mesh>
-
-        {/* Under-Cantilever Architectural LED Strip (Washes cliff in cyan) */}
-        {isNight && (
-          <mesh position={[0, -0.23, 0]}>
-            <boxGeometry args={[1.15, 0.02, 0.75]} />
-            <meshBasicMaterial color="#00f0ff" />
-          </mesh>
-        )}
-        <pointLight
-          position={[0, -0.4, 0]}
-          color="#00f0ff"
-          distance={2.5}
-          intensity={isNight ? 2.0 : 0}
-        />
-
-        {/* Roof Architectural Deck */}
-        <mesh position={[0, 0.25, 0]} castShadow>
-          <boxGeometry args={[1.3, 0.05, 0.9]} />
+        {/* Architectural Roof Slab */}
+        <mesh position={[0, 0.24, 0]} castShadow>
+          <boxGeometry args={[1.35, 0.05, 0.95]} />
           <meshStandardMaterial
             color={isNight ? '#0F1115' : '#2A2D35'}
             roughness={0.3}
           />
         </mesh>
 
-        {/* Communications Mast / Antenna */}
-        <mesh position={[0.4, 0.55, -0.2]}>
-          <cylinderGeometry args={[0.015, 0.025, 0.6, 8]} />
+        {/* Soft Interior Warm Light */}
+        <pointLight
+          ref={villaInteriorLightRef}
+          position={[0, 0.05, 0.3]}
+          color="#ffedd5"
+          distance={2.8}
+          intensity={0.2}
+        />
+
+        {/* Minimalist Roof Communications Mast */}
+        <mesh position={[0.42, 0.52, -0.2]}>
+          <cylinderGeometry args={[0.012, 0.02, 0.55, 8]} />
           <meshStandardMaterial color="#8E929E" metalness={0.8} />
         </mesh>
 
-        {/* Dual Flashing Mast Warning LEDs */}
-        <mesh position={[0.4, 0.88, -0.2]}>
-          <sphereGeometry args={[0.045, 16, 16]} />
-          <meshBasicMaterial color={isNight ? '#ff3366' : '#C6B8A8'} />
-        </mesh>
-        <mesh position={[0.4, 0.70, -0.2]}>
+        {/* Delicate Amber Status Pin-Light at Top */}
+        <mesh position={[0.42, 0.82, -0.2]}>
           <sphereGeometry args={[0.035, 16, 16]} />
-          <meshBasicMaterial color={isNight ? '#00f0ff' : '#9A9EAB'} />
+          <meshBasicMaterial color={isNight ? '#f59e0b' : '#C6B8A8'} />
         </mesh>
         <pointLight
           ref={antennaLightRef}
-          position={[0.4, 0.95, -0.2]}
-          color="#ff3366"
-          distance={4}
-          intensity={0.8}
+          position={[0.42, 0.88, -0.2]}
+          color="#f59e0b"
+          distance={3}
+          intensity={0.4}
         />
       </group>
 
       {/* ===================================================
-          3. THE KINETIC BEACON / ARTIFACT SANCTUARY
+          3. THE KINETIC SANCTUARY (Floating Museum Sculpture)
           =================================================== */}
       <group 
-        position={[-0.8, 0.9, 0.4]}
-        onPointerOver={(e) => { e.stopPropagation(); setHoveredZone('beacon'); }}
+        position={[-0.8, 0.75, 0.35]}
+        onPointerOver={(e) => { e.stopPropagation(); setHoveredZone('sanctuary'); }}
         onPointerOut={() => setHoveredZone(null)}
-        onClick={() => setBeaconSpeed(3.5)}
+        onClick={() => setBeaconBoost(2.8)}
       >
-        {/* Stepped Pedestal Base */}
-        <mesh position={[0, -0.5, 0]} receiveShadow>
-          <cylinderGeometry args={[0.45, 0.55, 0.2, 8]} />
+        {/* Sculpted Stone Pedestal */}
+        <mesh position={[0, -0.45, 0]} receiveShadow>
+          <cylinderGeometry args={[0.42, 0.52, 0.18, 24]} />
           <meshStandardMaterial
-            color={isNight ? '#1b202a' : '#e2ddd3'}
+            color={isNight ? '#1e2532' : '#e4dfd6'}
             roughness={0.4}
           />
         </mesh>
 
-        {/* 4 Sanctuary Pedestal Uplight LEDs */}
-        {isNight && (
-          <>
-            {[
-              [0.32, -0.38, 0],
-              [-0.32, -0.38, 0],
-              [0, -0.38, 0.32],
-              [0, -0.38, -0.32],
-            ].map((p, idx) => (
-              <group key={`sanctuary-led-${idx}`} position={p as [number, number, number]}>
-                <mesh>
-                  <sphereGeometry args={[0.035, 8, 8]} />
-                  <meshBasicMaterial color="#e9d8a6" />
-                </mesh>
-              </group>
-            ))}
-            <pointLight position={[0, -0.2, 0]} color="#e9d8a6" distance={2.5} intensity={2.2} />
-          </>
-        )}
-
         {/* Floating Kinetic Sculpture */}
-        <Float speed={2} rotationIntensity={0.3} floatIntensity={0.4}>
+        <Float speed={2} rotationIntensity={0.25} floatIntensity={0.35}>
           <group ref={beaconRef}>
-            {/* Outer Architectural Ring */}
+            {/* Outer Gimbal Ring in Champagne Gold */}
             <mesh castShadow>
-              <torusGeometry args={[0.34, 0.03, 16, 32]} />
+              <torusGeometry args={[0.32, 0.022, 16, 32]} />
               <meshStandardMaterial
                 color={isNight ? '#e9d8a6' : '#C6B8A8'}
                 emissive={isNight ? '#e9d8a6' : '#000000'}
-                emissiveIntensity={isNight ? (hoveredZone === 'beacon' ? 1.5 : 0.6) : 0}
-                metalness={0.9}
-                roughness={0.2}
+                emissiveIntensity={isNight ? 0.8 : 0}
+                metalness={0.95}
+                roughness={0.15}
               />
             </mesh>
 
-            {/* Inner Floating Monolith Core */}
+            {/* Inner Floating Prismatic Diamond */}
             <mesh castShadow>
-              <octahedronGeometry args={[0.2, 0]} />
+              <octahedronGeometry args={[0.16, 0]} />
               <meshStandardMaterial
-                color={isNight ? '#00f0ff' : '#0F1115'}
-                emissive={isNight ? '#00f0ff' : '#C6B8A8'}
-                emissiveIntensity={isNight ? (hoveredZone === 'beacon' ? 3.0 : 1.8) : 0.3}
+                color={isNight ? '#38bdf8' : '#0F1115'}
+                emissive={isNight ? '#38bdf8' : '#C6B8A8'}
+                emissiveIntensity={isNight ? (hoveredZone === 'sanctuary' ? 2.2 : 1.2) : 0.2}
                 roughness={0.1}
                 metalness={0.8}
               />
@@ -270,178 +237,110 @@ export default function IslandTerrain() {
       </group>
 
       {/* ===================================================
-          4. THE COASTAL HARBOR / PIER & RUNWAY LEDS
+          4. THE HARBOR PIER & TIMBER BOARDWALK
           =================================================== */}
       <group 
-        position={[-0.4, -0.22, 1.8]} 
-        rotation={[0, 0.35, 0]}
+        position={[-0.35, -0.22, 1.85]} 
+        rotation={[0, 0.28, 0]}
         onPointerOver={(e) => { e.stopPropagation(); setHoveredZone('pier'); }}
         onPointerOut={() => setHoveredZone(null)}
       >
-        {/* Pier Walkway extending into water */}
+        {/* Wooden Boardwalk extending gracefully into water */}
         <mesh position={[0, 0, 0.4]} castShadow receiveShadow>
-          <boxGeometry args={[0.48, 0.08, 1.15]} />
+          <boxGeometry args={[0.42, 0.06, 1.15]} />
           <meshStandardMaterial
-            color={isNight ? '#221d18' : '#b8aba0'}
-            roughness={0.8}
+            color={isNight ? '#241e18' : '#b3a598'}
+            roughness={0.75}
           />
         </mesh>
 
-        {/* Pier Pilings */}
-        <mesh position={[-0.19, -0.3, 0.7]} castShadow>
-          <cylinderGeometry args={[0.03, 0.03, 0.5, 8]} />
-          <meshStandardMaterial color="#3a342e" />
+        {/* Teak Pilings */}
+        <mesh position={[-0.16, -0.25, 0.7]} castShadow>
+          <cylinderGeometry args={[0.025, 0.025, 0.45, 8]} />
+          <meshStandardMaterial color="#3a322a" />
         </mesh>
-        <mesh position={[0.19, -0.3, 0.7]} castShadow>
-          <cylinderGeometry args={[0.03, 0.03, 0.5, 8]} />
-          <meshStandardMaterial color="#3a342e" />
+        <mesh position={[0.16, -0.25, 0.7]} castShadow>
+          <cylinderGeometry args={[0.025, 0.025, 0.45, 8]} />
+          <meshStandardMaterial color="#3a322a" />
         </mesh>
 
-        {/* Pier Edge Marine Runway LEDs (Left & Right Edge) */}
-        {isNight && (
-          <>
-            {[0.0, 0.3, 0.6, 0.9].map((z, idx) => (
-              <group key={`pier-led-${idx}`}>
-                {/* Left LED */}
-                <mesh position={[-0.22, 0.05, z]}>
-                  <sphereGeometry args={[0.02, 8, 8]} />
-                  <meshBasicMaterial color="#00f0ff" />
-                </mesh>
-                {/* Right LED */}
-                <mesh position={[0.22, 0.05, z]}>
-                  <sphereGeometry args={[0.02, 8, 8]} />
-                  <meshBasicMaterial color="#00f0ff" />
-                </mesh>
-              </group>
-            ))}
-            <pointLight
-              ref={pierLightRef}
-              position={[0, 0.1, 0.8]}
-              color="#00f0ff"
-              distance={3.2}
-              intensity={2.5}
-            />
-          </>
-        )}
-
-        {/* Docking Light Bollard */}
-        <mesh position={[0.18, 0.1, 0.9]}>
-          <cylinderGeometry args={[0.025, 0.025, 0.16, 8]} />
+        {/* Mooring Bollard with Warm Lantern */}
+        <mesh position={[0.15, 0.08, 0.85]}>
+          <cylinderGeometry args={[0.02, 0.02, 0.12, 8]} />
           <meshStandardMaterial color="#0F1115" />
         </mesh>
-        <mesh position={[0.18, 0.20, 0.9]}>
-          <sphereGeometry args={[0.035, 12, 12]} />
-          <meshBasicMaterial color={isNight ? '#38ef7d' : '#e9d8a6'} />
+        <mesh position={[0.15, 0.15, 0.85]}>
+          <sphereGeometry args={[0.028, 12, 12]} />
+          <meshBasicMaterial color={isNight ? '#fde68a' : '#e9d8a6'} />
         </mesh>
+        <pointLight
+          ref={pierLightRef}
+          position={[0.15, 0.2, 0.85]}
+          color="#fde68a"
+          distance={2.2}
+          intensity={0.1}
+        />
       </group>
 
       {/* ===================================================
-          5. RUNWAY / PATHWAY LED STUDS ACROSS THE ISLAND
+          5. SUBTLE ARCHITECTURAL PATHWAY LEDS (Night Mode)
           =================================================== */}
       {isNight && (
         <group>
           {[
-            // Path leading from pier to central terrace
-            [-0.3, 0.05, 1.2, '#00f0ff'],
-            [-0.2, 0.15, 0.8, '#00f0ff'],
-            [-0.1, 0.28, 0.45, '#e9d8a6'],
-            // Path around the kinetic sanctuary
-            [-0.45, 0.32, 0.3, '#e9d8a6'],
-            [-0.9, 0.32, 0.0, '#e9d8a6'],
-            // Steps climbing up the cliff toward tech outpost
-            [0.15, 0.35, 0.2, '#00f0ff'],
-            [0.35, 0.50, 0.0, '#00f0ff'],
-            [0.55, 0.70, -0.2, '#00f0ff'],
-            [0.75, 0.95, -0.3, '#e9d8a6'],
-          ].map((item, idx) => (
-            <mesh key={`path-stud-${idx}`} position={[item[0] as number, item[1] as number, item[2] as number]}>
-              <sphereGeometry args={[0.028, 8, 8]} />
-              <meshBasicMaterial color={item[3] as string} />
+            [-0.25, 0.06, 1.25],
+            [-0.18, 0.14, 0.85],
+            [-0.1, 0.24, 0.45],
+            [0.15, 0.28, 0.25],
+            [0.35, 0.42, 0.05],
+            [0.55, 0.58, -0.15],
+          ].map((pos, idx) => (
+            <mesh key={`path-pin-${idx}`} position={pos as [number, number, number]}>
+              <sphereGeometry args={[0.02, 8, 8]} />
+              <meshBasicMaterial color="#e9d8a6" />
             </mesh>
           ))}
         </group>
       )}
 
       {/* ===================================================
-          6. CLIFF FACET GRAZING UPLIGHTS
-          =================================================== */}
-      {isNight && (
-        <>
-          <pointLight
-            ref={cliffLightRef}
-            position={[0.7, 0.1, -0.8]}
-            color="#ffaa00"
-            distance={3.5}
-            intensity={2.2}
-          />
-          <pointLight
-            position={[-1.2, -0.1, -0.5]}
-            color="#00f0ff"
-            distance={3.0}
-            intensity={1.8}
-          />
-        </>
-      )}
-
-      {/* ===================================================
-          7. UNDERWATER BIOLUMINESCENT REEF LEDS
-          =================================================== */}
-      {isNight && (
-        <>
-          <pointLight
-            position={[-0.4, -0.6, 2.0]}
-            color="#00f0ff"
-            distance={4.0}
-            intensity={3.0}
-          />
-          <pointLight
-            position={[1.5, -0.6, 0.5]}
-            color="#38ef7d"
-            distance={3.5}
-            intensity={2.0}
-          />
-        </>
-      )}
-
-      {/* ===================================================
-          8. ARCHITECTURAL CYPRESS TREES & SCATTER
+          6. SLENDER ARCHITECTURAL CYPRESS TREES
           =================================================== */}
       {[
-        { pos: [-0.9, 0.45, -0.3], scale: 1.0 },
-        { pos: [-1.2, 0.35, -0.1], scale: 0.8 },
-        { pos: [-0.6, 0.38, -0.8], scale: 0.9 },
-        { pos: [0.1, 0.35, 0.8], scale: 0.7 },
-        { pos: [1.3, 0.7, 0.3], scale: 0.85 },
+        { pos: [-0.85, 0.45, -0.3], scale: 1.0 },
+        { pos: [-1.15, 0.35, -0.05], scale: 0.8 },
+        { pos: [-0.55, 0.38, -0.75], scale: 0.9 },
+        { pos: [0.12, 0.32, 0.75], scale: 0.7 },
+        { pos: [1.35, 0.55, 0.25], scale: 0.8 },
       ].map((tree, i) => (
-        <group key={i} position={tree.pos as [number, number, number]} scale={tree.scale}>
-          {/* Slender Minimalist Architectural Foliage Cone */}
+        <group key={`cypress-${i}`} position={tree.pos as [number, number, number]} scale={tree.scale}>
+          {/* Slender Minimalist Foliage Cone */}
           <mesh position={[0, 0.35, 0]} castShadow>
-            <coneGeometry args={[0.18, 0.7, 6]} />
+            <coneGeometry args={[0.16, 0.68, 8]} />
             <meshStandardMaterial
-              color={isNight ? '#0a1d15' : '#7b8779'}
-              roughness={0.8}
-              flatShading
+              color={isNight ? '#0b1b13' : '#6f7a6e'}
+              roughness={0.75}
             />
           </mesh>
           {/* Trunk */}
-          <mesh position={[0, 0.05, 0]}>
-            <cylinderGeometry args={[0.03, 0.04, 0.15, 6]} />
-            <meshStandardMaterial color="#4a443e" />
+          <mesh position={[0, 0.04, 0]}>
+            <cylinderGeometry args={[0.025, 0.035, 0.12, 6]} />
+            <meshStandardMaterial color="#443c35" />
           </mesh>
         </group>
       ))}
 
-      {/* Geometric Stepping Stones */}
+      {/* Stepping Stones to the Villa */}
       {[
-        [-0.1, 0.32, 0.4],
-        [0.15, 0.35, 0.3],
-        [0.35, 0.45, 0.1],
-        [0.55, 0.65, -0.1],
+        [-0.1, 0.24, 0.4],
+        [0.12, 0.27, 0.25],
+        [0.32, 0.38, 0.05],
+        [0.52, 0.52, -0.12],
       ].map((p, i) => (
         <mesh key={`step-${i}`} position={p as [number, number, number]} receiveShadow>
-          <boxGeometry args={[0.16, 0.04, 0.16]} />
+          <boxGeometry args={[0.15, 0.03, 0.15]} />
           <meshStandardMaterial
-            color={isNight ? '#1e2531' : '#d8d3c8'}
+            color={isNight ? '#1e2430' : '#d5cfc5'}
             roughness={0.5}
           />
         </mesh>
