@@ -1,28 +1,52 @@
 import { knowledgeBase } from '../src/knowledgeBase.js';
 
 export default async function handler(req, res) {
+  // CORS configuration
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { message } = req.body;
+  let body = req.body;
+  if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch (e) {
+      // Ignored
+    }
+  }
+
+  const message = body?.message;
+  if (!message) {
+    return res.status(400).json({ error: 'Message is required' });
+  }
 
   try {
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AQ.Ab8RN6JkZztbo8GdEfQRhyX9FclkvAA1NS1aC2nlQ6ak0madrA';
     if (!GEMINI_API_KEY) {
-      return res.status(500).json({ error: 'API key not configured. Set GEMINI_API_KEY in environment variables.' });
+      return res.status(500).json({ error: 'API key not configured.' });
     }
-    const systemInstruction = knowledgeBase;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent`, {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-goog-api-key': GEMINI_API_KEY
+        'x-goog-api-key': GEMINI_API_KEY
       },
       body: JSON.stringify({
         system_instruction: {
-          parts: [{ text: systemInstruction }]
+          parts: [{ text: knowledgeBase }]
         },
         contents: [
           {
@@ -36,7 +60,7 @@ export default async function handler(req, res) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Gemini API Error:", errorText);
-      return res.status(500).json({ error: `Gemini API returned ${response.status}` });
+      return res.status(response.status).json({ error: `Gemini API error: ${response.status}` });
     }
 
     const data = await response.json();
@@ -50,9 +74,9 @@ export default async function handler(req, res) {
     }
 
     const reply = data.candidates[0].content?.parts?.[0]?.text;
-    res.status(200).json({ reply: reply || 'Buggie generated an empty response.' });
+    return res.status(200).json({ reply: reply || 'Buggie generated an empty response.' });
   } catch (error) {
-    console.error("Vercel Function Error:", error);
-    res.status(500).json({ error: 'Internal Server Error: ' + error.message });
+    console.error("Chat API Error:", error);
+    return res.status(500).json({ error: 'Internal Server Error: ' + error.message });
   }
 }
