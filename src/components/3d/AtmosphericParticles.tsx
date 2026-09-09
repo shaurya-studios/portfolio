@@ -29,22 +29,18 @@ const ParticleShader = {
 
     void main() {
       vec3 pos = position;
-      float t = uTime * 0.4 + aPhase;
+      float t = uTime * 0.3 + aPhase;
 
-      // Organic 3D harmonic drift
-      pos.x += sin(t * 0.8 + pos.y * 0.5) * 0.35 + aVelocity.x * uTime * 0.05;
-      pos.y += cos(t * 0.6 + pos.x * 0.4) * 0.25;
-      pos.z += sin(t * 0.7 + pos.x * 0.6) * 0.35 + aVelocity.z * uTime * 0.05;
-
-      // Wrap around bounding volume
-      pos.x = mod(pos.x + 8.0, 16.0) - 8.0 + 1.2;
-      pos.z = mod(pos.z + 8.0, 16.0) - 8.0;
+      // Gentle organic drift clustered around trees
+      pos.x += sin(t * 0.7 + pos.y * 0.5) * 0.2 + aVelocity.x * uTime * 0.02;
+      pos.y += cos(t * 0.5 + pos.x * 0.4) * 0.15;
+      pos.z += sin(t * 0.6 + pos.x * 0.5) * 0.2 + aVelocity.z * uTime * 0.02;
 
       // Repulsion from boat position in night mode
       vec2 boatDistVec = pos.xz - uBoatPos;
       float boatDist = length(boatDistVec);
-      if (boatDist < 1.5) {
-        vec2 push = normalize(boatDistVec) * (1.5 - boatDist) * 0.6;
+      if (boatDist < 1.4) {
+        vec2 push = normalize(boatDistVec) * (1.4 - boatDist) * 0.5;
         pos.x += push.x;
         pos.z += push.y;
       }
@@ -52,31 +48,26 @@ const ParticleShader = {
       vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
       gl_Position = projectionMatrix * mvPosition;
 
-      // Distance attenuation for delicate microscopic particle scale
-      gl_PointSize = aScale * (32.0 / -mvPosition.z) * (uNightMode > 0.5 ? 1.3 : 0.85);
+      // Pinpoint tiny particle scale (never big orbs!)
+      gl_PointSize = aScale * (15.0 / -mvPosition.z) * uNightMode;
 
-      // Delicate golden hour dust in day, pulsing fireflies at night
-      float pulse = sin(uTime * 2.5 + aPhase * 6.28) * 0.4 + 0.6;
-      vAlpha = mix(0.2, pulse * 0.8, uNightMode);
+      // Absolutely zero orbs in day mode! Only discreet micro-fireflies at night
+      float pulse = sin(uTime * 2.0 + aPhase * 6.28) * 0.3 + 0.7;
+      vAlpha = pulse * 0.6 * uNightMode;
     }
   `,
   fragmentShader: `
-    uniform float uNightMode;
-    uniform vec3 uColorDay;
     uniform vec3 uColorNight;
-
     varying float vAlpha;
 
     void main() {
-      // Circular soft particle disc with soft radial falloff
+      // Circular soft point with sharp core
       vec2 coord = gl_PointCoord - vec2(0.5);
       float dist = length(coord);
       if (dist > 0.5) discard;
 
       float soft = 1.0 - smoothstep(0.1, 0.5, dist);
-      vec3 col = mix(uColorDay, uColorNight, uNightMode);
-
-      gl_FragColor = vec4(col, soft * vAlpha);
+      gl_FragColor = vec4(uColorNight, soft * vAlpha);
     }
   `,
 };
@@ -87,7 +78,8 @@ export default function AtmosphericParticles({ boatPosition }: AtmosphericPartic
   const { timeOfDay } = useScenery();
 
   const isNight = timeOfDay === 'night';
-  const particleCount = 280;
+  // Reduced from 280 down to just 24 tiny subtle night fireflies!
+  const particleCount = 24;
 
   const [positions, scales, velocities, phases] = useMemo(() => {
     const pos = new Float32Array(particleCount * 3);
@@ -96,20 +88,20 @@ export default function AtmosphericParticles({ boatPosition }: AtmosphericPartic
     const pha = new Float32Array(particleCount);
 
     for (let i = 0; i < particleCount; i++) {
-      // Scatter in a dome around the island
-      const radius = 1.5 + Math.random() * 6.5;
+      // Clustered close to the garden flora and terrace at x=2.2
+      const radius = 0.6 + Math.random() * 2.2;
       const angle = Math.random() * Math.PI * 2;
-      const height = -0.1 + Math.random() * 3.5;
+      const height = 0.2 + Math.random() * 1.6;
 
-      pos[i * 3 + 0] = 1.2 + Math.cos(angle) * radius;
+      pos[i * 3 + 0] = 2.2 + Math.cos(angle) * radius;
       pos[i * 3 + 1] = height;
       pos[i * 3 + 2] = Math.sin(angle) * radius;
 
-      sca[i] = 0.8 + Math.random() * 1.6;
+      sca[i] = 0.5 + Math.random() * 0.7; // Very small size
 
-      vel[i * 3 + 0] = (Math.random() - 0.5) * 0.4;
-      vel[i * 3 + 1] = (Math.random() - 0.5) * 0.2;
-      vel[i * 3 + 2] = (Math.random() - 0.5) * 0.4;
+      vel[i * 3 + 0] = (Math.random() - 0.5) * 0.2;
+      vel[i * 3 + 1] = (Math.random() - 0.5) * 0.1;
+      vel[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
 
       pha[i] = Math.random() * Math.PI * 2;
     }

@@ -39,9 +39,25 @@ export default function Home() {
             </h1>
 
             {/* Editorial Statement */}
-            <p className="text-[var(--color-text-muted)] text-base sm:text-lg md:text-xl font-normal leading-relaxed max-w-lg mb-12 font-sans">
+            <p className="text-[var(--color-text-muted)] text-base sm:text-lg md:text-xl font-normal leading-relaxed max-w-lg mb-8 font-sans">
               Architecting high-performance web applications, tactile 3D environments, and brand artifacts for founders who treat their digital presence as an enduring asset.
             </p>
+
+            {/* Performance & Engineering Standards */}
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-10 font-mono text-xs text-[var(--color-text-muted)]">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[var(--color-text)] font-semibold">100/100</span> LIGHTHOUSE
+              </div>
+              <div className="h-3 w-[1px] bg-[var(--color-border)]" />
+              <div>
+                <span className="text-[var(--color-text)] font-semibold">60 FPS</span> WEBGL LIQUID
+              </div>
+              <div className="h-3 w-[1px] bg-[var(--color-border)]" />
+              <div>
+                <span className="text-[var(--color-text)] font-semibold">ZERO</span> TEMPLATE BLOAT
+              </div>
+            </div>
 
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-4">
@@ -299,6 +315,70 @@ export default function Home() {
       </section>
 
       {/* ===================================================
+          03 // THE EXECUTION DISCIPLINE (METHODOLOGY)
+          =================================================== */}
+      <section className="py-28 px-6 md:px-16 lg:px-24 max-w-7xl mx-auto w-full relative z-10 pointer-events-none">
+        <div className="max-w-2xl mb-16 pointer-events-auto">
+          <div className="flex items-center gap-2.5 mb-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-highlight)]" />
+            <span className="section-label">03 // THE ENGINEERING DISCIPLINE</span>
+          </div>
+          <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-[var(--color-text)] uppercase leading-none">
+            From Blueprint to 100/100.
+          </h2>
+          <p className="text-[var(--color-text-muted)] text-sm md:text-base mt-4 font-sans leading-relaxed">
+            Every digital artifact is engineered with architectural rigor. Zero haphazard guesswork.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pointer-events-auto">
+          {[
+            {
+              step: "STAGE 01",
+              title: "System Mapping",
+              desc: "Deconstruct your product vision, define performance budgets, and map conversion funnels into an unambiguous architectural specification."
+            },
+            {
+              step: "STAGE 02",
+              title: "Spatial Prototyping",
+              desc: "Craft custom WebGL liquid/monolith shaders, physical micro-interactions, and high-fidelity typography hierarchy with sub-second feedback."
+            },
+            {
+              step: "STAGE 03",
+              title: "Full-Stack Build",
+              desc: "Construct component systems with React 19, TypeScript, and modern CSS primitives. Strictly hardened for instant routing and zero layout shifts."
+            },
+            {
+              step: "STAGE 04",
+              title: "Lighthouse Hardening",
+              desc: "Rigorous stress testing across edge CDNs, asset minification, and performance audits ensuring a spotless 100/100 Lighthouse benchmark."
+            }
+          ].map((item, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="luxury-glass p-8 rounded-[1.8rem] flex flex-col justify-between"
+            >
+              <div>
+                <span className="font-mono text-xs text-[var(--color-highlight)] tracking-widest block mb-4">
+                  {item.step}
+                </span>
+                <h4 className="font-display text-xl font-bold text-[var(--color-text)] mb-3">
+                  {item.title}
+                </h4>
+                <p className="text-xs font-sans text-[var(--color-text-muted)] leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ===================================================
           04 // THE AUTHENTIC TESTIMONIAL & PRICING (#pricing)
           =================================================== */}
       <section id="pricing" className="py-36 px-6 md:px-16 lg:px-24 max-w-7xl mx-auto w-full relative z-10 pointer-events-none">
@@ -307,7 +387,7 @@ export default function Home() {
         <div className="max-w-2xl mb-20 pointer-events-auto">
           <div className="flex items-center gap-2.5 mb-3">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-highlight)]" />
-            <span className="section-label">03 // VERIFIED AUDIT & INVESTMENT</span>
+            <span className="section-label">04 // VERIFIED AUDIT & INVESTMENT</span>
           </div>
           <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-[var(--color-text)] uppercase leading-none">
             Predictable Terms.

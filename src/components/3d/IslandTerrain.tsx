@@ -682,13 +682,6 @@ export default function IslandTerrain({ boatPosition }: IslandTerrainProps) {
             <cylinderGeometry args={[0.026, 0.038, 0.14, 6]} />
             <meshStandardMaterial color="#3e362f" />
           </mesh>
-          {/* Architectural Ground Uplight (Night Mode) */}
-          {isNight && (
-            <mesh position={[0.06, 0.01, 0.06]}>
-              <sphereGeometry args={[0.018, 8, 8]} />
-              <meshBasicMaterial color="#fef08a" />
-            </mesh>
-          )}
         </group>
       ))}
 
@@ -730,12 +723,6 @@ export default function IslandTerrain({ boatPosition }: IslandTerrainProps) {
               roughness={0.5}
             />
           </mesh>
-          {isNight && (
-            <mesh position={[0.09, 0.02, 0]}>
-              <sphereGeometry args={[0.014, 6, 6]} />
-              <meshBasicMaterial color="#fde68a" />
-            </mesh>
-          )}
         </group>
       ))}
 

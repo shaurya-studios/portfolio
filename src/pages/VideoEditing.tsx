@@ -1,58 +1,7 @@
-import { motion, useScroll } from 'framer-motion';
-import { useRef } from 'react';
+import { motion } from 'framer-motion';
 import ContactFooter from '../components/ContactFooter';
 import { useContact } from '../context/ContactContext';
-import { Film, Scissors, Sparkles, MonitorPlay } from 'lucide-react';
-import { MagneticButton } from '../components/MagneticUI';
-import { View } from '@react-three/drei';
-import ProjectPlane from '../components/3d/ProjectPlane';
-
-// ==========================================
-// REUSABLE COMPONENTS
-// ==========================================
-
-const SectionDivider = ({ number, title }: { number: string, title: string }) => (
-  <div className="section-divider max-w-7xl mx-auto px-6">
-    <h2 className="section-label whitespace-nowrap m-0 font-normal text-[10px]">—— {number} / {title} ——</h2>
-  </div>
-);
-
-// ==========================================
-// MAIN PAGE
-// ==========================================
-
-const videos = [
-  { id: 1, title: 'Gaming Montage / Fast Paced', src: '/videos/sample1.mp4' },
-  { id: 2, title: 'YouTube Documentary / Narrative', src: '/videos/sample2.mp4' },
-  { id: 3, title: 'Short Form / High Retention', src: '/videos/sample3.mp4' },
-];
-
-const ProjectCard = ({ video, idx }: { video: any, idx: number }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"]
-  });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 60 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.8, delay: idx * 0.12, ease: [0.16, 1, 0.3, 1] }}
-      className={`flex flex-col mb-12`}
-    >
-      <div className="aspect-video overflow-hidden relative mb-4">
-        <View className="absolute inset-0 w-full h-full">
-          <ProjectPlane videoSrc={video.src} scrollProgress={scrollYProgress} />
-        </View>
-      </div>
-      <div className="section-label mb-1">FILE.0{video.id}</div>
-      <h3 className="font-display font-bold text-lg">{video.title}</h3>
-    </motion.div>
-  );
-};
+import { Film, Scissors, Sparkles, MonitorPlay, ArrowUpRight } from 'lucide-react';
 
 export default function VideoEditing() {
   const { openContact } = useContact();
@@ -60,122 +9,180 @@ export default function VideoEditing() {
   return (
     <div className="flex flex-col min-h-screen">
       
-      {/* 01 / HERO */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6 pt-32 pb-16">
-        <div className="w-full max-w-6xl mx-auto text-center relative z-10 flex flex-col items-center">
+      {/* ===================================================
+          01 // HERO SECTION
+          =================================================== */}
+      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden px-6 pt-36 pb-20">
+        <div className="w-full max-w-5xl mx-auto text-center relative z-10 flex flex-col items-center">
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           >
-            <span className="section-label mb-8 block text-[var(--color-gold)]">POST-PRODUCTION / SYS.02</span>
-            <h1 className="font-display text-[clamp(3rem,7vw,7rem)] font-bold leading-[1.05] mb-10 tracking-[-0.04em]">
-              ENGINEERED <br />
-              FOR <span className="gold-text">RETENTION</span>_
+            <div className="flex items-center justify-center gap-2 mb-8 font-mono text-xs text-[var(--color-text-muted)] tracking-widest uppercase">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-text)]" />
+              <span>POST-PRODUCTION // SYS.02</span>
+            </div>
+
+            <h1 className="font-display text-5xl sm:text-7xl md:text-8xl font-bold leading-[0.92] mb-8 tracking-[-0.04em] uppercase text-[var(--color-text)]">
+              Engineered <br />
+              For Retention.
             </h1>
-            <p className="font-mono text-[var(--color-text-muted)] text-base md:text-lg max-w-2xl mx-auto mb-12 leading-relaxed">
-              I edit gaming videos and general YouTube content. Precision cuts, algorithmic pacing, and sound design built to maximize audience retention. Not just flashy—effective.
+
+            <p className="text-[var(--color-text-muted)] text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-10 font-sans leading-relaxed">
+              Precision pacing, algorithmic tension building, and immersive audio engineering built to maximize viewer retention on YouTube and creator platforms.
             </p>
             
             <div className="flex flex-wrap gap-4 items-center justify-center">
-              <MagneticButton primary onClick={openContact}>COMMENCE EDIT</MagneticButton>
-              <MagneticButton href="#portfolio">VIEW TIMELINES</MagneticButton>
+              <button onClick={openContact} className="luxury-btn-primary">
+                COMMENCE EDIT
+              </button>
+              <a 
+                href="#process" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('process')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="luxury-btn-secondary"
+              >
+                VIEW PROCESS
+              </a>
             </div>
           </motion.div>
         </div>
       </section>
 
-      <SectionDivider number="02" title="PORTFOLIO" />
-
-      {/* 02 / PORTFOLIO */}
-      <section id="portfolio" className="py-24 px-6 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {videos.map((video, idx) => (
-            <ProjectCard key={video.id} video={video} idx={idx} />
-          ))}
+      {/* ===================================================
+          02 // PROCESS PIPELINE
+          =================================================== */}
+      <section id="process" className="py-28 px-6 md:px-16 lg:px-24 max-w-7xl mx-auto w-full">
+        <div className="max-w-2xl mb-16">
+          <div className="flex items-center gap-2.5 mb-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-highlight)]" />
+            <span className="section-label">01 // POST-PRODUCTION PIPELINE</span>
+          </div>
+          <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-[var(--color-text)] uppercase leading-none">
+            Algorithmic Pacing.
+          </h2>
+          <p className="text-[var(--color-text-muted)] text-sm md:text-base mt-4 font-sans leading-relaxed">
+            Every frame is calibrated for viewer psychological engagement.
+          </p>
         </div>
 
-        {/* Holographic Pricing Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-4xl mx-auto relative overflow-hidden text-center"
-        >
-          <div className="section-label mb-4 text-[var(--color-text-muted)]">SERVICE.01 / VIDEO PRODUCTION</div>
-          <h3 className="font-display text-3xl md:text-5xl font-bold mb-4">Flat Rate Editing</h3>
-          <p className="text-[var(--color-text-muted)] text-sm md:text-base max-w-2xl mx-auto mb-8">
-            High-retention edits tailored for Gaming & YouTube. Includes sound design, VFX, pacing, and color grading. Pricing scales with raw footage length and complexity.
-          </p>
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-10">
-            <div>
-              <div className="text-[0.65rem] tracking-widest text-[var(--color-text-muted)] mb-1 uppercase">ESTIMATED COST</div>
-              <div className="text-4xl font-display font-bold gold-text">$10 - $80</div>
-            </div>
-            <div className="hidden md:block w-px h-12 bg-[var(--color-border)]" />
-            <div>
-              <div className="text-[0.65rem] tracking-widest text-[var(--color-text-muted)] mb-1 uppercase">TURNAROUND</div>
-              <div className="text-2xl font-display font-bold text-[var(--color-text)] mt-2">1 Day - 1 Week</div>
-            </div>
-          </div>
-          <MagneticButton primary onClick={openContact} className="mx-auto">INITIATE INQUIRY</MagneticButton>
-        </motion.div>
-      </section>
-
-      <SectionDivider number="03" title="PROCESS" />
-
-      {/* 03 / PROCESS */}
-      <section className="py-24 px-6 max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { icon: <Film size={20} />, title: "1. ACQUISITION", desc: "Analyzing raw clips and planning the narrative flow for maximum retention." },
-            { icon: <Scissors size={20} />, title: "2. ASSEMBLY", desc: "Splicing the best moments to build pacing and core structural timeline." },
-            { icon: <Sparkles size={20} />, title: "3. EFFECTS", desc: "Adding motion graphics, VFX, and color grading for visual polish." },
-            { icon: <MonitorPlay size={20} />, title: "4. MASTERING", desc: "Sound design mixing and high-bitrate export for publishing." }
-          ].map((step, idx) => (
+            { 
+              icon: <Film size={18} />, 
+              step: "STAGE 01", 
+              title: "Acquisition", 
+              desc: "Deep analysis of raw footage, narrative thread extraction, and retention curve mapping." 
+            },
+            { 
+              icon: <Scissors size={18} />, 
+              step: "STAGE 02", 
+              title: "Rough Assembly", 
+              desc: "Splicing dead space, engineering pattern interrupts, and locking in macro narrative flow." 
+            },
+            { 
+              icon: <Sparkles size={18} />, 
+              step: "STAGE 03", 
+              title: "VFX & Micro-Motion", 
+              desc: "Contextual motion graphics, graphic callouts, sound design layers, and color grading." 
+            },
+            { 
+              icon: <MonitorPlay size={18} />, 
+              step: "STAGE 04", 
+              title: "Mastering", 
+              desc: "Loudness normalization, high-bitrate render export, and CTR-tested thumbnail advice." 
+            }
+          ].map((item, idx) => (
             <motion.div 
               key={idx}
-              initial={{ opacity: 0, y: 60 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.6, delay: idx * 0.12, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col gap-2"
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="luxury-glass p-8 rounded-[1.8rem] flex flex-col justify-between"
             >
-              <div className="w-10 h-10 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-inset)] flex items-center justify-center mb-6 text-[var(--color-gold)]">
-                {step.icon}
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-9 h-9 rounded-full border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text)]">
+                    {item.icon}
+                  </div>
+                  <span className="font-mono text-[10px] text-[var(--color-text-muted)] tracking-widest uppercase">
+                    {item.step}
+                  </span>
+                </div>
+                <h3 className="font-display text-xl font-bold text-[var(--color-text)] mb-3">{item.title}</h3>
+                <p className="text-xs font-sans text-[var(--color-text-muted)] leading-relaxed">{item.desc}</p>
               </div>
-              <h3 className="font-display text-xl font-bold mb-3">{step.title}</h3>
-              <p className="text-[var(--color-text-muted)] text-sm leading-relaxed">{step.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      <SectionDivider number="04" title="TOOLS" />
-
-      {/* 04 / TOOLS */}
-      <section className="py-24 px-6 max-w-3xl mx-auto w-full mb-12">
+      {/* ===================================================
+          03 // FLAT-RATE EDITING COMMISSIONS
+          =================================================== */}
+      <section className="py-24 px-6 md:px-16 lg:px-24 max-w-7xl mx-auto w-full">
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col items-center text-center"
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="luxury-glass p-10 md:p-16 rounded-[2.5rem] max-w-4xl mx-auto text-center"
         >
-          <div className="section-label mb-8">SOFTWARE STACK</div>
-          <div className="flex flex-wrap justify-center gap-4">
-            {['Premiere Pro', 'CapCut Pro', 'After Effects', 'Photoshop'].map((tool, i) => (
-              <div key={i} className="px-5 py-2 text-sm font-mono text-[var(--color-text-muted)] border border-[var(--color-border)] rounded-full">
-                {tool}
-              </div>
-            ))}
+          <div className="flex items-center justify-center gap-2 text-xs font-mono text-[var(--color-text-muted)] tracking-widest uppercase mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+            <span>COMMISSION MODEL // FLAT RATE EDITING</span>
           </div>
+
+          <h3 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--color-text)] mb-4">
+            Predictable Terms.
+          </h3>
+
+          <p className="text-[var(--color-text-muted)] text-sm md:text-base max-w-2xl mx-auto mb-10 font-sans leading-relaxed">
+            High-retention editing for gaming, tech, and creator channels. Includes complete sound design, pattern interrupts, and custom color grading.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-xl mx-auto mb-10 text-left font-mono">
+            <div className="p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]/40">
+              <span className="text-[10px] uppercase text-[var(--color-text-muted)] block mb-1">STANDARD RATE</span>
+              <div className="text-3xl font-display font-bold text-[var(--color-text)]">$10 – $80</div>
+              <span className="text-[11px] text-[var(--color-text-muted)] mt-1 block">Scaled with footage duration & VFX intensity</span>
+            </div>
+            <div className="p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]/40">
+              <span className="text-[10px] uppercase text-[var(--color-text-muted)] block mb-1">TYPICAL TURNAROUND</span>
+              <div className="text-3xl font-display font-bold text-[var(--color-text)]">24h – 5 Days</div>
+              <span className="text-[11px] text-[var(--color-text-muted)] mt-1 block">Expedited rush delivery available upon request</span>
+            </div>
+          </div>
+
+          <button onClick={openContact} className="luxury-btn-primary mx-auto flex items-center gap-2">
+            <span>INITIATE EDITORIAL COMMISSION</span>
+            <ArrowUpRight size={14} />
+          </button>
         </motion.div>
       </section>
 
-      {/* 05 / CONTACT FOOTER */}
-      <div className="pointer-events-auto">
+      {/* ===================================================
+          04 // SOFTWARE STACK
+          =================================================== */}
+      <section className="py-20 px-6 max-w-4xl mx-auto w-full text-center">
+        <div className="section-label mb-6">PRODUCTION HARDWARE & SOFTWARE</div>
+        <div className="flex flex-wrap justify-center gap-3">
+          {['Adobe Premiere Pro', 'After Effects', 'DaVinci Resolve Studio', 'CapCut Pro', 'Adobe Audition'].map((tool, i) => (
+            <div key={i} className="px-5 py-2.5 text-xs font-mono text-[var(--color-text)] border border-[var(--color-border)] rounded-full luxury-glass">
+              {tool}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ===================================================
+          05 // CONTACT FOOTER
+          =================================================== */}
+      <div>
         <ContactFooter />
       </div>
 
