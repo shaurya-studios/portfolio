@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import ContactFooter from '../components/ContactFooter';
 import { useContact } from '../context/ContactContext';
 import { useScenery } from '../context/SceneryContext';
-import { ArrowUpRight, Check, Compass, ShieldCheck, Zap, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Check, Compass, ShieldCheck, Zap, Sparkles, Star, ExternalLink } from 'lucide-react';
 import { KineticText } from '../components/ui/KineticText';
 import { TactileCard } from '../components/ui/TactileCard';
 import { playTactileClick } from '../utils/audioHaptics';
@@ -418,9 +418,18 @@ export default function Home() {
           glowColor="rgba(16, 185, 129, 0.16)"
           className="luxury-glass p-10 md:p-14 rounded-[2.5rem] mb-20 max-w-4xl pointer-events-auto"
         >
-          <div className="flex items-center gap-2 text-xs font-mono text-[var(--color-text-muted)] tracking-widest uppercase mb-6">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-            <span>VERIFIED CLIENT TESTIMONIAL</span>
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-2 text-xs font-mono text-[var(--color-text-muted)] tracking-widest uppercase">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+              <span>VERIFIED CLIENT TESTIMONIAL</span>
+            </div>
+            {/* 5 Golden Stars */}
+            <div className="flex items-center gap-1.5 text-amber-400">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} size={15} className="fill-amber-400 text-amber-400" />
+              ))}
+              <span className="text-xs font-mono text-[var(--color-text)] font-bold ml-1.5">5.0 / 5.0</span>
+            </div>
           </div>
 
           <blockquote className="font-display text-2xl sm:text-3xl md:text-4xl font-semibold leading-snug text-[var(--color-text)] mb-8">
@@ -428,14 +437,37 @@ export default function Home() {
           </blockquote>
 
           <div className="flex items-center gap-4 pt-6 border-t border-[var(--color-border)]">
-            <div className="w-12 h-12 rounded-full bg-stone-800 border border-white/10 flex items-center justify-center font-mono font-bold text-sm text-amber-300">
-              ES
-            </div>
-            <div>
-              <div className="font-mono text-sm font-bold text-[var(--color-text)] uppercase tracking-wider">
-                Founder, Editify Studios
+            {/* Editify Studios Brand Logo */}
+            <div className="relative flex-shrink-0">
+              <div className="w-14 h-14 rounded-2xl bg-white/[0.07] border border-white/15 p-2 flex items-center justify-center backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                <img 
+                  src="/editify-logo.png" 
+                  alt="Editify Studios Official Logo" 
+                  className="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.35)]"
+                />
               </div>
-              <div className="font-mono text-xs text-[var(--color-text-muted)]">
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[var(--color-bg)] flex items-center justify-center text-[8px] text-black font-bold shadow-sm" title="Verified Client">
+                ✓
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-sm font-bold text-[var(--color-text)] uppercase tracking-wider">
+                  Founder, Editify Studios
+                </span>
+                <a 
+                  href="https://editify-studios.vercel.app" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  onClick={playTactileClick}
+                  className="text-[var(--color-text-muted)] hover:text-amber-400 transition-colors"
+                  title="Visit Editify Studios"
+                >
+                  <ExternalLink size={13} />
+                </a>
+              </div>
+              <div className="font-mono text-xs text-[var(--color-text-muted)] mt-0.5">
                 Project: Complete Agency Platform & Interactive 3D Web Architecture
               </div>
             </div>
