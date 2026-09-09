@@ -26,7 +26,7 @@ export default function VideoEditing() {
           >
             <div className="flex items-center justify-center gap-2 mb-8 font-mono text-xs text-[var(--color-text-muted)] tracking-widest uppercase">
               <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
-              <span>POST-PRODUCTION ATELIER // TIMELINE CUTTING ROOM</span>
+              <span>POST-PRODUCTION // HIGH-RETENTION EDITING</span>
             </div>
 
             <div className="font-display text-5xl sm:text-7xl md:text-8xl font-bold leading-[0.92] mb-8 tracking-[-0.04em] uppercase text-[var(--color-text)]">
@@ -36,7 +36,7 @@ export default function VideoEditing() {
             </div>
 
             <p className="text-[var(--color-text-muted)] text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-10 font-sans leading-relaxed">
-              Precision psychological pacing, surgical sound design, and micro-motion dynamics crafted to arrest attention and maximize viewer watch time across YouTube and digital platforms.
+              Story-driven pacing, custom sound design, and micro-motion graphics designed to capture attention and sustain high viewer watch time across YouTube and digital platforms.
             </p>
             
             <div className="flex flex-wrap gap-4 items-center justify-center">
@@ -47,7 +47,7 @@ export default function VideoEditing() {
                 }}
                 className="luxury-btn-primary"
               >
-                COMMENCE EDITORIAL
+                START A VIDEO SPRINT
               </button>
               <a 
                 href="#timeline" 
@@ -58,7 +58,7 @@ export default function VideoEditing() {
                 }}
                 className="luxury-btn-secondary"
               >
-                THE CUTTING ROOM
+                EXPLORE TIMELINE
               </a>
             </div>
           </motion.div>
@@ -66,19 +66,19 @@ export default function VideoEditing() {
       </section>
 
       {/* ===================================================
-          02 // THE TIMELINE CUTTING ROOM (INTERACTIVE LAB)
+          02 // THE TIMELINE LAB
           =================================================== */}
       <section id="timeline" className="py-24 px-6 md:px-16 lg:px-24 max-w-7xl mx-auto w-full">
         <div className="max-w-2xl mb-12">
           <div className="flex items-center gap-2.5 mb-3">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-            <span className="section-label">01 // THE EDITORIAL TIMELINE DIAGNOSTIC</span>
+            <span className="section-label">TIMELINE BREAKDOWN // RETENTION STRUCTURE</span>
           </div>
           <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-[var(--color-text)] uppercase leading-none">
-            Anatomy of a 70% Retention Curve.
+            Anatomy of a High-Retention Edit.
           </h2>
           <p className="text-[var(--color-text-muted)] text-sm md:text-base mt-4 font-sans leading-relaxed">
-            Real-time visual breakdown of pattern interrupts, multi-track audio layering, and psychological hooks.
+            Every cut, sound cue, and visual hook is planned to eliminate viewer drop-off and maximize engagement.
           </p>
         </div>
 
@@ -133,7 +133,7 @@ export default function VideoEditing() {
             <div className="flex items-center gap-4">
               <span className="w-16 text-stone-400 text-right">V1 CUTS</span>
               <div className="flex-1 h-10 rounded-lg bg-white/5 border border-white/5 relative overflow-hidden flex items-center">
-                {['00:00 HOOK', '00:04 TENSION', '00:09 PAYOFF', '00:15 ESCALATE', '00:22 DRIFT REMOVAL'].map((cut, i) => (
+                {['00:00 HOOK', '00:04 TENSION', '00:09 PAYOFF', '00:15 ESCALATE', '00:22 NO DRIFT'].map((cut, i) => (
                   <div
                     key={i}
                     className="h-full border-r border-stone-800 bg-stone-800/40 flex items-center justify-center text-stone-300 px-4 text-[10px] whitespace-nowrap"
@@ -190,14 +190,14 @@ export default function VideoEditing() {
           <div className="pt-6 border-t border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs font-mono">
             <div>
               <span className="text-stone-400 block mb-1 uppercase text-[10px]">FIRST 30 SECONDS</span>
-              <strong className="text-white font-semibold">82.4% Retention Benchmark</strong>
+              <strong className="text-white font-semibold">82.4% Retention Average</strong>
             </div>
             <div>
-              <span className="text-stone-400 block mb-1 uppercase text-[10px]">PATTERN INTERRUPT CADENCE</span>
-              <strong className="text-white font-semibold">Every 3.8 Seconds</strong>
+              <span className="text-stone-400 block mb-1 uppercase text-[10px]">HOOK CADENCE</span>
+              <strong className="text-white font-semibold">Every 3 to 4 Seconds</strong>
             </div>
             <div>
-              <span className="text-stone-400 block mb-1 uppercase text-[10px]">SOUND DESIGN DENSITY</span>
+              <span className="text-stone-400 block mb-1 uppercase text-[10px]">AUDIO DESIGN</span>
               <strong className="text-white font-semibold">12-Layer Foley & Risers</strong>
             </div>
           </div>
@@ -211,13 +211,13 @@ export default function VideoEditing() {
         <div className="max-w-2xl mb-16">
           <div className="flex items-center gap-2.5 mb-3">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            <span className="section-label">02 // SURGICAL WORKFLOW PIPELINE</span>
+            <span className="section-label">WORKFLOW // 4-STAGE EDITORIAL SPRINT</span>
           </div>
           <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-[var(--color-text)] uppercase leading-none">
-            Algorithmic Pacing.
+            From Raw Footage to Master.
           </h2>
           <p className="text-[var(--color-text-muted)] text-sm md:text-base mt-4 font-sans leading-relaxed">
-            Every cut, sound cue, and typographic card is engineered for viewer dopamine and narrative progression.
+            A streamlined 4-step workflow that delivers polished, publication-ready edits on time with zero fluff.
           </p>
         </div>
 
@@ -226,26 +226,26 @@ export default function VideoEditing() {
             { 
               icon: <Film size={18} className="text-amber-400" />, 
               step: "STAGE 01", 
-              title: "Raw Acquisition", 
-              desc: "Deep analysis of raw footage, elimination of filler sentences, and extraction of the core narrative spine." 
+              title: "Story Structure", 
+              desc: "Deep review of raw takes, elimination of filler sentences, and extraction of a high-tempo narrative spine." 
             },
             { 
               icon: <Scissors size={18} className="text-cyan-400" />, 
               step: "STAGE 02", 
-              title: "Micro-Cut Pacing", 
-              desc: "Excising micro-hesitations, engineering rhythm pattern interrupts, and locking in tension and release." 
+              title: "Pacing & Cuts", 
+              desc: "Excising micro-hesitations, locking in tension and release, and engineering visual pattern interrupts." 
             },
             { 
               icon: <Sparkles size={18} className="text-emerald-400" />, 
               step: "STAGE 03", 
               title: "VFX & Sound Design", 
-              desc: "Custom kinetic typography, multi-layered foley risers, sub-bass impacts, and cinematic film print emulation." 
+              desc: "Custom animated typography, multi-layered foley, sub-bass impacts, and cinematic color grades." 
             },
             { 
               icon: <MonitorPlay size={18} className="text-amber-400" />, 
               step: "STAGE 04", 
-              title: "Mastering & CTR", 
-              desc: "ITU-R BS.1770 audio normalization, master ProRes/4K render exports, and YouTube A/B packaging advice." 
+              title: "Mastering & Export", 
+              desc: "Loudness normalization (-14 LUFS for YouTube), master 4K ProRes renders, and A/B thumbnail consulting." 
             }
           ].map((item, idx) => (
             <TactileCard
@@ -279,7 +279,7 @@ export default function VideoEditing() {
         >
           <div className="flex items-center justify-center gap-2 text-xs font-mono text-[var(--color-text-muted)] tracking-widest uppercase mb-4">
             <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-            <span>COMMISSION MODEL // HIGH-VALUE EDITORIAL</span>
+            <span>TRANSPARENT COLLABORATION TERMS</span>
           </div>
 
           <h3 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--color-text)] mb-4">
@@ -287,19 +287,19 @@ export default function VideoEditing() {
           </h3>
 
           <p className="text-[var(--color-text-muted)] text-sm md:text-base max-w-2xl mx-auto mb-10 font-sans leading-relaxed">
-            High-retention editing for tech, SaaS, and high-production YouTube channels. Complete sound design, visual effects, and custom color grading included.
+            High-retention editing for tech founders, creators, and brands. Complete sound design, visual effects, and custom color grading included.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-xl mx-auto mb-10 text-left font-mono">
             <div className="p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]/40">
               <span className="text-[10px] uppercase text-[var(--color-text-muted)] block mb-1">PROJECT SCOPE</span>
-              <div className="text-2xl font-display font-bold text-[var(--color-text)]">Selective Engagements</div>
-              <span className="text-[11px] text-[var(--color-text-muted)] mt-1 block">Scaled with footage duration & VFX intensity</span>
+              <div className="text-2xl font-display font-bold text-[var(--color-text)]">Short & Long-Form</div>
+              <span className="text-[11px] text-[var(--color-text-muted)] mt-1 block">Custom quotes based on video length & complexity</span>
             </div>
             <div className="p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]/40">
-              <span className="text-[10px] uppercase text-[var(--color-text-muted)] block mb-1">SPRINT CADENCE</span>
-              <div className="text-2xl font-display font-bold text-[var(--color-text)]">24h – 5 Days</div>
-              <span className="text-[11px] text-[var(--color-text-muted)] mt-1 block">Expedited sprint turnaround available</span>
+              <span className="text-[10px] uppercase text-[var(--color-text-muted)] block mb-1">TURNAROUND TIME</span>
+              <div className="text-2xl font-display font-bold text-[var(--color-text)]">24h – 3 Days</div>
+              <span className="text-[11px] text-[var(--color-text-muted)] mt-1 block">Reliable delivery with iterative revisions</span>
             </div>
           </div>
 
@@ -310,7 +310,7 @@ export default function VideoEditing() {
             }}
             className="luxury-btn-primary mx-auto flex items-center gap-2"
           >
-            <span>COMMENCE EDITORIAL SPRINT</span>
+            <span>START A VIDEO SPRINT</span>
             <ArrowUpRight size={14} />
           </button>
         </TactileCard>
@@ -320,7 +320,8 @@ export default function VideoEditing() {
           05 // SOFTWARE & COLOR SCIENTIFIC ARSENAL
           =================================================== */}
       <section className="py-20 px-6 max-w-4xl mx-auto w-full text-center">
-        <div className="section-label mb-6">PRODUCTION HARDWARE & SOFTWARE SUITE</div>
+        <div className="section-label mb-6">PRODUCTION SOFTWARE & HARDWARE SUITE</div>
+
         <div className="flex flex-wrap justify-center gap-3">
           {['DaVinci Resolve Studio', 'Adobe Premiere Pro', 'After Effects', 'Adobe Audition', 'FilmConvert Nitrate', 'Boris FX Mocha'].map((tool, i) => (
             <div key={i} className="px-5 py-2.5 text-xs font-mono text-[var(--color-text)] border border-[var(--color-border)] rounded-full luxury-glass">

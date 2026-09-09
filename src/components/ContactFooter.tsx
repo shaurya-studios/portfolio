@@ -13,18 +13,18 @@ export default function ContactFooter() {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="luxury-glass p-12 md:p-20 rounded-[2.5rem] flex flex-col items-center"
       >
-        <span className="section-label mb-4">COMMUNICATION CHANNEL</span>
+        <span className="section-label mb-4">Direct Contact</span>
         <h2 className="font-display text-4xl md:text-6xl font-bold mb-6 tracking-tight text-[var(--color-text)]">
-          Architect Your Next Artifact.
+          Let's Build Something Exceptional.
         </h2>
         <p className="text-[var(--color-text-muted)] text-base md:text-lg max-w-xl mx-auto leading-relaxed mb-10 font-sans">
-          Currently taking select web design, interactive 3D, and frontend development commissions. Inquire directly to commence planning.
+          Available for select web development, interactive 3D experiences, and video editing projects. Reach out directly to discuss your vision.
         </p>
         <button 
           onClick={openContact}
           className="luxury-btn-primary"
         >
-          INITIATE DISCUSSION
+          GET IN TOUCH
         </button>
       </motion.div>
 
@@ -34,7 +34,7 @@ export default function ContactFooter() {
         <div className="mt-4 md:mt-0 flex gap-6">
           <span>LAT. 28.6139° N</span>
           <span>//</span>
-          <span>SOLO ENGINEERING PRACTICE</span>
+          <span>CREATIVE DEV & DESIGN</span>
         </div>
       </div>
     </section>

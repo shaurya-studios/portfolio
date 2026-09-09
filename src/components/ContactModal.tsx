@@ -41,12 +41,12 @@ export default function ContactModal() {
 
             {/* Header */}
             <div className="text-left mb-8">
-              <span className="section-label mb-2 block">COMMUNICATION UPLINK</span>
+              <span className="section-label mb-2 block">Direct Inquiry</span>
               <h2 className="font-display text-2xl md:text-3xl font-bold tracking-tight text-[var(--color-text)]">
-                Initiate Project.
+                Let's Build Something Great.
               </h2>
               <p className="text-[var(--color-text-muted)] text-xs md:text-sm mt-1 font-mono">
-                Select a direct channel to commence discussion.
+                Choose your preferred channel below to discuss a project.
               </p>
             </div>
 
@@ -65,8 +65,8 @@ export default function ContactModal() {
                     <MessageSquare size={18} />
                   </div>
                   <div>
-                    <span className="block text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Discord Support</span>
-                    <strong className="text-[var(--color-text)] font-semibold text-sm">Content Creation Help</strong>
+                    <span className="block text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Discord Direct</span>
+                    <strong className="text-[var(--color-text)] font-semibold text-sm">Direct Message & Chat</strong>
                   </div>
                 </div>
                 <ExternalLink size={15} className="text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors" />
@@ -84,8 +84,8 @@ export default function ContactModal() {
                     fi
                   </div>
                   <div>
-                    <span className="block text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Fiverr Direct</span>
-                    <strong className="text-[var(--color-text)] font-semibold text-sm">Order Video</strong>
+                    <span className="block text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Fiverr Studio</span>
+                    <strong className="text-[var(--color-text)] font-semibold text-sm">Video Editing & Production</strong>
                   </div>
                 </div>
                 <ExternalLink size={15} className="text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors" />
@@ -103,8 +103,8 @@ export default function ContactModal() {
                     fi
                   </div>
                   <div>
-                    <span className="block text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Fiverr Direct</span>
-                    <strong className="text-[var(--color-text)] font-semibold text-sm">Order Web</strong>
+                    <span className="block text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Fiverr Studio</span>
+                    <strong className="text-[var(--color-text)] font-semibold text-sm">Full-Stack Web Dev</strong>
                   </div>
                 </div>
                 <ExternalLink size={15} className="text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors" />
@@ -117,7 +117,7 @@ export default function ContactModal() {
                     <Mail size={18} />
                   </div>
                   <div>
-                    <span className="block text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Direct Business Email</span>
+                    <span className="block text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">Direct Email</span>
                     <strong className="text-[var(--color-text)] font-semibold text-xs sm:text-sm truncate block max-w-[180px] sm:max-w-[240px]">
                       shaurya.studios.dev@gmail.com
                     </strong>

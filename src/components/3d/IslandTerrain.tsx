@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { Float } from '@react-three/drei';
 import * as THREE from 'three';
 import { useScenery } from '../../context/SceneryContext';
+import { playTactileClick } from '../../utils/audioHaptics';
 
 interface IslandTerrainProps {
   boatPosition?: THREE.Vector2;
@@ -17,6 +18,11 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
   const anemometerRef = useRef<THREE.Group>(null);
   const lighthouseBeaconRef = useRef<THREE.Group>(null);
 
+  // Outpost Telemetry Refs
+  const outpostDishRef = useRef<THREE.Group>(null);
+  const outpostObstructionLightRef = useRef<THREE.PointLight>(null);
+  const outpostDishSpinBoostRef = useRef<number>(1.0);
+
   // Lighting Refs
   const mastLightRef = useRef<THREE.PointLight>(null);
   const villaInteriorLightRef = useRef<THREE.PointLight>(null);
@@ -29,9 +35,11 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
   const { timeOfDay, focusedTarget } = useScenery();
   const isNight = timeOfDay === 'night';
 
-  const [hoveredZone, setHoveredZone] = useState<'villa' | 'sanctuary' | 'pier' | null>(null);
+  const [hoveredZone, setHoveredZone] = useState<'villa' | 'sanctuary' | 'pier' | 'outpost' | null>(null);
+  const [isVillaParty, setIsVillaParty] = useState<boolean>(false);
   // Stored in ref to guarantee ZERO React re-renders in useFrame loop
   const sanctuarySpinBoostRef = useRef<number>(1.0);
+
 
   useFrame((state) => {
     // 1. Subtle Parallax Tilt from Pointer
@@ -89,34 +97,51 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
       sanctuarySpinBoostRef.current = Math.max(1.0, sanctuarySpinBoostRef.current - 0.012);
     }
 
-    // 4. Coastal Lighthouse Revolving Light Beam
+    // 4. Coastal Lighthouse Revolving Light Beam (STRICTLY NIGHT ONLY)
     if (lighthouseBeaconRef.current) {
-      const beaconSpeed = (focusedTarget === 'editify' || focusedTarget === 'sanctuary') ? 0.06 : 0.025;
-      lighthouseBeaconRef.current.rotation.y += beaconSpeed;
+      if (isNight) {
+        lighthouseBeaconRef.current.visible = true;
+        lighthouseBeaconRef.current.rotation.y += 0.032;
+      } else {
+        lighthouseBeaconRef.current.visible = false;
+      }
     }
 
     // 5. Rooftop Wind Anemometer Spin
     if (anemometerRef.current) {
-      const anemometerSpeed = focusedTarget === 'thumbpilot' ? 0.22 : 0.08;
-      anemometerRef.current.rotation.y += anemometerSpeed;
+      anemometerRef.current.rotation.y += 0.09;
+    }
+
+    // 6. East Outpost Telemetry Dish & Obstruction Lighting
+    if (outpostDishRef.current) {
+      const dishSpeed = 0.022 * outpostDishSpinBoostRef.current;
+      outpostDishRef.current.rotation.y += dishSpeed;
+      if (outpostDishSpinBoostRef.current > 1.0) {
+        outpostDishSpinBoostRef.current = Math.max(1.0, outpostDishSpinBoostRef.current - 0.015);
+      }
+    }
+
+    if (outpostObstructionLightRef.current) {
+      const strobe = Math.sin(state.clock.elapsedTime * 3.6) > 0.35 ? 2.4 : 0.08;
+      outpostObstructionLightRef.current.intensity = isNight ? strobe : 0.0;
     }
 
     const isSunset = timeOfDay === 'sunset';
 
-    // 6. Calibrated Architectural Lights (Clean in day, luminous in sunset/night)
+    // 7. Calibrated Architectural Lights
     if (mastLightRef.current) {
       const strobe = Math.sin(state.clock.elapsedTime * 4.0) > 0.4 ? 2.0 : 0.05;
       mastLightRef.current.intensity = (isNight || isSunset) ? strobe : 0.0;
     }
 
     if (villaInteriorLightRef.current) {
-      const villaTarget = focusedTarget === 'villa'
-        ? 3.8
+      const villaTarget = isVillaParty
+        ? 4.2
         : isNight
-        ? 2.2
+        ? 2.6
         : isSunset
         ? 1.6
-        : 0.0;
+        : 0.1;
       villaInteriorLightRef.current.intensity = THREE.MathUtils.lerp(
         villaInteriorLightRef.current.intensity,
         villaTarget,
@@ -125,7 +150,7 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
     }
 
     if (pierLightRef.current) {
-      const pierTarget = isNight ? 1.6 : isSunset ? 1.0 : 0.0;
+      const pierTarget = isNight ? 1.8 : isSunset ? 1.0 : 0.0;
       pierLightRef.current.intensity = THREE.MathUtils.lerp(
         pierLightRef.current.intensity,
         pierTarget,
@@ -134,7 +159,7 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
     }
 
     if (poolLightRef.current) {
-      const poolTarget = isNight ? 1.2 : isSunset ? 0.7 : 0.08;
+      const poolTarget = isNight ? 1.6 : isSunset ? 0.9 : 0.12;
       poolLightRef.current.intensity = THREE.MathUtils.lerp(
         poolLightRef.current.intensity,
         poolTarget,
@@ -142,29 +167,18 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
       );
     }
 
+    // Lighthouse Light: Strictly 0 during day/sunset, brilliant 4.8 at night
     if (lighthouseLightRef.current) {
-      const targetLighthouse = (focusedTarget === 'editify' || focusedTarget === 'sanctuary')
-        ? 4.2
-        : isNight
-        ? 2.4
-        : isSunset
-        ? 1.6
-        : 0.0;
+      const targetLighthouse = isNight ? 4.8 : 0.0;
       lighthouseLightRef.current.intensity = THREE.MathUtils.lerp(
         lighthouseLightRef.current.intensity,
         targetLighthouse,
-        0.08
+        0.1
       );
     }
 
     if (underReefLight1Ref.current && underReefLight2Ref.current) {
-      const reefTarget = focusedTarget === 'thumbpilot'
-        ? 3.8
-        : isNight
-        ? 2.0
-        : isSunset
-        ? 1.2
-        : 0.0;
+      const reefTarget = isNight ? 2.8 : isSunset ? 1.4 : 0.2;
       underReefLight1Ref.current.intensity = THREE.MathUtils.lerp(
         underReefLight1Ref.current.intensity,
         reefTarget,
@@ -257,6 +271,11 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
         <group
           position={[0.75, 0.88, -0.32]}
           rotation={[0, -0.16, 0]}
+          onClick={(e) => {
+            e.stopPropagation();
+            playTactileClick();
+            setIsVillaParty((p) => !p);
+          }}
           onPointerOver={(e) => {
             e.stopPropagation();
             setHoveredZone('villa');
@@ -267,6 +286,7 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
             document.body.style.cursor = 'auto';
           }}
         >
+
           {/* Main Floor Slab */}
           <mesh position={[0, -0.18, 0]} castShadow receiveShadow>
             <boxGeometry args={[1.42, 0.08, 0.98]} />
@@ -404,7 +424,23 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
           />
 
           {/* --- OUTDOOR LIVING TERRACE & INFINITY SPLASH POOL --- */}
-          <group position={[-0.6, -0.22, 0.42]}>
+          <group
+            position={[-0.6, -0.22, 0.42]}
+            onClick={(e) => {
+              e.stopPropagation();
+              playTactileClick();
+              if (poolLightRef.current) {
+                poolLightRef.current.intensity = 3.2;
+              }
+            }}
+            onPointerOver={(e) => {
+              e.stopPropagation();
+              document.body.style.cursor = 'pointer';
+            }}
+            onPointerOut={() => {
+              document.body.style.cursor = 'auto';
+            }}
+          >
             <mesh position={[0, 0, 0]} receiveShadow>
               <boxGeometry args={[0.42, 0.04, 0.32]} />
               <meshStandardMaterial color={isNight ? '#161e2b' : '#ded9cf'} />
@@ -501,6 +537,11 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
         <group
           position={[-0.8, -0.22, 2.6]}
           rotation={[0, 0.12, 0]}
+          onClick={(e) => {
+            e.stopPropagation();
+            playTactileClick();
+            if (pierLightRef.current) pierLightRef.current.intensity = 3.5;
+          }}
           onPointerOver={(e) => {
             e.stopPropagation();
             setHoveredZone('pier');
@@ -696,10 +737,11 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
           </mesh>
           
           {/* Revolving Lighthouse Searchlight Beam */}
-          <group ref={lighthouseBeaconRef} position={[0, 0.88, 0]}>
-            <mesh position={[0, 0, 1.2]} rotation={[Math.PI / 2, 0, 0]}>
-              <coneGeometry args={[0.45, 2.4, 16]} />
-              <meshBasicMaterial color={isNight ? '#fef08a' : '#fff'} transparent opacity={isNight ? 0.35 : 0.08} />
+          {/* Revolving Lighthouse Searchlight Beam (Strictly Night Only) */}
+          <group ref={lighthouseBeaconRef} position={[0, 0.88, 0]} visible={isNight}>
+            <mesh position={[0, 0, 1.4]} rotation={[Math.PI / 2, 0, 0]}>
+              <coneGeometry args={[0.5, 3.2, 16]} />
+              <meshBasicMaterial color="#fef08a" transparent opacity={isNight ? 0.45 : 0} />
             </mesh>
           </group>
 
@@ -707,8 +749,8 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
             ref={lighthouseLightRef}
             position={[0, 0.9, 0]}
             color="#fef08a"
-            distance={10.0}
-            intensity={0.4}
+            distance={12.0}
+            intensity={0.0}
           />
         </group>
 
@@ -805,23 +847,236 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
       </group>
 
       {/* ===================================================================
-          4. EAST HORIZON REEF // THUMBPILOT STATION (Located at [7.0, -0.3, -4.5])
+          4. EAST HORIZON PRICING & TELEMETRY ATOLL (Located at [6.8, -0.3, -3.2])
           =================================================================== */}
-      <group position={[7.0, -0.3, -4.5]}>
-        <mesh position={[0, 0.5, 0]} castShadow receiveShadow>
-          <cylinderGeometry args={[0.55, 1.1, 1.8, 12]} />
-          <meshStandardMaterial color={isNight ? '#0e141d' : '#8c8378'} roughness={0.9} />
+      <group position={[6.8, -0.3, -3.2]}>
+        {/* Submerged Reef Outer Base */}
+        <mesh position={[0, -0.9, 0]} receiveShadow>
+          <cylinderGeometry args={[2.8, 2.2, 1.0, 24]} />
+          <meshStandardMaterial color={isNight ? '#0a1017' : '#888277'} roughness={0.9} />
         </mesh>
-        {/* Weather Telemetry Array */}
-        <mesh position={[0, 1.5, 0]}>
-          <cylinderGeometry args={[0.015, 0.025, 0.9, 6]} />
-          <meshStandardMaterial color="#8E929E" metalness={0.9} />
+
+        {/* Submerged Benthic Cyan Uplights */}
+        <pointLight
+          position={[0.8, -0.5, 0.6]}
+          color="#06b6d4"
+          distance={5.5}
+          intensity={isNight ? 2.8 : 0.4}
+        />
+        <pointLight
+          position={[-0.8, -0.5, -0.6]}
+          color="#0ea5e9"
+          distance={5.5}
+          intensity={isNight ? 2.4 : 0.3}
+        />
+
+        {/* Multi-Tiered Modernist Basalt Foundation Plinth */}
+        <mesh position={[0, -0.15, 0]} castShadow receiveShadow>
+          <cylinderGeometry args={[2.2, 2.5, 0.5, 28]} />
+          <meshStandardMaterial
+            color={isNight ? '#131923' : '#dbd4c7'}
+            roughness={0.65}
+            metalness={0.1}
+          />
         </mesh>
-        <mesh position={[0, 1.95, 0]}>
-          <sphereGeometry args={[0.035, 12, 12]} />
-          <meshBasicMaterial color="#f59e0b" />
+
+        {/* Upper Observation Terrace Slab */}
+        <mesh position={[-0.1, 0.18, -0.1]} castShadow receiveShadow>
+          <boxGeometry args={[2.2, 0.18, 1.8]} />
+          <meshStandardMaterial
+            color={isNight ? '#1a222f' : '#ede8de'}
+            roughness={0.4}
+          />
         </mesh>
+
+        {/* Continuous Architectural Cyan LED Under-Glow Strip around Observation Deck */}
+        <mesh position={[-0.1, 0.1, -0.1]}>
+          <boxGeometry args={[2.26, 0.02, 1.86]} />
+          <meshBasicMaterial color="#06b6d4" />
+        </mesh>
+
+        {/* Frosted Cyan Glass Balustrades with Rim Glow */}
+        <mesh position={[-0.1, 0.42, 0.82]}>
+          <boxGeometry args={[2.15, 0.32, 0.02]} />
+          <meshPhysicalMaterial
+            color="#06b6d4"
+            transmission={0.85}
+            roughness={0.1}
+            transparent
+            opacity={0.85}
+            emissive="#06b6d4"
+            emissiveIntensity={isNight ? 1.0 : 0.2}
+          />
+        </mesh>
+        <mesh position={[1.02, 0.42, -0.1]}>
+          <boxGeometry args={[0.02, 0.32, 1.76]} />
+          <meshPhysicalMaterial
+            color="#06b6d4"
+            transmission={0.85}
+            roughness={0.1}
+            transparent
+            opacity={0.85}
+            emissive="#06b6d4"
+            emissiveIntensity={isNight ? 1.0 : 0.2}
+          />
+        </mesh>
+
+        {/* Modernist Cantilevered Telemetry Glass Pavilion */}
+        <group
+          position={[-0.3, 0.55, -0.2]}
+          onClick={(e) => {
+            e.stopPropagation();
+            playTactileClick();
+            outpostDishSpinBoostRef.current = 4.0;
+          }}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            setHoveredZone('outpost');
+            document.body.style.cursor = 'pointer';
+          }}
+          onPointerOut={() => {
+            setHoveredZone(null);
+            document.body.style.cursor = 'auto';
+          }}
+        >
+          {/* Roof Slab */}
+          <mesh position={[0, 0.52, 0]} castShadow>
+            <boxGeometry args={[1.5, 0.06, 1.1]} />
+            <meshStandardMaterial color={isNight ? '#0b0f15' : '#1f2937'} metalness={0.8} roughness={0.2} />
+          </mesh>
+          {/* Warm Amber Roof Underside LED Strip */}
+          <mesh position={[0, 0.48, 0]}>
+            <boxGeometry args={[1.44, 0.015, 1.04]} />
+            <meshBasicMaterial color="#f59e0b" />
+          </mesh>
+          {/* Panoramic Tinted Glass Enclosure */}
+          <mesh position={[0, 0.24, 0]}>
+            <boxGeometry args={[1.36, 0.48, 0.96]} />
+            <meshPhysicalMaterial
+              color="#38bdf8"
+              transmission={0.88}
+              transparent
+              opacity={0.9}
+              roughness={0.05}
+              emissive={isNight ? '#0284c7' : '#000000'}
+              emissiveIntensity={isNight ? 1.5 : 0.15}
+            />
+          </mesh>
+          {/* Interior Warm Amber / Cyan Glow Point Light */}
+          <pointLight
+            position={[0, 0.25, 0]}
+            color={isNight ? '#f59e0b' : '#38bdf8'}
+            distance={5.0}
+            intensity={isNight ? 2.6 : 0.6}
+          />
+        </group>
+
+        {/* Modernist Deep-Water Boat Dock & Mooring Jetty */}
+        <group position={[-1.6, -0.05, 0.8]} rotation={[0, -0.3, 0]}>
+          <mesh position={[0, 0, 0]} castShadow receiveShadow>
+            <boxGeometry args={[1.6, 0.1, 0.7]} />
+            <meshStandardMaterial color={isNight ? '#151b24' : '#c5bdb0'} roughness={0.7} />
+          </mesh>
+          {/* Dock Centerline Cyan Guide Strip */}
+          <mesh position={[0, 0.055, 0]}>
+            <boxGeometry args={[1.5, 0.005, 0.04]} />
+            <meshBasicMaterial color="#06b6d4" />
+          </mesh>
+          {/* 4 Illuminated Safety Bollards */}
+          {[
+            [-0.7, 0.14, 0.28],
+            [-0.7, 0.14, -0.28],
+            [0.7, 0.14, 0.28],
+            [0.7, 0.14, -0.28],
+          ].map(([bx, by, bz], bi) => (
+            <group key={`outpost-bollard-${bi}`} position={[bx, by, bz]}>
+              <mesh castShadow>
+                <cylinderGeometry args={[0.035, 0.04, 0.16, 12]} />
+                <meshStandardMaterial color="#2d3748" metalness={0.8} />
+              </mesh>
+              <mesh position={[0, 0.08, 0]}>
+                <sphereGeometry args={[0.025, 12, 12]} />
+                <meshBasicMaterial color="#f59e0b" />
+              </mesh>
+            </group>
+          ))}
+          {/* Dock Amber Water Lamp */}
+          <pointLight
+            position={[0, 0.25, 0]}
+            color="#f59e0b"
+            distance={4.0}
+            intensity={isNight ? 2.2 : 0.5}
+          />
+        </group>
+
+        {/* Tall Telemetry & Communications Lattice Tower */}
+        <group position={[0.7, 0.26, -0.6]}>
+          {/* Steel Mast */}
+          <mesh position={[0, 1.4, 0]} castShadow>
+            <cylinderGeometry args={[0.02, 0.04, 2.8, 8]} />
+            <meshStandardMaterial color="#64748b" metalness={0.9} roughness={0.2} />
+          </mesh>
+          {/* Crossbars */}
+          {[0.8, 1.4, 2.0, 2.5].map((cy, ci) => (
+            <mesh key={`crossbar-${ci}`} position={[0, cy, 0]}>
+              <boxGeometry args={[0.22 - ci * 0.03, 0.02, 0.22 - ci * 0.03]} />
+              <meshStandardMaterial color="#475569" metalness={0.8} />
+            </mesh>
+          ))}
+          {/* Rotating Parabolic Radar / Telemetry Dish */}
+          <group ref={outpostDishRef} position={[0, 2.4, 0.1]}>
+            <mesh rotation={[0.4, 0, 0]} castShadow>
+              <sphereGeometry args={[0.18, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2.2]} />
+              <meshStandardMaterial color="#cbd5e1" metalness={0.8} roughness={0.2} side={THREE.DoubleSide} />
+            </mesh>
+            <mesh position={[0, 0.08, 0.1]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.008, 0.008, 0.12, 6]} />
+              <meshStandardMaterial color="#38bdf8" />
+            </mesh>
+          </group>
+          {/* FAA Obstruction Red Warning Beacon at Mast Apex */}
+          <mesh position={[0, 2.84, 0]}>
+            <sphereGeometry args={[0.04, 12, 12]} />
+            <meshBasicMaterial color="#ef4444" />
+          </mesh>
+          <pointLight
+            ref={outpostObstructionLightRef}
+            position={[0, 2.88, 0]}
+            color="#ef4444"
+            distance={6.0}
+            intensity={1.8}
+          />
+        </group>
+
+        {/* Coastal Rock Boulders around Outpost Perimeter */}
+        {[
+          { pos: [-1.8, 0.0, -1.2], scale: [0.4, 0.3, 0.35], rot: [0.2, 0.4, 0.1] },
+          { pos: [1.6, -0.05, 1.2], scale: [0.45, 0.32, 0.38], rot: [-0.1, 0.8, 0.2] },
+          { pos: [1.9, 0.02, -0.8], scale: [0.38, 0.28, 0.32], rot: [0.3, -0.2, 0.4] },
+          { pos: [-1.4, -0.08, 1.6], scale: [0.36, 0.24, 0.3], rot: [-0.2, 0.5, -0.1] },
+        ].map((b, bi) => (
+          <mesh
+            key={`outpost-rock-${bi}`}
+            position={b.pos as [number, number, number]}
+            scale={b.scale as [number, number, number]}
+            rotation={b.rot as [number, number, number]}
+            castShadow
+            receiveShadow
+          >
+            <dodecahedronGeometry args={[1, 0]} />
+            <meshStandardMaterial color={isNight ? '#111822' : '#9ca3af'} roughness={0.85} />
+          </mesh>
+        ))}
+
+        {/* Rock-Grazing Architectural LED Floodlight */}
+        <pointLight
+          position={[-0.8, 0.4, -1.0]}
+          color="#06b6d4"
+          distance={4.5}
+          intensity={isNight ? 2.4 : 0.3}
+        />
       </group>
+
 
       {/* ===================================================================
           5. DISTANT HORIZON MOUNTAIN SILHOUETTES (Radius 40 - 60)

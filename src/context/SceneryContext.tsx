@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { playDockChime } from '../utils/audioHaptics';
 
 export type TimeOfDay = 'day' | 'sunset' | 'night';
+export type ViewMode = '3d' | 'lite';
+export type DockZone = 'works' | 'pricing' | 'hero' | null;
 
 interface SceneryContextType {
   timeOfDay: TimeOfDay;
@@ -16,6 +19,14 @@ interface SceneryContextType {
   setBoatSpeed: (val: number) => void;
   focusedTarget: string | null;
   setFocusedTarget: (val: string | null) => void;
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode) => void;
+  toggleViewMode: () => void;
+  dockZone: DockZone;
+  setDockZone: (zone: DockZone) => void;
+  isDocking: boolean;
+  setIsDocking: (val: boolean) => void;
+  triggerDock: (zone?: 'works' | 'pricing' | 'hero') => void;
 }
 
 const SceneryContext = createContext<SceneryContextType | undefined>(undefined);
@@ -27,6 +38,55 @@ export function SceneryProvider({ children }: { children: React.ReactNode }) {
   const [isCruising, setIsCruising] = useState<boolean>(false);
   const [boatSpeed, setBoatSpeed] = useState<number>(0);
   const [focusedTarget, setFocusedTarget] = useState<string | null>(null);
+
+  // View Mode: '3d' (Full open world PC) or 'lite' (clean lightweight mobile)
+  const [viewMode, setViewModeState] = useState<ViewMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('shaurya_portfolio_viewmode');
+      if (saved === 'lite' || saved === '3d') return saved;
+    }
+    return '3d';
+  });
+
+  // Docking Zone & Transition State
+  const [dockZone, setDockZone] = useState<DockZone>(null);
+  const [isDocking, setIsDocking] = useState<boolean>(false);
+
+  const setViewMode = (mode: ViewMode) => {
+    setViewModeState(mode);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('shaurya_portfolio_viewmode', mode);
+    }
+  };
+
+  const toggleViewMode = () => {
+    setViewMode(viewMode === '3d' ? 'lite' : '3d');
+  };
+
+  const triggerDock = (zone?: 'works' | 'pricing' | 'hero') => {
+    const target = zone || dockZone || 'hero';
+    setIsDocking(true);
+    setIsCruising(false);
+    playDockChime();
+
+    // Smooth navigation to the docked sector
+    setTimeout(() => {
+      if (target === 'works') {
+        const el = document.getElementById('work');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      } else if (target === 'pricing') {
+        const el = document.getElementById('pricing');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 180);
+
+    // Conclude cinematic docking sequence
+    setTimeout(() => {
+      setIsDocking(false);
+    }, 1300);
+  };
 
   const toggleTimeOfDay = () => {
     setTimeOfDay((prev) => (prev === 'day' ? 'night' : 'day'));
@@ -56,6 +116,14 @@ export function SceneryProvider({ children }: { children: React.ReactNode }) {
         setBoatSpeed,
         focusedTarget,
         setFocusedTarget,
+        viewMode,
+        setViewMode,
+        toggleViewMode,
+        dockZone,
+        setDockZone,
+        isDocking,
+        setIsDocking,
+        triggerDock,
       }}
     >
       {children}
@@ -70,4 +138,5 @@ export function useScenery() {
   }
   return context;
 }
+
 

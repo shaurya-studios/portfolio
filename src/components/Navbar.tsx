@@ -73,14 +73,14 @@ export default function Navbar() {
             onClick={(e) => handleNav(e, '#services')} 
             className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors py-1"
           >
-            Capabilities
+            Services
           </a>
           <a 
             href="#pricing" 
             onClick={(e) => handleNav(e, '#pricing')} 
             className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors py-1"
           >
-            Investment
+            Pricing
           </a>
           <Link 
             to="/video-editing" 
@@ -127,12 +127,12 @@ export default function Navbar() {
             )}
           </button>
 
-          {/* Initiate Button */}
+          {/* Contact Button */}
           <button 
             onClick={openContact}
             className="px-4 sm:px-5 py-2 rounded-full bg-[var(--color-text)] text-[var(--color-bg)] text-xs font-mono font-semibold tracking-[0.15em] uppercase hover:opacity-90 transition-opacity"
           >
-            Initiate
+            Contact
           </button>
         </div>
       </div>

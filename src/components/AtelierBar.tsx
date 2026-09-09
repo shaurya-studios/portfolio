@@ -5,10 +5,13 @@ import { useScenery, type TimeOfDay } from '../context/SceneryContext';
 import { playTactileClick, getHapticsMuted, setHapticsMuted } from '../utils/audioHaptics';
 
 export const AtelierBar: React.FC = () => {
-  const { timeOfDay, setTimeOfDay, isCruising, setIsCruising } = useScenery();
+  const { timeOfDay, setTimeOfDay, isCruising, setIsCruising, viewMode } = useScenery();
   const [isAudioMuted, setIsAudioMuted] = useState(getHapticsMuted());
   const [fps, setFps] = useState(60);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // When user is in Lite Mobile Mode, 3D controls are omitted
+  if (viewMode === 'lite') return null;
 
   // Lightweight FPS counter
   useEffect(() => {
@@ -50,7 +53,7 @@ export const AtelierBar: React.FC = () => {
   };
 
   return (
-    <aside aria-label="Atelier Environment Controls" className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2 pointer-events-auto">
+    <aside aria-label="Atelier Environment Controls" className="fixed bottom-6 left-6 z-40 flex flex-col items-start gap-2 pointer-events-auto">
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -58,6 +61,7 @@ export const AtelierBar: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ type: 'spring', damping: 20, stiffness: 220 }}
+
             className="flex items-center gap-1.5 p-1.5 rounded-full backdrop-blur-xl bg-stone-900/80 border border-white/10 shadow-2xl text-xs font-mono text-stone-300"
           >
             {/* Atmosphere Presets */}

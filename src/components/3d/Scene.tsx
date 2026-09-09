@@ -19,11 +19,17 @@ function CameraController({
 }) {
   const { camera } = useThree();
   const { scrollYProgress } = useScroll();
-  const { flyInComplete, setFlyInComplete, isCruising, focusedTarget } = useScenery();
+  const { flyInComplete, setFlyInComplete, isCruising, dockZone } = useScenery();
 
   const initialTime = useRef<number | null>(null);
   const currentPos = useRef(new THREE.Vector3(0.6, 16, 22)); // High-altitude cinematic entry
   const currentTarget = useRef(new THREE.Vector3(2.2, 0, 0));
+
+  // Cinematic Docking Transition Tracking
+  const wasCruising = useRef(false);
+  const dockTransitionTime = useRef<number | null>(null);
+  const dockFromPos = useRef(new THREE.Vector3());
+  const dockFromTarget = useRef(new THREE.Vector3());
 
   // Blender-style free viewport orbit refs
   const isRightDown = useRef(false);
@@ -34,18 +40,23 @@ function CameraController({
   const orbitCenter = useRef(new THREE.Vector3(2.2, 0.4, 0));
   const scrollAtRelease = useRef(0);
 
-  // Waypoints for the biomes (Island offset at x = 2.2 so left 50% is pure typography)
+  // Waypoints for the 3 Islands & Archipelago Overview
+  // 1. Hero: Main Studio Villa & Harbor (x = 2.2, z = 0.0)
   const heroPos = new THREE.Vector3(0.6, 3.8, 8.0);
   const heroTarget = new THREE.Vector3(2.2, 0.2, 0.0);
 
-  const workPos = new THREE.Vector3(3.2, 2.4, 4.6);
-  const workTarget = new THREE.Vector3(2.4, 0.8, -0.2);
+  // 2. Works: West Beacon Atoll & Lighthouse (x = -4.5, z = -2.5)
+  const worksPos = new THREE.Vector3(-1.4, 3.2, 3.8);
+  const worksTarget = new THREE.Vector3(-4.5, 0.8, -2.5);
 
-  const servicesPos = new THREE.Vector3(0.6, 2.3, 4.8);
-  const servicesTarget = new THREE.Vector3(1.8, 0.7, 0.4);
+  // 3. Pricing: East Modernist Telemetry Outpost with LEDs (x = 6.8, z = -3.2)
+  const pricingPos = new THREE.Vector3(3.8, 3.2, 3.2);
+  const pricingTarget = new THREE.Vector3(6.8, 0.7, -3.2);
 
-  const contactPos = new THREE.Vector3(1.6, 2.0, 5.4);
-  const contactTarget = new THREE.Vector3(2.2, 0.4, 0.0);
+  // 4. Archipelago Panoramic Overview (Contact / Footer)
+  const overviewPos = new THREE.Vector3(1.2, 7.5, 14.0);
+  const overviewTarget = new THREE.Vector3(1.5, 0.0, -1.0);
+
 
   // Global listeners for Blender-style Right-Click Viewport Orbiting
   useEffect(() => {
@@ -173,11 +184,19 @@ function CameraController({
     };
   }, [camera, isCruising, flyInComplete, setFlyInComplete, scrollYProgress, boatPosRef]);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (initialTime.current === null) {
       initialTime.current = state.clock.elapsedTime;
     }
     const elapsed = state.clock.elapsedTime - initialTime.current;
+
+    // Detect transition from Cruise mode to Docked mode
+    if (wasCruising.current && !isCruising) {
+      dockTransitionTime.current = 0;
+      dockFromPos.current.copy(camera.position);
+      dockFromTarget.current.copy(currentTarget.current);
+    }
+    wasCruising.current = isCruising;
 
     let targetCamPos = new THREE.Vector3();
     let targetLookAt = new THREE.Vector3();
@@ -268,6 +287,36 @@ function CameraController({
       currentTarget.current.lerp(targetLookAt, 0.09);
     }
     // ========================================================
+    // MODE A.2: CINEMATIC DOCKING TRANSITION EASE
+    // ========================================================
+    else if (dockTransitionTime.current !== null) {
+      dockTransitionTime.current += delta;
+      const duration = 1.25;
+      const progress = Math.min(dockTransitionTime.current / duration, 1.0);
+      // High-grade cubic deceleration curve
+      const ease = 1 - Math.pow(1 - progress, 3);
+
+      let destCamPos = heroPos;
+      let destLookAt = heroTarget;
+      if (dockZone === 'works') {
+        destCamPos = worksPos;
+        destLookAt = worksTarget;
+      } else if (dockZone === 'pricing') {
+        destCamPos = pricingPos;
+        destLookAt = pricingTarget;
+      }
+
+      targetCamPos.lerpVectors(dockFromPos.current, destCamPos, ease);
+      targetLookAt.lerpVectors(dockFromTarget.current, destLookAt, ease);
+
+      currentPos.current.copy(targetCamPos);
+      currentTarget.current.copy(targetLookAt);
+
+      if (progress >= 1.0) {
+        dockTransitionTime.current = null;
+      }
+    }
+    // ========================================================
     // MODE B: CINEMATIC FLY-IN INTRO
     // ========================================================
     else if (elapsed < 2.4) {
@@ -285,51 +334,36 @@ function CameraController({
       currentTarget.current.lerp(targetLookAt, 0.06);
     }
     // ========================================================
-    // MODE C: EDITORIAL SCROLL CHOREOGRAPHY
+    // MODE C: EDITORIAL 3-ISLAND SCROLL CHOREOGRAPHY (NO HOVER JUMPING)
     // ========================================================
     else {
       const scroll = scrollYProgress.get();
 
-      if (scroll < 0.28) {
-        const t = scroll / 0.28;
-        targetCamPos.lerpVectors(heroPos, workPos, t);
-        targetLookAt.lerpVectors(heroTarget, workTarget, t);
-      } else if (scroll < 0.62) {
-        const t = (scroll - 0.28) / 0.34;
-        targetCamPos.lerpVectors(workPos, servicesPos, t);
-        targetLookAt.lerpVectors(workTarget, servicesTarget, t);
+      if (scroll < 0.32) {
+        // Hero Section (Main Studio Island) -> Works Island
+        const t = scroll / 0.32;
+        targetCamPos.lerpVectors(heroPos, worksPos, t);
+        targetLookAt.lerpVectors(heroTarget, worksTarget, t);
+      } else if (scroll < 0.68) {
+        // Works Island -> Pricing & Telemetry Atoll
+        const t = (scroll - 0.32) / 0.36;
+        targetCamPos.lerpVectors(worksPos, pricingPos, t);
+        targetLookAt.lerpVectors(worksTarget, pricingTarget, t);
       } else {
-        const t = (scroll - 0.62) / 0.38;
-        targetCamPos.lerpVectors(servicesPos, contactPos, Math.min(t, 1));
-        targetLookAt.lerpVectors(servicesTarget, contactTarget, Math.min(t, 1));
+        // Pricing Atoll -> Full Archipelago Panoramic Overview
+        const t = Math.min((scroll - 0.68) / 0.32, 1.0);
+        targetCamPos.lerpVectors(pricingPos, overviewPos, t);
+        targetLookAt.lerpVectors(pricingTarget, overviewTarget, t);
       }
 
-      // Synchronized 2D-to-3D Focus: hover on project or capability cards pivots view towards the monument
-      if (focusedTarget === 'editify') {
-        // Spotlight West Basalt Sea-Stack & Lighthouse
-        targetCamPos.lerp(new THREE.Vector3(-0.8, 3.4, 6.2), 0.45);
-        targetLookAt.lerp(new THREE.Vector3(-4.5, 1.2, -2.5), 0.45);
-      } else if (focusedTarget === 'thumbpilot') {
-        // Spotlight East Coral Reef & Creative Outpost
-        targetCamPos.lerp(new THREE.Vector3(2.6, 3.2, 6.4), 0.45);
-        targetLookAt.lerp(new THREE.Vector3(4.8, 0.9, -1.8), 0.45);
-      } else if (focusedTarget === 'sanctuary') {
-        // Spotlight Kinetic Sanctuary
-        targetCamPos.lerp(new THREE.Vector3(-1.0, 3.6, 5.6), 0.45);
-        targetLookAt.lerp(new THREE.Vector3(-3.5, 1.4, -2.0), 0.45);
-      } else if (focusedTarget === 'villa') {
-        // Spotlight Central Architectural Villa
-        targetCamPos.lerp(new THREE.Vector3(0.5, 4.2, 7.5), 0.45);
-        targetLookAt.lerp(new THREE.Vector3(0, 1.0, 0), 0.45);
-      }
-
-      // Gentle mouse parallax damping
-      targetCamPos.x += state.pointer.x * 0.32;
-      targetCamPos.y += state.pointer.y * 0.22;
+      // Gentle organic mouse parallax damping (never jerks or snaps)
+      targetCamPos.x += state.pointer.x * 0.26;
+      targetCamPos.y += state.pointer.y * 0.16;
 
       currentPos.current.lerp(targetCamPos, 0.055);
       currentTarget.current.lerp(targetLookAt, 0.055);
     }
+
 
     camera.position.copy(currentPos.current);
     camera.lookAt(currentTarget.current);

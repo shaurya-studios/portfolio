@@ -12,8 +12,8 @@ export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
   const scenery = useScenery();
   const isCruising = props.isCruising ?? scenery.isCruising;
   const speed = props.speed ?? scenery.boatSpeed;
-  const onToggleCruise = props.onToggleCruise ?? scenery.setIsCruising;
   const isNight = props.isNight ?? (scenery.timeOfDay === 'night');
+  const { dockZone, triggerDock, isDocking } = scenery;
 
   // Convert Three.js units/s to realistic maritime Knots
   const knots = (speed * 5.2).toFixed(1);
@@ -24,8 +24,43 @@ export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
     window.dispatchEvent(new KeyboardEvent(eventType, { code }));
   };
 
+  const handleDockAction = () => {
+    if (isCruising) {
+      triggerDock();
+    } else {
+      scenery.setIsCruising(true);
+    }
+  };
+
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-6 z-40 flex flex-col items-center justify-end px-4 sm:bottom-8">
+      {/* =========================================================
+          0. ISLAND DOCKING ACTION BANNER (When near an Island)
+          ========================================================= */}
+      {isCruising && dockZone && (
+        <div className="pointer-events-auto mb-3 animate-bounce">
+          <button
+            onClick={() => triggerDock(dockZone)}
+            className={`flex items-center gap-2 px-5 py-2 rounded-full border shadow-2xl backdrop-blur-xl font-mono text-xs font-semibold tracking-wider transition-all duration-300 ${
+              dockZone === 'works'
+                ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.35)]'
+                : dockZone === 'pricing'
+                ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_25px_rgba(6,182,212,0.35)]'
+                : 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-[0_0_25px_rgba(16,185,129,0.35)]'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-current animate-ping" />
+            <span>
+              {dockZone === 'works'
+                ? '📍 WORKS ISLAND · PRESS ENTER OR CLICK TO VIEW WORK'
+                : dockZone === 'pricing'
+                ? '📍 PRICING ATOLL · PRESS ENTER OR CLICK TO VIEW PRICING'
+                : '📍 MAIN HARBOR · PRESS ENTER OR CLICK TO VIEW HERO'}
+            </span>
+          </button>
+        </div>
+      )}
+
       {/* =========================================================
           1. TELEMETRY & CRUISE BAR
           ========================================================= */}
@@ -42,7 +77,7 @@ export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
             }`}
           />
           <span className="font-mono text-xs tracking-wider uppercase text-neutral-800 dark:text-neutral-200">
-            {isCruising ? 'PILOT ACTIVE' : 'TENDER MOORED'}
+            {isDocking ? 'MOORING VESSEL...' : isCruising ? 'PILOT ACTIVE' : 'TENDER MOORED'}
           </span>
         </div>
 
@@ -78,7 +113,7 @@ export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
 
         {/* Action Toggle Button */}
         <button
-          onClick={() => onToggleCruise(!isCruising)}
+          onClick={handleDockAction}
           className={`flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-xs font-medium transition-all ${
             isCruising
               ? 'bg-neutral-900 text-[#F7F5F0] hover:bg-neutral-800 dark:bg-[#F7F5F0] dark:text-[#0F1115] dark:hover:bg-neutral-200'
@@ -98,6 +133,7 @@ export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
           )}
         </button>
       </div>
+
 
       {/* =========================================================
           2. MOBILE ON-SCREEN TOUCH CONTROLS (Only when Cruising)

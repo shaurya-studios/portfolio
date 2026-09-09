@@ -39,9 +39,10 @@ export default function HydrofoilVessel({
 
   const targetLeftRef = useRef<THREE.Object3D>(new THREE.Object3D());
   const targetRightRef = useRef<THREE.Object3D>(new THREE.Object3D());
-  const { timeOfDay } = useScenery();
+  const { timeOfDay, setDockZone, triggerDock, isCruising } = useScenery();
 
   const isNight = timeOfDay === 'night';
+  const lastDockZone = useRef<string | null>(null);
 
   // Physical State of the Hydrofoil Tender
   const state = useRef({
@@ -81,6 +82,13 @@ export default function HydrofoilVessel({
         keys.brake = true;
       }
 
+      // Enter key docks the vessel and scrolls to island section
+      if (e.code === 'Enter') {
+        if (state.current.isCruising || isCruising) {
+          triggerDock();
+        }
+      }
+
       if (moved && !state.current.isCruising) {
         state.current.isCruising = true;
         onCruiseToggle?.(true);
@@ -102,7 +110,8 @@ export default function HydrofoilVessel({
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isControllable, onCruiseToggle]);
+  }, [isControllable, onCruiseToggle, triggerDock, isCruising]);
+
 
   // Frame update: hydrofoil physics, wave elevation, banking & lighting
   useFrame((sceneState, delta) => {
@@ -170,10 +179,30 @@ export default function HydrofoilVessel({
     // 4. MULTI-ATOLL SHORELINE COLLISION & TANGENTIAL SLIP
     const islands = [
       { x: 2.2, z: 0.0, r: 3.35 },    // Main Studio Island
-      { x: -4.5, z: -2.5, r: 1.85 },  // Beacon Atoll
+      { x: -4.5, z: -2.5, r: 1.85 },  // Works Island (Beacon Atoll)
       { x: -6.0, z: 4.8, r: 1.25 },   // West Sea-Stack Outpost
-      { x: 7.0, z: -4.5, r: 1.25 },   // East Horizon Reef
+      { x: 6.8, z: -3.2, r: 2.35 },   // East Horizon Pricing Atoll
     ];
+
+    // 4.5. PROXIMITY DETECTION TO THE 3 ISLAND DOCK ZONES
+    const distWorks = Math.hypot(s.x - (-4.5), s.z - (-2.5));
+    const distPricing = Math.hypot(s.x - 6.8, s.z - (-3.2));
+    const distHero = Math.hypot(s.x - 1.4, s.z - 4.0);
+
+    let currentZone: 'works' | 'pricing' | 'hero' | null = null;
+    if (distWorks < 3.5) {
+      currentZone = 'works';
+    } else if (distPricing < 3.5) {
+      currentZone = 'pricing';
+    } else if (distHero < 2.8) {
+      currentZone = 'hero';
+    }
+
+    if (currentZone !== lastDockZone.current) {
+      lastDockZone.current = currentZone;
+      setDockZone(currentZone);
+    }
+
 
     for (const isl of islands) {
       const dx = s.x - isl.x;

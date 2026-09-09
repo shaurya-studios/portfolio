@@ -24,7 +24,7 @@ const TypewriterText = ({ text, onComplete }: { text: string, onComplete: () => 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{role: 'user' | 'assistant', content: string, typed?: boolean}[]>([
-    { role: 'assistant', content: 'Studio assistant active. How may I assist with Shaurya\'s services, capabilities, or pricing?', typed: true }
+    { role: 'assistant', content: 'Hi! I\'m Shaurya\'s assistant. Ask me anything about current work, services, pricing, or tech stack.', typed: true }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +59,7 @@ export default function Chatbot() {
     } catch (err) {
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: 'System error: Uplink interrupted. Please reach out directly via Discord or Email.' 
+        content: 'Connection error. Please reach out directly via Discord or Email.' 
       }]);
     } finally {
       setIsLoading(false);
