@@ -26,7 +26,7 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
   const underReefLight1Ref = useRef<THREE.PointLight>(null);
   const underReefLight2Ref = useRef<THREE.PointLight>(null);
 
-  const { timeOfDay } = useScenery();
+  const { timeOfDay, focusedTarget } = useScenery();
   const isNight = timeOfDay === 'night';
 
   const [hoveredZone, setHoveredZone] = useState<'villa' | 'sanctuary' | 'pier' | null>(null);
@@ -60,6 +60,13 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
       }
     }
 
+    // Dynamic boost from 2D DOM card hover
+    if (focusedTarget === 'editify' || focusedTarget === 'sanctuary') {
+      if (sanctuarySpinBoostRef.current < 3.2) {
+        sanctuarySpinBoostRef.current = 3.2;
+      }
+    }
+
     // 3. Kinetic Sanctuary Dual-Gimbal Mechanism (on Beacon Atoll)
     const baseSpeed = hoveredZone === 'sanctuary' ? 0.04 : 0.018;
     const activeSpeed = baseSpeed * sanctuarySpinBoostRef.current;
@@ -84,12 +91,14 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
 
     // 4. Coastal Lighthouse Revolving Light Beam
     if (lighthouseBeaconRef.current) {
-      lighthouseBeaconRef.current.rotation.y += 0.025;
+      const beaconSpeed = (focusedTarget === 'editify' || focusedTarget === 'sanctuary') ? 0.06 : 0.025;
+      lighthouseBeaconRef.current.rotation.y += beaconSpeed;
     }
 
     // 5. Rooftop Wind Anemometer Spin
     if (anemometerRef.current) {
-      anemometerRef.current.rotation.y += 0.08;
+      const anemometerSpeed = focusedTarget === 'thumbpilot' ? 0.22 : 0.08;
+      anemometerRef.current.rotation.y += anemometerSpeed;
     }
 
     // 6. Lights
@@ -99,7 +108,12 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
     }
 
     if (villaInteriorLightRef.current) {
-      villaInteriorLightRef.current.intensity = isNight ? 2.4 : 0.4;
+      const villaTarget = focusedTarget === 'villa' ? 4.2 : (isNight ? 2.4 : 0.4);
+      villaInteriorLightRef.current.intensity = THREE.MathUtils.lerp(
+        villaInteriorLightRef.current.intensity,
+        villaTarget,
+        0.08
+      );
     }
 
     if (pierLightRef.current) {
@@ -111,20 +125,25 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
     }
 
     if (lighthouseLightRef.current) {
-      lighthouseLightRef.current.intensity = isNight ? 2.5 : 0.2;
+      const targetLighthouse = (focusedTarget === 'editify' || focusedTarget === 'sanctuary') ? 4.8 : (isNight ? 2.5 : 0.2);
+      lighthouseLightRef.current.intensity = THREE.MathUtils.lerp(
+        lighthouseLightRef.current.intensity,
+        targetLighthouse,
+        0.08
+      );
     }
 
     if (underReefLight1Ref.current && underReefLight2Ref.current) {
-      const reefTarget = isNight ? 2.2 : 0.0;
+      const reefTarget = focusedTarget === 'thumbpilot' ? 4.2 : (isNight ? 2.2 : 0.0);
       underReefLight1Ref.current.intensity = THREE.MathUtils.lerp(
         underReefLight1Ref.current.intensity,
         reefTarget,
-        0.05
+        0.08
       );
       underReefLight2Ref.current.intensity = THREE.MathUtils.lerp(
         underReefLight2Ref.current.intensity,
         reefTarget,
-        0.05
+        0.08
       );
     }
   });

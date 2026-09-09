@@ -19,7 +19,7 @@ function CameraController({
 }) {
   const { camera } = useThree();
   const { scrollYProgress } = useScroll();
-  const { flyInComplete, setFlyInComplete, isCruising } = useScenery();
+  const { flyInComplete, setFlyInComplete, isCruising, focusedTarget } = useScenery();
 
   const initialTime = useRef<number | null>(null);
   const currentPos = useRef(new THREE.Vector3(0.6, 16, 22)); // High-altitude cinematic entry
@@ -302,6 +302,25 @@ function CameraController({
         const t = (scroll - 0.62) / 0.38;
         targetCamPos.lerpVectors(servicesPos, contactPos, Math.min(t, 1));
         targetLookAt.lerpVectors(servicesTarget, contactTarget, Math.min(t, 1));
+      }
+
+      // Synchronized 2D-to-3D Focus: hover on project or capability cards pivots view towards the monument
+      if (focusedTarget === 'editify') {
+        // Spotlight West Basalt Sea-Stack & Lighthouse
+        targetCamPos.lerp(new THREE.Vector3(-0.8, 3.4, 6.2), 0.45);
+        targetLookAt.lerp(new THREE.Vector3(-4.5, 1.2, -2.5), 0.45);
+      } else if (focusedTarget === 'thumbpilot') {
+        // Spotlight East Coral Reef & Creative Outpost
+        targetCamPos.lerp(new THREE.Vector3(2.6, 3.2, 6.4), 0.45);
+        targetLookAt.lerp(new THREE.Vector3(4.8, 0.9, -1.8), 0.45);
+      } else if (focusedTarget === 'sanctuary') {
+        // Spotlight Kinetic Sanctuary
+        targetCamPos.lerp(new THREE.Vector3(-1.0, 3.6, 5.6), 0.45);
+        targetLookAt.lerp(new THREE.Vector3(-3.5, 1.4, -2.0), 0.45);
+      } else if (focusedTarget === 'villa') {
+        // Spotlight Central Architectural Villa
+        targetCamPos.lerp(new THREE.Vector3(0.5, 4.2, 7.5), 0.45);
+        targetLookAt.lerp(new THREE.Vector3(0, 1.0, 0), 0.45);
       }
 
       // Gentle mouse parallax damping

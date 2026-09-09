@@ -14,6 +14,7 @@ import { SceneryProvider, useScenery } from './context/SceneryContext';
 import ContactModal from './components/ContactModal';
 import Preloader from './components/Preloader';
 import VesselControlsHUD from './components/3d/VesselControlsHUD';
+import { AtelierBar } from './components/AtelierBar';
 
 function AppContent() {
   const [appReady, setAppReady] = useState(false);
@@ -97,8 +98,9 @@ function AppContent() {
             </Canvas>
           </div>
 
-          {/* Layer 1: Luxury Telemetry Vessel HUD (Controls, Speedometer, Mobile Joystick - Isolated Renders) */}
+          {/* Layer 1: Luxury Telemetry Vessel HUD & Atelier Lab Controls */}
           <VesselControlsHUD />
+          <AtelierBar />
           
           {/* Layer 2: Editorial HTML Content (Fades completely during Cruise Mode for full-screen open-world driving) */}
           <div

@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type TimeOfDay = 'day' | 'night';
+export type TimeOfDay = 'day' | 'sunset' | 'night';
 
 interface SceneryContextType {
   timeOfDay: TimeOfDay;
+  setTimeOfDay: (val: TimeOfDay) => void;
   toggleTimeOfDay: () => void;
   activeBiome: string;
   setActiveBiome: (biome: string) => void;
@@ -13,6 +14,8 @@ interface SceneryContextType {
   setIsCruising: (val: boolean) => void;
   boatSpeed: number;
   setBoatSpeed: (val: number) => void;
+  focusedTarget: string | null;
+  setFocusedTarget: (val: string | null) => void;
 }
 
 const SceneryContext = createContext<SceneryContextType | undefined>(undefined);
@@ -23,13 +26,14 @@ export function SceneryProvider({ children }: { children: React.ReactNode }) {
   const [flyInComplete, setFlyInComplete] = useState<boolean>(false);
   const [isCruising, setIsCruising] = useState<boolean>(false);
   const [boatSpeed, setBoatSpeed] = useState<number>(0);
+  const [focusedTarget, setFocusedTarget] = useState<string | null>(null);
 
   const toggleTimeOfDay = () => {
     setTimeOfDay((prev) => (prev === 'day' ? 'night' : 'day'));
   };
 
   useEffect(() => {
-    if (timeOfDay === 'night') {
+    if (timeOfDay === 'night' || timeOfDay === 'sunset') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
@@ -40,6 +44,7 @@ export function SceneryProvider({ children }: { children: React.ReactNode }) {
     <SceneryContext.Provider
       value={{
         timeOfDay,
+        setTimeOfDay,
         toggleTimeOfDay,
         activeBiome,
         setActiveBiome,
@@ -49,6 +54,8 @@ export function SceneryProvider({ children }: { children: React.ReactNode }) {
         setIsCruising,
         boatSpeed,
         setBoatSpeed,
+        focusedTarget,
+        setFocusedTarget,
       }}
     >
       {children}
@@ -63,3 +70,4 @@ export function useScenery() {
   }
   return context;
 }
+
