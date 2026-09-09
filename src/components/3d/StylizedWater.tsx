@@ -11,7 +11,7 @@ const GerstnerWaterShader = {
     uBoatPos: { value: new THREE.Vector2(0.85, 2.4) },
     uBoatVel: { value: new THREE.Vector2(0, 0) },
     uBoatSpeed: { value: 0.0 },
-    uIslandCenter: { value: new THREE.Vector2(1.2, 0.0) },
+    uIslandCenter: { value: new THREE.Vector2(2.2, 0.0) },
     uNightMode: { value: 0.0 },
     // Day palette (The Editorial Alabaster & Ocean)
     uDeepDay: { value: new THREE.Color('#466874') },
@@ -181,7 +181,7 @@ const GerstnerWaterShader = {
 
       // Perturb shoreline distance with 2 octaves of noise to contour naturally around rocks
       float shoreNoise = (organicNoise(vWorldPosition.xz * 2.2) - 0.5) * 0.45;
-      float pierInfluence = max(0.0, 1.0 - length(vWorldPosition.xz - vec2(0.85, 1.85)) * 0.6);
+      float pierInfluence = max(0.0, 1.0 - length(vWorldPosition.xz - vec2(1.4, 3.2)) * 0.5);
       float organicDist = rawDist + shoreNoise - pierInfluence * 0.35;
 
       // 3. DEPTH ABSORPTION GRADIENT

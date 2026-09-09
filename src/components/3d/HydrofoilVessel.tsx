@@ -43,9 +43,9 @@ export default function HydrofoilVessel({
 
   // Physical State of the Hydrofoil Tender
   const state = useRef({
-    x: 0.85,
-    z: 2.35,
-    heading: 0.25, // Facing slightly towards open ocean
+    x: 1.4,
+    z: 4.0,
+    heading: 0.0, // Moored at pier end facing open sea
     speed: 0,
     angularVel: 0,
     roll: 0,
@@ -109,11 +109,11 @@ export default function HydrofoilVessel({
     const dt = Math.min(delta, 0.1);
     const s = state.current;
 
-    // 1. ENGINE ACCELERATION & BRAKING
-    const maxForwardSpeed = 4.2;
-    const maxReverseSpeed = -1.3;
-    const accel = 3.6;
-    const drag = keys.brake ? 5.0 : 1.35;
+    // 1. ENGINE ACCELERATION & BRAKING (Responsive, snappy throttle)
+    const maxForwardSpeed = 4.6;
+    const maxReverseSpeed = -1.5;
+    const accel = 4.2;
+    const drag = keys.brake ? 5.5 : 1.4;
 
     if (keys.forward) {
       s.speed += accel * dt;
@@ -130,19 +130,24 @@ export default function HydrofoilVessel({
       }
     }
 
-    // 2. STEERING WITH HYDROFOIL RUDDER
-    const turnRate = 2.6;
-    const steerAuthority = Math.min(Math.abs(s.speed) * 0.75 + 0.35, 1.0);
+    // 2. RESPONSIVE STEERING WITH STATIONARY ROTATION
+    const turnRate = 3.4;
+    const steerAuthority = Math.max(0.75, Math.min(Math.abs(s.speed) * 0.7 + 0.6, 1.25));
 
     if (keys.left) {
-      s.angularVel = THREE.MathUtils.lerp(s.angularVel, turnRate * steerAuthority, dt * 7.0);
+      s.angularVel = THREE.MathUtils.lerp(s.angularVel, turnRate * steerAuthority, dt * 8.0);
     } else if (keys.right) {
-      s.angularVel = THREE.MathUtils.lerp(s.angularVel, -turnRate * steerAuthority, dt * 7.0);
+      s.angularVel = THREE.MathUtils.lerp(s.angularVel, -turnRate * steerAuthority, dt * 8.0);
     } else {
-      s.angularVel = THREE.MathUtils.lerp(s.angularVel, 0, dt * 6.0);
+      s.angularVel = THREE.MathUtils.lerp(s.angularVel, 0, dt * 7.0);
     }
 
-    s.heading += s.angularVel * dt;
+    // Allow in-place turning when stationary or slow (bow thruster maneuvering)
+    if (Math.abs(s.speed) < 0.25 && (keys.left || keys.right)) {
+      s.heading += (keys.left ? 2.4 : -2.4) * dt;
+    } else {
+      s.heading += s.angularVel * dt;
+    }
 
     // 3. VELOCITY VECTOR UPDATE
     const vx = -Math.sin(s.heading) * s.speed;
@@ -151,24 +156,37 @@ export default function HydrofoilVessel({
     s.x += vx * dt;
     s.z += vz * dt;
 
-    // Boundaries: soft sea perimeter clamping
+    // Boundaries: soft outer ocean perimeter clamping
     const distFromOrigin = Math.hypot(s.x, s.z);
-    if (distFromOrigin > 9.0) {
+    if (distFromOrigin > 9.5) {
       const angle = Math.atan2(s.z, s.x);
-      s.x = Math.cos(angle) * 9.0;
-      s.z = Math.sin(angle) * 9.0;
+      s.x = Math.cos(angle) * 9.5;
+      s.z = Math.sin(angle) * 9.5;
       s.speed *= 0.85;
     }
 
-    // Island collision deflection (Island center approx at [1.2, 0], radius ~2.1)
-    const dx = s.x - 1.2;
-    const dz = s.z - 0.0;
+    // 4. ROBUST ISLAND SHORELINE COLLISION & TANGENTIAL SLIP (Never gush into concrete!)
+    const islandX = 2.2;
+    const islandZ = 0.0;
+    const minRadius = 3.35; // True safe water boundary clear of all rocks & terraces
+
+    const dx = s.x - islandX;
+    const dz = s.z - islandZ;
     const islandDist = Math.hypot(dx, dz);
-    if (islandDist < 2.25) {
-      const pushAngle = Math.atan2(dz, dx);
-      s.x = 1.2 + Math.cos(pushAngle) * 2.26;
-      s.z = 0.0 + Math.sin(pushAngle) * 2.26;
-      s.speed *= 0.6; // Gentle harbor fender recoil
+
+    if (islandDist < minRadius) {
+      const nx = dx / (islandDist || 1);
+      const nz = dz / (islandDist || 1);
+
+      // Keep boat cleanly on the outer shoreline water
+      s.x = islandX + nx * minRadius;
+      s.z = islandZ + nz * minRadius;
+
+      // Deflect velocity along the tangential coastline (smooth gliding, zero clipping)
+      const normalVel = vx * nx + vz * nz;
+      if (normalVel < 0) {
+        s.speed *= 0.7;
+      }
     }
 
     // 4. HYDROFOIL WAVE BUOYANCY & KINETIC BANKING
@@ -286,8 +304,8 @@ export default function HydrofoilVessel({
 
       <group
         ref={groupRef}
-        position={[0.85, -0.28, 2.35]}
-        rotation={[0, 0.25, 0]}
+        position={[1.4, -0.28, 4.0]}
+        rotation={[0, 0, 0]}
         onClick={(e) => {
           e.stopPropagation();
           state.current.isCruising = true;

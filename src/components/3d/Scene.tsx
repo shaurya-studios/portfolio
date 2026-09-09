@@ -22,21 +22,21 @@ function CameraController({
   const { flyInComplete, setFlyInComplete, isCruising } = useScenery();
 
   const initialTime = useRef<number | null>(null);
-  const currentPos = useRef(new THREE.Vector3(1.2, 16, 22)); // High-altitude cinematic entry
-  const currentTarget = useRef(new THREE.Vector3(1.2, 0, 0));
+  const currentPos = useRef(new THREE.Vector3(0.6, 16, 22)); // High-altitude cinematic entry
+  const currentTarget = useRef(new THREE.Vector3(2.2, 0, 0));
 
-  // Waypoints for the biomes (Island offset at x = 1.2 for asymmetrical layout)
-  const heroPos = new THREE.Vector3(1.2, 3.8, 6.6);
-  const heroTarget = new THREE.Vector3(1.2, 0.15, 0);
+  // Waypoints for the biomes (Island offset at x = 2.2 so left 50% is pure typography)
+  const heroPos = new THREE.Vector3(0.6, 3.8, 8.0);
+  const heroTarget = new THREE.Vector3(2.2, 0.2, 0.0);
 
-  const workPos = new THREE.Vector3(2.4, 2.3, 4.2);
-  const workTarget = new THREE.Vector3(1.9, 0.85, -0.35);
+  const workPos = new THREE.Vector3(3.2, 2.4, 4.6);
+  const workTarget = new THREE.Vector3(2.4, 0.8, -0.2);
 
-  const servicesPos = new THREE.Vector3(-0.4, 2.2, 4.4);
-  const servicesTarget = new THREE.Vector3(0.4, 0.75, 0.35);
+  const servicesPos = new THREE.Vector3(0.6, 2.3, 4.8);
+  const servicesTarget = new THREE.Vector3(1.8, 0.7, 0.4);
 
-  const contactPos = new THREE.Vector3(1.2, 1.9, 4.8);
-  const contactTarget = new THREE.Vector3(1.2, 0.55, 0);
+  const contactPos = new THREE.Vector3(1.6, 2.0, 5.4);
+  const contactTarget = new THREE.Vector3(2.2, 0.4, 0.0);
 
   useFrame((state) => {
     if (initialTime.current === null) {
@@ -137,8 +137,8 @@ export default function Scene() {
   const rimLightRef = useRef<THREE.DirectionalLight>(null);
 
   // Shared boat state refs for 60fps rendering without React re-render thrashing
-  const boatPosRef = useRef<THREE.Vector2>(new THREE.Vector2(0.85, 2.35));
-  const boatHeadingRef = useRef<number>(0.25);
+  const boatPosRef = useRef<THREE.Vector2>(new THREE.Vector2(1.4, 4.0));
+  const boatHeadingRef = useRef<number>(0.0);
   const boatSpeedRef = useRef<number>(0);
 
   const handlePositionUpdate = (pos: THREE.Vector2, speed: number, heading: number) => {
@@ -191,7 +191,7 @@ export default function Scene() {
 
       {/* Atmospheric Fog and Sky Color */}
       <color attach="background" args={[isNight ? '#0A0B0E' : '#F7F5F0']} />
-      <fog attach="fog" args={[isNight ? '#0A0B0E' : '#FBF9F6', 8, 26]} />
+      <fog attach="fog" args={[isNight ? '#0A0B0E' : '#FBF9F6', 14, 38]} />
 
       {/* Key Directional Sun / Moon Light */}
       <directionalLight

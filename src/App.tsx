@@ -98,10 +98,10 @@ function AppContent() {
             isNight={timeOfDay === 'night'}
           />
           
-          {/* Layer 2: Editorial HTML Content (Fades slightly during Cruise Mode for full ocean visibility) */}
+          {/* Layer 2: Editorial HTML Content (Fades completely during Cruise Mode for full-screen open-world driving) */}
           <div
             className={`relative z-10 min-h-screen flex flex-col text-[var(--color-text)] transition-opacity duration-700 ${
-              isCruising ? 'opacity-15 pointer-events-none' : 'opacity-100'
+              isCruising ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}
           >
             <Navbar />

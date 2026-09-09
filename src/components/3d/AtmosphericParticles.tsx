@@ -52,12 +52,12 @@ const ParticleShader = {
       vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
       gl_Position = projectionMatrix * mvPosition;
 
-      // Distance attenuation for particle scale
-      gl_PointSize = aScale * (120.0 / -mvPosition.z) * (uNightMode > 0.5 ? 1.5 : 1.0);
+      // Distance attenuation for delicate microscopic particle scale
+      gl_PointSize = aScale * (32.0 / -mvPosition.z) * (uNightMode > 0.5 ? 1.3 : 0.85);
 
-      // Night firefly pulse
+      // Delicate golden hour dust in day, pulsing fireflies at night
       float pulse = sin(uTime * 2.5 + aPhase * 6.28) * 0.4 + 0.6;
-      vAlpha = mix(0.35, pulse * 0.9, uNightMode);
+      vAlpha = mix(0.2, pulse * 0.8, uNightMode);
     }
   `,
   fragmentShader: `
