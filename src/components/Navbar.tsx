@@ -3,12 +3,12 @@ import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useContact } from '../context/ContactContext';
 import { useScenery } from '../context/SceneryContext';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Compass } from 'lucide-react';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { openContact } = useContact();
-  const { timeOfDay, toggleTimeOfDay } = useScenery();
+  const { timeOfDay, toggleTimeOfDay, isCruising, setIsCruising } = useScenery();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -22,6 +22,9 @@ export default function Navbar() {
 
   const handleNav = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
     e.preventDefault();
+    if (isCruising) {
+      setIsCruising(false);
+    }
     if (location.pathname !== '/') {
       navigate('/' + hash);
     } else {
@@ -49,6 +52,7 @@ export default function Navbar() {
         {/* Brand Name */}
         <Link 
           to="/" 
+          onClick={() => { if (isCruising) setIsCruising(false); }}
           className="font-mono text-xs md:text-sm tracking-[0.25em] uppercase font-semibold flex items-center gap-2.5 transition-opacity hover:opacity-75"
         >
           <span className={`w-2 h-2 rounded-full transition-colors duration-500 ${isNight ? 'bg-[#5eead4] shadow-[0_0_8px_#5eead4]' : 'bg-[#0F1115]'}`} />
@@ -87,12 +91,27 @@ export default function Navbar() {
         </nav>
 
         {/* Right Action Cluster */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          {/* Cruise Ocean Mode Toggle */}
+          <button
+            onClick={() => setIsCruising(!isCruising)}
+            aria-label="Toggle Ocean Cruise Mode"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-mono tracking-wider uppercase transition-all ${
+              isCruising
+                ? 'border-cyan-500 bg-cyan-500/10 text-cyan-500 font-semibold shadow-[0_0_12px_rgba(6,182,212,0.25)]'
+                : 'border-[var(--color-border)] hover:border-[var(--color-text)] bg-[var(--color-card-bg)] text-[var(--color-text-muted)]'
+            }`}
+            title="Pilot the Luxury Electric Hydrofoil Tender (WASD)"
+          >
+            <Compass size={13} className={isCruising ? 'text-cyan-500 animate-spin' : ''} />
+            <span className="hidden sm:inline text-[10px]">{isCruising ? 'DOCK' : 'CRUISE'}</span>
+          </button>
+
           {/* Day / Midnight Scenery Switch */}
           <button
             onClick={toggleTimeOfDay}
             aria-label="Toggle Island Atmosphere"
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[var(--color-border)] hover:border-[var(--color-text)] bg-[var(--color-card-bg)] text-xs font-mono tracking-widest uppercase transition-all"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--color-border)] hover:border-[var(--color-text)] bg-[var(--color-card-bg)] text-xs font-mono tracking-widest uppercase transition-all"
             title={isNight ? "Switch to Golden Hour" : "Switch to Midnight"}
           >
             {isNight ? (
@@ -111,7 +130,7 @@ export default function Navbar() {
           {/* Initiate Button */}
           <button 
             onClick={openContact}
-            className="px-5 py-2 rounded-full bg-[var(--color-text)] text-[var(--color-bg)] text-xs font-mono font-semibold tracking-[0.15em] uppercase hover:opacity-90 transition-opacity"
+            className="px-4 sm:px-5 py-2 rounded-full bg-[var(--color-text)] text-[var(--color-bg)] text-xs font-mono font-semibold tracking-[0.15em] uppercase hover:opacity-90 transition-opacity"
           >
             Initiate
           </button>

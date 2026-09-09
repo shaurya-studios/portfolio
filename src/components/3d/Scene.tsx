@@ -4,31 +4,37 @@ import { useScroll } from 'framer-motion';
 import * as THREE from 'three';
 import IslandTerrain from './IslandTerrain';
 import StylizedWater from './StylizedWater';
+import HydrofoilVessel from './HydrofoilVessel';
+import AtmosphericParticles from './AtmosphericParticles';
 import { useScenery } from '../../context/SceneryContext';
 
-function CameraController() {
+function CameraController({
+  boatPosRef,
+  boatHeadingRef,
+  boatSpeedRef,
+}: {
+  boatPosRef: React.MutableRefObject<THREE.Vector2>;
+  boatHeadingRef: React.MutableRefObject<number>;
+  boatSpeedRef: React.MutableRefObject<number>;
+}) {
   const { camera } = useThree();
   const { scrollYProgress } = useScroll();
-  const { flyInComplete, setFlyInComplete } = useScenery();
+  const { flyInComplete, setFlyInComplete, isCruising } = useScenery();
 
   const initialTime = useRef<number | null>(null);
   const currentPos = useRef(new THREE.Vector3(1.2, 16, 22)); // High-altitude cinematic entry
   const currentTarget = useRef(new THREE.Vector3(1.2, 0, 0));
 
   // Waypoints for the biomes (Island offset at x = 1.2 for asymmetrical layout)
-  // 1. Hero: Isometric panoramic shot of island in right half of screen
   const heroPos = new THREE.Vector3(1.2, 3.8, 6.6);
   const heroTarget = new THREE.Vector3(1.2, 0.15, 0);
 
-  // 2. Work: Closer architectural perspective on Modernist Villa & Pier
   const workPos = new THREE.Vector3(2.4, 2.3, 4.2);
   const workTarget = new THREE.Vector3(1.9, 0.85, -0.35);
 
-  // 3. Capabilities: Orbit to highlight Kinetic Sanctuary
   const servicesPos = new THREE.Vector3(-0.4, 2.2, 4.4);
   const servicesTarget = new THREE.Vector3(0.4, 0.75, 0.35);
 
-  // 4. Contact & Pricing: Low-angle perspective framing the island
   const contactPos = new THREE.Vector3(1.2, 1.9, 4.8);
   const contactTarget = new THREE.Vector3(1.2, 0.55, 0);
 
@@ -41,8 +47,39 @@ function CameraController() {
     let targetCamPos = new THREE.Vector3();
     let targetLookAt = new THREE.Vector3();
 
-    // PHASE 1: Cinematic Fly-in Intro (First 2.4s)
-    if (elapsed < 2.4) {
+    // ========================================================
+    // MODE A: BRUNO SIMON-STYLE 3RD-PERSON CHASE CAMERA
+    // ========================================================
+    if (isCruising) {
+      const bx = boatPosRef.current.x;
+      const bz = boatPosRef.current.y;
+      const heading = boatHeadingRef.current;
+      const speed = boatSpeedRef.current;
+
+      // Dynamic camera trailing distance expands slightly at higher speed
+      const followDist = 3.6 + Math.min(speed * 0.3, 1.2);
+      const followHeight = 1.6 + Math.min(speed * 0.1, 0.5);
+
+      targetCamPos.set(
+        bx + Math.sin(heading) * followDist,
+        followHeight,
+        bz + Math.cos(heading) * followDist
+      );
+
+      targetLookAt.set(
+        bx - Math.sin(heading) * 1.8,
+        0.2,
+        bz - Math.cos(heading) * 1.8
+      );
+
+      // Subtle turn banking on camera
+      currentPos.current.lerp(targetCamPos, 0.075);
+      currentTarget.current.lerp(targetLookAt, 0.08);
+    }
+    // ========================================================
+    // MODE B: CINEMATIC FLY-IN INTRO
+    // ========================================================
+    else if (elapsed < 2.4) {
       const progress = Math.min(elapsed / 2.4, 1);
       const ease = 1 - Math.pow(1 - progress, 3);
 
@@ -52,8 +89,14 @@ function CameraController() {
       if (progress >= 0.99 && !flyInComplete) {
         setFlyInComplete(true);
       }
-    } else {
-      // PHASE 2: Scroll-Driven Camera Interpolation
+
+      currentPos.current.lerp(targetCamPos, 0.06);
+      currentTarget.current.lerp(targetLookAt, 0.06);
+    }
+    // ========================================================
+    // MODE C: EDITORIAL SCROLL CHOREOGRAPHY
+    // ========================================================
+    else {
       const scroll = scrollYProgress.get();
 
       if (scroll < 0.28) {
@@ -70,13 +113,13 @@ function CameraController() {
         targetLookAt.lerpVectors(servicesTarget, contactTarget, Math.min(t, 1));
       }
 
-      // Parallax mouse damping
-      targetCamPos.x += state.pointer.x * 0.35;
-      targetCamPos.y += state.pointer.y * 0.25;
-    }
+      // Gentle mouse parallax damping
+      targetCamPos.x += state.pointer.x * 0.32;
+      targetCamPos.y += state.pointer.y * 0.22;
 
-    currentPos.current.lerp(targetCamPos, 0.055);
-    currentTarget.current.lerp(targetLookAt, 0.055);
+      currentPos.current.lerp(targetCamPos, 0.055);
+      currentTarget.current.lerp(targetLookAt, 0.055);
+    }
 
     camera.position.copy(currentPos.current);
     camera.lookAt(currentTarget.current);
@@ -86,12 +129,24 @@ function CameraController() {
 }
 
 export default function Scene() {
-  const { timeOfDay } = useScenery();
+  const { timeOfDay, setIsCruising, setBoatSpeed } = useScenery();
   const isNight = timeOfDay === 'night';
 
   const dirLightRef = useRef<THREE.DirectionalLight>(null);
   const ambientLightRef = useRef<THREE.AmbientLight>(null);
   const rimLightRef = useRef<THREE.DirectionalLight>(null);
+
+  // Shared boat state refs for 60fps rendering without React re-render thrashing
+  const boatPosRef = useRef<THREE.Vector2>(new THREE.Vector2(0.85, 2.35));
+  const boatHeadingRef = useRef<number>(0.25);
+  const boatSpeedRef = useRef<number>(0);
+
+  const handlePositionUpdate = (pos: THREE.Vector2, speed: number, heading: number) => {
+    boatPosRef.current.copy(pos);
+    boatSpeedRef.current = speed;
+    boatHeadingRef.current = heading;
+    setBoatSpeed(speed);
+  };
 
   useFrame(() => {
     // Smooth lighting transition between Day and Night
@@ -110,7 +165,7 @@ export default function Scene() {
       ambientLightRef.current.color.lerp(targetAmbColor, 0.05);
       ambientLightRef.current.intensity = THREE.MathUtils.lerp(
         ambientLightRef.current.intensity,
-        isNight ? 0.35 : 0.85,
+        isNight ? 0.38 : 0.85,
         0.05
       );
     }
@@ -120,7 +175,7 @@ export default function Scene() {
       rimLightRef.current.color.lerp(targetRimColor, 0.05);
       rimLightRef.current.intensity = THREE.MathUtils.lerp(
         rimLightRef.current.intensity,
-        isNight ? 0.6 : 0.4,
+        isNight ? 0.7 : 0.4,
         0.05
       );
     }
@@ -128,7 +183,11 @@ export default function Scene() {
 
   return (
     <>
-      <CameraController />
+      <CameraController
+        boatPosRef={boatPosRef}
+        boatHeadingRef={boatHeadingRef}
+        boatSpeedRef={boatSpeedRef}
+      />
 
       {/* Atmospheric Fog and Sky Color */}
       <color attach="background" args={[isNight ? '#0A0B0E' : '#F7F5F0']} />
@@ -155,11 +214,23 @@ export default function Scene() {
         color="#C6B8A8"
       />
 
-      {/* Refined Architectural Ocean */}
-      <StylizedWater />
+      {/* Atmospheric Floating Dust / Bioluminescent Fireflies */}
+      <AtmosphericParticles boatPosition={boatPosRef.current} />
+
+      {/* Refined Architectural Ocean with Gerstner Waves & Boat Wake */}
+      <StylizedWater
+        boatPosition={boatPosRef.current}
+        boatSpeed={boatSpeedRef.current}
+      />
 
       {/* The Procedural Floating Architectural Island */}
-      <IslandTerrain />
+      <IslandTerrain boatPosition={boatPosRef.current} />
+
+      {/* Drivable Luxury Electric Hydrofoil Tender (The Bruno Simon Engine) */}
+      <HydrofoilVessel
+        onPositionUpdate={handlePositionUpdate}
+        onCruiseToggle={(active) => setIsCruising(active)}
+      />
     </>
   );
 }

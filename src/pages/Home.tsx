@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
 import ContactFooter from '../components/ContactFooter';
 import { useContact } from '../context/ContactContext';
-import { ArrowUpRight, Check } from 'lucide-react';
+import { useScenery } from '../context/SceneryContext';
+import { ArrowUpRight, Check, Compass } from 'lucide-react';
 
 export default function Home() {
   const { openContact } = useContact();
+  const { setIsCruising } = useScenery();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -50,6 +52,15 @@ export default function Home() {
                 INITIATE PROJECT
               </button>
               
+              <button
+                onClick={() => setIsCruising(true)}
+                className="luxury-btn-secondary flex items-center gap-2 group"
+                title="Directly pilot the electric hydrofoil skiff across the water"
+              >
+                <Compass size={14} className="text-cyan-500 transition-transform group-hover:rotate-45" />
+                <span>PILOT VESSEL (WASD)</span>
+              </button>
+
               <a 
                 href="#work"
                 onClick={(e) => {
