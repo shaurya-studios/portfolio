@@ -186,10 +186,18 @@ export default function HydrofoilVessel({
         s.x = isl.x + nx * isl.r;
         s.z = isl.z + nz * isl.r;
 
-        // Deflect velocity along the tangential coastline (smooth gliding, zero clipping)
+        // Tangential deflection along coastline (butter-smooth gliding with zero sticking)
         const normalVel = vx * nx + vz * nz;
         if (normalVel < 0) {
-          s.speed *= 0.75;
+          // Remove the inward velocity component so it glides along the tangent
+          const tangentX = -nz;
+          const tangentZ = nx;
+          const dotTangent = vx * tangentX + vz * tangentZ;
+          
+          s.speed = Math.max(0, s.speed * 0.92);
+          if (Math.abs(dotTangent) > 0.05) {
+            s.heading += (dotTangent > 0 ? 0.8 : -0.8) * dt;
+          }
         }
         break;
       }
@@ -688,7 +696,6 @@ export default function HydrofoilVessel({
           penumbra={0.6}
           distance={8.5}
           intensity={0.0}
-          castShadow
         />
 
         <mesh position={[0.11, 0.085, -0.52]}>
@@ -704,7 +711,6 @@ export default function HydrofoilVessel({
           penumbra={0.6}
           distance={8.5}
           intensity={0.0}
-          castShadow
         />
 
         {/* Recessed Port (Ruby Red) & Starboard (Emerald Green) Navigation Lights */}

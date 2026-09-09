@@ -1,18 +1,20 @@
 import { Compass, Anchor, Navigation, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
+import { useScenery } from '../../context/SceneryContext';
 
 interface VesselControlsHUDProps {
-  isCruising: boolean;
-  speed: number;
-  onToggleCruise: (active: boolean) => void;
-  isNight: boolean;
+  isCruising?: boolean;
+  speed?: number;
+  onToggleCruise?: (active: boolean) => void;
+  isNight?: boolean;
 }
 
-export default function VesselControlsHUD({
-  isCruising,
-  speed,
-  onToggleCruise,
-  isNight,
-}: VesselControlsHUDProps) {
+export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
+  const scenery = useScenery();
+  const isCruising = props.isCruising ?? scenery.isCruising;
+  const speed = props.speed ?? scenery.boatSpeed;
+  const onToggleCruise = props.onToggleCruise ?? scenery.setIsCruising;
+  const isNight = props.isNight ?? (scenery.timeOfDay === 'night');
+
   // Convert Three.js units/s to realistic maritime Knots
   const knots = (speed * 5.2).toFixed(1);
 

@@ -17,7 +17,7 @@ import VesselControlsHUD from './components/3d/VesselControlsHUD';
 
 function AppContent() {
   const [appReady, setAppReady] = useState(false);
-  const { isCruising, setIsCruising, boatSpeed, timeOfDay } = useScenery();
+  const { isCruising, setIsCruising } = useScenery();
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
@@ -30,13 +30,15 @@ function AppContent() {
     });
     lenisRef.current = lenis;
 
+    let animId: number;
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      animId = requestAnimationFrame(raf);
     }
-    requestAnimationFrame(raf);
+    animId = requestAnimationFrame(raf);
 
     return () => {
+      cancelAnimationFrame(animId);
       lenis.destroy();
     };
   }, []);
@@ -77,26 +79,26 @@ function AppContent() {
         <Router>
           <Cursor />
 
-          {/* Layer 0: Global 3D WebGL Island & Ocean Canvas */}
+          {/* Layer 0: Global 3D WebGL Island & Ocean Canvas (Optimized high-performance pipeline) */}
           <div className="fixed inset-0 z-0 pointer-events-none">
             <Canvas
               eventSource={document.getElementById('main-scroll-container') || undefined}
               camera={{ position: [0, 18, 22], fov: 40 }}
-              dpr={[1, 2]}
-              gl={{ antialias: true, alpha: true }}
+              dpr={[1, 1.5]}
+              gl={{
+                antialias: true,
+                alpha: true,
+                powerPreference: 'high-performance',
+                stencil: false,
+              }}
               className="w-full h-full pointer-events-auto"
             >
               <Scene />
             </Canvas>
           </div>
 
-          {/* Layer 1: Luxury Telemetry Vessel HUD (Controls, Speedometer, Mobile Joystick) */}
-          <VesselControlsHUD
-            isCruising={isCruising}
-            speed={boatSpeed}
-            onToggleCruise={setIsCruising}
-            isNight={timeOfDay === 'night'}
-          />
+          {/* Layer 1: Luxury Telemetry Vessel HUD (Controls, Speedometer, Mobile Joystick - Isolated Renders) */}
+          <VesselControlsHUD />
           
           {/* Layer 2: Editorial HTML Content (Fades completely during Cruise Mode for full-screen open-world driving) */}
           <div

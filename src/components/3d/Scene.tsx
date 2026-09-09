@@ -331,12 +331,20 @@ export default function Scene() {
   const boatPosRef = useRef<THREE.Vector2>(new THREE.Vector2(1.4, 4.0));
   const boatHeadingRef = useRef<number>(0.0);
   const boatSpeedRef = useRef<number>(0);
+  const lastSpeedUpdate = useRef<number>(0);
 
   const handlePositionUpdate = (pos: THREE.Vector2, speed: number, heading: number) => {
     boatPosRef.current.copy(pos);
     boatSpeedRef.current = speed;
     boatHeadingRef.current = heading;
-    setBoatSpeed(speed);
+
+    // Throttle React state update for the HUD speedometer to 10Hz (100ms)
+    // This completely eliminates the 60-120fps React re-render thrashing!
+    const now = performance.now();
+    if (now - lastSpeedUpdate.current > 100) {
+      lastSpeedUpdate.current = now;
+      setBoatSpeed(speed);
+    }
   };
 
   useFrame(() => {
@@ -384,7 +392,7 @@ export default function Scene() {
       <color attach="background" args={[isNight ? '#080c14' : '#eaf0f4']} />
       <fog attach="fog" args={[isNight ? '#080c14' : '#e8eff3', 20, 75]} />
 
-      {/* Key Directional Sun / Moon Light */}
+      {/* Key Directional Sun / Moon Light with Tightly Bounded Shadow Camera */}
       <directionalLight
         ref={dirLightRef}
         position={[8, 14, 8]}
@@ -392,6 +400,13 @@ export default function Scene() {
         color="#fff8ed"
         castShadow
         shadow-mapSize={[1024, 1024]}
+        shadow-camera-near={0.5}
+        shadow-camera-far={45}
+        shadow-camera-left={-12}
+        shadow-camera-right={12}
+        shadow-camera-top={12}
+        shadow-camera-bottom={-12}
+        shadow-bias={-0.0004}
       />
 
       {/* Fill Ambient Light */}
@@ -408,14 +423,14 @@ export default function Scene() {
       {/* Atmospheric Floating Dust / Bioluminescent Fireflies */}
       <AtmosphericParticles boatPosition={boatPosRef.current} />
 
-      {/* Refined Architectural Ocean with Gerstner Waves & Boat Wake */}
+      {/* Refined Architectural Ocean with Gerstner Waves & Boat Wake (60fps Ref-Driven) */}
       <StylizedWater
-        boatPosition={boatPosRef.current}
-        boatSpeed={boatSpeedRef.current}
+        boatPosRef={boatPosRef}
+        boatSpeedRef={boatSpeedRef}
       />
 
       {/* The Procedural Floating Architectural Island */}
-      <IslandTerrain boatPosition={boatPosRef.current} />
+      <IslandTerrain boatPosRef={boatPosRef} />
 
       {/* Drivable Luxury Electric Hydrofoil Tender (The Bruno Simon Engine) */}
       <HydrofoilVessel

@@ -6,9 +6,10 @@ import { useScenery } from '../../context/SceneryContext';
 
 interface IslandTerrainProps {
   boatPosition?: THREE.Vector2;
+  boatPosRef?: React.MutableRefObject<THREE.Vector2>;
 }
 
-export default function IslandTerrain({ boatPosition }: IslandTerrainProps) {
+export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrainProps) {
   const islandGroupRef = useRef<THREE.Group>(null);
   const outerGimbalRef = useRef<THREE.Group>(null);
   const innerGimbalRef = useRef<THREE.Group>(null);
@@ -29,7 +30,8 @@ export default function IslandTerrain({ boatPosition }: IslandTerrainProps) {
   const isNight = timeOfDay === 'night';
 
   const [hoveredZone, setHoveredZone] = useState<'villa' | 'sanctuary' | 'pier' | null>(null);
-  const [sanctuarySpinBoost, setSanctuarySpinBoost] = useState(1.0);
+  // Stored in ref to guarantee ZERO React re-renders in useFrame loop
+  const sanctuarySpinBoostRef = useRef<number>(1.0);
 
   useFrame((state) => {
     // 1. Subtle Parallax Tilt from Pointer
@@ -49,17 +51,18 @@ export default function IslandTerrain({ boatPosition }: IslandTerrainProps) {
       );
     }
 
-    // 2. Proximity boost from hydrofoil boat
-    if (boatPosition) {
-      const distToBeaconAtoll = Math.hypot(boatPosition.x - (-4.5), boatPosition.y - (-2.5));
-      if (distToBeaconAtoll < 3.2 && sanctuarySpinBoost < 2.5) {
-        setSanctuarySpinBoost(2.8);
+    // 2. Proximity boost from hydrofoil boat (reading ref directly without re-render)
+    const bPos = boatPosRef ? boatPosRef.current : boatPosition;
+    if (bPos) {
+      const distToBeaconAtoll = Math.hypot(bPos.x - (-4.5), bPos.y - (-2.5));
+      if (distToBeaconAtoll < 3.2 && sanctuarySpinBoostRef.current < 2.5) {
+        sanctuarySpinBoostRef.current = 2.8;
       }
     }
 
     // 3. Kinetic Sanctuary Dual-Gimbal Mechanism (on Beacon Atoll)
     const baseSpeed = hoveredZone === 'sanctuary' ? 0.04 : 0.018;
-    const activeSpeed = baseSpeed * sanctuarySpinBoost;
+    const activeSpeed = baseSpeed * sanctuarySpinBoostRef.current;
 
     if (outerGimbalRef.current) {
       outerGimbalRef.current.rotation.y += activeSpeed;
@@ -75,8 +78,8 @@ export default function IslandTerrain({ boatPosition }: IslandTerrainProps) {
       crystalCoreRef.current.position.y = floatOffset;
     }
 
-    if (sanctuarySpinBoost > 1.0) {
-      setSanctuarySpinBoost((prev) => Math.max(1.0, prev - 0.012));
+    if (sanctuarySpinBoostRef.current > 1.0) {
+      sanctuarySpinBoostRef.current = Math.max(1.0, sanctuarySpinBoostRef.current - 0.012);
     }
 
     // 4. Coastal Lighthouse Revolving Light Beam
@@ -665,7 +668,7 @@ export default function IslandTerrain({ boatPosition }: IslandTerrainProps) {
           position={[0.45, 0.45, 0.35]}
           onClick={(e) => {
             e.stopPropagation();
-            setSanctuarySpinBoost(3.4);
+            sanctuarySpinBoostRef.current = 3.4;
           }}
           onPointerOver={(e) => {
             e.stopPropagation();
