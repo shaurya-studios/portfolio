@@ -23,8 +23,8 @@ export const ViewModeSwitch: React.FC = () => {
         aria-label={is3D ? "Switch to Lite Mobile View" : "Switch to Full 3D PC View"}
         title={
           is3D
-            ? "Switch to Lite Mobile View (disables 3D models for clean, ultra-fast browsing)"
-            : "Switch to Full 3D PC View (enables open-world hydrofoil vessel, ocean, & islands)"
+            ? "Switch to Lite Mode (faster performance, lower battery usage)"
+            : "Switch to 3D Mode (interactive 3D world)"
         }
         className={`group flex items-center gap-2 p-2 sm:px-3 sm:py-2 rounded-full backdrop-blur-xl border shadow-2xl transition-all duration-300 font-mono text-[11px] ${
           is3D
@@ -47,23 +47,23 @@ export const ViewModeSwitch: React.FC = () => {
           {is3D ? <Monitor size={14} /> : <Smartphone size={14} />}
         </div>
 
-        {/* Text Mode Label (hidden on super tiny mobile to save horizontal space, shown on sm+) */}
+        {/* Text Mode Label */}
         <div className="hidden sm:flex flex-col text-left leading-tight pr-1">
           <span className="text-[9px] text-[var(--color-text-muted)] uppercase tracking-wider flex items-center gap-1">
             {is3D ? (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                PC 3D WORLD
+                3D VIEW
               </>
             ) : (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                LITE MOBILE
+                LITE VIEW
               </>
             )}
           </span>
           <span className="font-semibold tracking-tight text-[11px]">
-            {is3D ? 'SWITCH TO LITE' : 'ENABLE 3D WORLD'}
+            {is3D ? 'SWITCH TO LITE' : 'SWITCH TO 3D'}
           </span>
         </div>
 

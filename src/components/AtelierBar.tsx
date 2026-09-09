@@ -68,7 +68,7 @@ export const AtelierBar: React.FC = () => {
             <div className="flex items-center bg-white/5 rounded-full p-0.5 border border-white/5">
               <button
                 onClick={() => handleTimeChange('day')}
-                title="Alabaster Day"
+                title="Daytime Mode"
                 className={`p-1.5 rounded-full transition-all ${
                   timeOfDay === 'day'
                     ? 'bg-amber-400/20 text-amber-300 shadow-sm'
@@ -79,7 +79,7 @@ export const AtelierBar: React.FC = () => {
               </button>
               <button
                 onClick={() => handleTimeChange('sunset')}
-                title="Golden Sunset"
+                title="Sunset Mode"
                 className={`p-1.5 rounded-full transition-all ${
                   timeOfDay === 'sunset'
                     ? 'bg-amber-500/20 text-amber-400 shadow-sm'
@@ -90,7 +90,7 @@ export const AtelierBar: React.FC = () => {
               </button>
               <button
                 onClick={() => handleTimeChange('night')}
-                title="Onyx Night"
+                title="Night Mode"
                 className={`p-1.5 rounded-full transition-all ${
                   timeOfDay === 'night'
                     ? 'bg-cyan-500/20 text-cyan-300 shadow-sm'
@@ -101,10 +101,10 @@ export const AtelierBar: React.FC = () => {
               </button>
             </div>
 
-            {/* Acoustic Clicks Toggle */}
+            {/* Sound FX Toggle */}
             <button
               onClick={handleAudioToggle}
-              title={isAudioMuted ? 'Enable Tactile Audio Clicks' : 'Mute Tactile Audio Clicks'}
+              title={isAudioMuted ? 'Enable Sound Effects' : 'Mute Sound Effects'}
               className={`p-1.5 rounded-full transition-colors ${
                 !isAudioMuted
                   ? 'bg-amber-500/20 text-amber-400'
@@ -114,10 +114,10 @@ export const AtelierBar: React.FC = () => {
               {!isAudioMuted ? <Volume2 size={13} /> : <VolumeX size={13} />}
             </button>
 
-            {/* Hydrofoil Drive Mode Toggle */}
+            {/* Boat Drive Mode Toggle */}
             <button
               onClick={handleCruiseToggle}
-              title={isCruising ? 'Exit Cruise Mode' : 'Pilot Hydrofoil Vessel'}
+              title={isCruising ? 'Exit Boat Mode' : 'Drive Boat'}
               className={`px-2 py-1 rounded-full flex items-center gap-1 transition-colors ${
                 isCruising
                   ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
@@ -125,10 +125,10 @@ export const AtelierBar: React.FC = () => {
               }`}
             >
               <Compass size={12} className={isCruising ? 'animate-spin' : ''} />
-              <span>{isCruising ? 'PILOTING' : 'DRIVE'}</span>
+              <span>{isCruising ? 'DRIVING' : 'DRIVE'}</span>
             </button>
 
-            {/* Live WebGL Telemetry */}
+            {/* Live WebGL FPS */}
             <div className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-stone-400 border-l border-white/10">
               <Activity size={10} className="text-emerald-400 animate-pulse" />
               <span>{fps} FPS</span>
@@ -146,7 +146,7 @@ export const AtelierBar: React.FC = () => {
         className="group flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-stone-900/80 hover:bg-stone-900 border border-white/10 hover:border-amber-500/40 shadow-xl text-stone-300 hover:text-white transition-all text-xs font-mono"
       >
         <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-        <span className="tracking-wider uppercase text-[11px] font-semibold">Atelier Laboratory</span>
+        <span className="tracking-wider uppercase text-[11px] font-semibold">Environment</span>
         <span className="text-stone-400 group-hover:text-amber-400 text-[10px]">
           {isExpanded ? '✕' : '⚙'}
         </span>

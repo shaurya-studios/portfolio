@@ -31,7 +31,7 @@ export default function Home() {
             >
               <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
               <span className="section-label">
-                DIGITAL ARCHITECT & CREATIVE ENGINEER
+                FULL-STACK WEB DEVELOPER & CREATIVE DESIGNER
               </span>
             </motion.div>
 
@@ -42,26 +42,26 @@ export default function Home() {
               </KineticText>
             </div>
 
-            {/* Authorial Manifesto */}
+            {/* Human-Friendly Subhead */}
             <p className="text-[var(--color-text-muted)] text-base sm:text-lg md:text-xl font-normal leading-relaxed max-w-lg mb-8 font-sans">
-              I build bespoke WebGL experiences, high-converting web applications, and digital platforms for founders who want their brand to stand out. Crafted from first principles with clean code — zero templates, zero bloated frameworks.
+              I build fast, modern websites and interactive 3D web experiences that help businesses, startups, and creators stand out. Clean code, sharp design, and high performance — built from scratch without bloated templates.
             </p>
 
             {/* Performance & Quality Benchmarks */}
             <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-10 font-mono text-xs text-[var(--color-text-muted)]">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[var(--color-text)] font-semibold">100/100</span> LIGHTHOUSE
+                <span className="text-[var(--color-text)] font-semibold">100/100</span> SPEED SCORE
               </div>
               <div className="h-3 w-[1px] bg-[var(--color-border)]" />
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                <span className="text-[var(--color-text)] font-semibold">60 FPS</span> FLUID WEBGL
+                <span className="text-[var(--color-text)] font-semibold">60 FPS</span> 3D MOTION
               </div>
               <div className="h-3 w-[1px] bg-[var(--color-border)]" />
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                <span className="text-[var(--color-text)] font-semibold">ZERO</span> BLATED TEMPLATES
+                <span className="text-[var(--color-text)] font-semibold">100%</span> CUSTOM CRAFTED
               </div>
             </div>
 
@@ -83,10 +83,10 @@ export default function Home() {
                   setIsCruising(true);
                 }}
                 className="luxury-btn-secondary flex items-center gap-2 group"
-                title="Pilot the electric hydrofoil vessel across the 3D archipelago"
+                title="Drive the boat across the 3D islands"
               >
                 <Compass size={14} className="text-cyan-400 transition-transform group-hover:rotate-45" />
-                <span>EXPLORE IN 3D (WASD)</span>
+                <span>EXPLORE 3D WORLD</span>
               </button>
 
               <a 
@@ -102,10 +102,13 @@ export default function Home() {
               </a>
             </div>
 
-            {/* Live WebGL Telemetry Strip */}
+            {/* Status Strip */}
             <div className="mt-16 pt-8 border-t border-[var(--color-border)] w-full flex items-center justify-between text-[11px] font-mono text-[var(--color-text-muted)] tracking-widest uppercase">
-              <span>BENGALURU, INDIA · GLOBAL CLIENTS</span>
-              <span>60 FPS INTERACTIVE ARCHIPELAGO</span>
+              <span>BASED IN INDIA · SERVING CLIENTS GLOBALLY</span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                AVAILABLE FOR NEW PROJECTS
+              </span>
             </div>
 
           </div>
@@ -124,13 +127,13 @@ export default function Home() {
         <div className="max-w-2xl mb-20 pointer-events-auto">
           <div className="flex items-center gap-2.5 mb-3">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-highlight)]" />
-            <span className="section-label">SELECTED WORK // PRODUCTION DEPLOYMENTS</span>
+            <span className="section-label">SELECTED WORK</span>
           </div>
           <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-[var(--color-text)] uppercase leading-none">
-            Selected Work.
+            Featured Projects.
           </h2>
           <p className="text-[var(--color-text-muted)] text-sm md:text-base mt-4 font-sans leading-relaxed">
-            Real production platforms engineered for speed, conversions, and distinctive visual identity. Every build is benchmarked for sub-second performance.
+            Real projects built for startups, agencies, and creators — from high-converting brand platforms to custom web applications.
           </p>
         </div>
 
@@ -146,8 +149,8 @@ export default function Home() {
               <div className="lg:col-span-7 flex flex-col">
                 <div className="flex items-center gap-3 text-xs font-mono text-[var(--color-text-muted)] tracking-widest uppercase mb-4">
                   <span className="text-cyan-400 font-bold">CLIENT PROJECT</span>
-                  <span>//</span>
-                  <span className="text-[var(--color-text)] font-semibold">CREATIVE PRODUCTION STUDIO</span>
+                  <span>·</span>
+                  <span className="text-[var(--color-text)] font-semibold">CREATIVE AGENCY PLATFORM</span>
                 </div>
                 
                 <h3 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--color-text)] mb-6 tracking-tight">
@@ -155,21 +158,21 @@ export default function Home() {
                 </h3>
                 
                 <p className="text-[var(--color-text-muted)] text-base font-sans leading-relaxed mb-8 max-w-xl">
-                  A bespoke web platform and interactive brand experience engineered for a premium creative agency. Features custom 3D web geometry, cinematic motion pacing, and a high-converting client intake funnel that doubled qualified inbound inquiries.
+                  A custom website built for a creative agency to showcase client work and drive qualified inbound inquiries. Features interactive 3D elements, smooth motion pacing, and a streamlined client contact funnel.
                 </p>
 
-                {/* Technical Blueprint */}
+                {/* Tech Highlights */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 py-6 border-y border-[var(--color-border)] mb-8 font-mono text-xs">
                   <div>
                     <span className="block text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1">TECH STACK</span>
-                    <strong className="text-[var(--color-text)] font-medium">Next.js 15 / React 19</strong>
+                    <strong className="text-[var(--color-text)] font-medium">Next.js & React</strong>
                   </div>
                   <div>
                     <span className="block text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1">INTERACTIVE 3D</span>
                     <strong className="text-[var(--color-text)] font-medium">Three.js / WebGL</strong>
                   </div>
                   <div>
-                    <span className="block text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1">BENCHMARK</span>
+                    <span className="block text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1">PERFORMANCE</span>
                     <strong className="text-[var(--color-text)] font-medium">100/100 Lighthouse</strong>
                   </div>
                 </div>
@@ -182,7 +185,7 @@ export default function Home() {
                     onClick={playTactileClick}
                     className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[var(--color-border)] hover:border-[var(--color-text)] text-xs font-mono tracking-widest uppercase text-[var(--color-text)] transition-colors"
                   >
-                    <span>View Live Website</span>
+                    <span>View Live Site</span>
                     <ArrowUpRight size={14} />
                   </a>
                 </div>
@@ -206,9 +209,9 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
               <div className="lg:col-span-7 flex flex-col">
                 <div className="flex items-center gap-3 text-xs font-mono text-[var(--color-text-muted)] tracking-widest uppercase mb-4">
-                  <span className="text-amber-400 font-bold">SAAS PRODUCT</span>
-                  <span>//</span>
-                  <span className="text-[var(--color-text)] font-semibold">CREATOR ANALYTICS PLATFORM</span>
+                  <span className="text-amber-400 font-bold">SAAS APPLICATION</span>
+                  <span>·</span>
+                  <span className="text-[var(--color-text)] font-semibold">CREATOR ANALYTICS TOOL</span>
                 </div>
                 
                 <h3 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--color-text)] mb-6 tracking-tight">
@@ -216,10 +219,10 @@ export default function Home() {
                 </h3>
                 
                 <p className="text-[var(--color-text-muted)] text-base font-sans leading-relaxed mb-8 max-w-xl">
-                  A dedicated thumbnail analytics platform helping YouTube creators and digital publishers maximize click-through rates. Built with real-time visual hierarchy scoring, side-by-side A/B simulation, and monospace data readouts.
+                  A thumbnail analytics web application helping YouTube creators test, compare, and optimize click-through rates before publishing. Built with side-by-side A/B simulation and instant contrast scoring.
                 </p>
 
-                {/* Technical Blueprint */}
+                {/* Tech Highlights */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 py-6 border-y border-[var(--color-border)] mb-8 font-mono text-xs">
                   <div>
                     <span className="block text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1">FRONTEND</span>
@@ -227,11 +230,11 @@ export default function Home() {
                   </div>
                   <div>
                     <span className="block text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1">BACKEND API</span>
-                    <strong className="text-[var(--color-text)] font-medium">Node.js REST APIs</strong>
+                    <strong className="text-[var(--color-text)] font-medium">Node.js REST API</strong>
                   </div>
                   <div>
-                    <span className="block text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1">DESIGN SYSTEM</span>
-                    <strong className="text-[var(--color-text)] font-medium">Tactile Monospace</strong>
+                    <span className="block text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1">UI / UX</span>
+                    <strong className="text-[var(--color-text)] font-medium">Dark Mode Analytics</strong>
                   </div>
                 </div>
 
@@ -244,7 +247,7 @@ export default function Home() {
                     onClick={playTactileClick}
                     className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[var(--color-border)] hover:border-[var(--color-text)] text-xs font-mono tracking-widest uppercase text-[var(--color-text)] transition-colors"
                   >
-                    <span>Inspect Live Deployment</span>
+                    <span>View Live App</span>
                     <ArrowUpRight size={14} />
                   </a>
                 </div>
@@ -272,13 +275,13 @@ export default function Home() {
         <div className="max-w-2xl mb-20 pointer-events-auto">
           <div className="flex items-center gap-2.5 mb-3">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-highlight)]" />
-            <span className="section-label">SERVICES // CORE ENGINEERING PILLARS</span>
+            <span className="section-label">SERVICES</span>
           </div>
           <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-[var(--color-text)] uppercase leading-none">
-            How I Build.
+            What I Do.
           </h2>
           <p className="text-[var(--color-text-muted)] text-sm md:text-base mt-4 font-sans leading-relaxed">
-            Built from first principles with modern tools and zero template baggage. Every project is engineered for speed, conversion, and durability.
+            From bespoke landing pages and multi-page web applications to interactive 3D experiences, I craft high-quality digital products tailored to your goals.
           </p>
         </div>
 
@@ -288,23 +291,23 @@ export default function Home() {
             {
               index: "01",
               title: "Full-Stack Web Development",
-              tag: "NEXT.JS & REACT",
+              tag: "REACT & NEXT.JS",
               icon: <ShieldCheck size={20} className="text-amber-400" />,
-              desc: "Next.js 15, React 19, TypeScript, Tailwind CSS. Resilient, type-safe architecture with clean state management, modular components, and frictionless deployment. Zero fragile plugins."
+              desc: "Next.js, React, TypeScript, and Tailwind CSS. Clean component architecture, fast routing, and seamless responsive design that looks flawless on every screen."
             },
             {
               index: "02",
-              title: "Interactive 3D & Creative WebGL",
-              tag: "THREE.JS / SHADERS",
+              title: "Interactive 3D & WebGL",
+              tag: "THREE.JS / 3D",
               icon: <Sparkles size={20} className="text-cyan-400" />,
-              desc: "Three.js, React Three Fiber, Custom GLSL Shaders. Engaging spatial 3D elements, product configurators, and interactive environments running at a locked 60 FPS on both mobile and desktop."
+              desc: "Three.js and WebGL experiences that captivate visitors without sacrificing performance. Fluid 60 FPS animations optimized for mobile and desktop alike."
             },
             {
               index: "03",
-              title: "Speed & Conversion Optimization",
-              tag: "CORE WEB VITALS",
+              title: "Performance & SEO Optimization",
+              tag: "SEARCH & SPEED",
               icon: <Zap size={20} className="text-emerald-400" />,
-              desc: "100/100 Google Lighthouse benchmarks, sub-second First Contentful Paint, zero layout shift, and intuitive UX pathways structured to convert visitors into clients."
+              desc: "Sub-second load times, 100/100 Google Lighthouse scores, and search engine optimization so your website ranks higher and converts visitors into paying clients."
             }
           ].map((item, idx) => (
             <TactileCard
@@ -316,7 +319,7 @@ export default function Home() {
                 <div className="flex justify-between items-center mb-8 font-mono text-xs text-[var(--color-text-muted)]">
                   <div className="flex items-center gap-2">
                     {item.icon}
-                    <span className="text-sm font-semibold text-[var(--color-text)]">{item.index} //</span>
+                    <span className="text-sm font-semibold text-[var(--color-text)]">{item.index} ·</span>
                   </div>
                   <span className="text-[10px] tracking-wider">{item.tag}</span>
                 </div>
@@ -335,43 +338,43 @@ export default function Home() {
       </section>
 
       {/* ===================================================
-          04 // ENGINEERING SPRINT PROCESS
+          04 // PROCESS
           =================================================== */}
       <section className="py-28 px-6 md:px-16 lg:px-24 max-w-7xl mx-auto w-full relative z-10 pointer-events-none">
         <div className="max-w-2xl mb-16 pointer-events-auto">
           <div className="flex items-center gap-2.5 mb-3">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-highlight)]" />
-            <span className="section-label">PROCESS // 4-STAGE SPRINT METHODOLOGY</span>
+            <span className="section-label">PROCESS</span>
           </div>
           <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-[var(--color-text)] uppercase leading-none">
-            How We Work Together.
+            How We'll Work Together.
           </h2>
           <p className="text-[var(--color-text-muted)] text-sm md:text-base mt-4 font-sans leading-relaxed">
-            A transparent, structured four-step sprint from discovery to production launch with weekly demos and clear deliverables.
+            A clear, collaborative process with defined milestones, weekly demos, and open communication from start to launch.
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pointer-events-auto">
           {[
             {
-              step: "STAGE 01",
-              title: "Discovery & Scope",
-              desc: "Clarifying your business goals, target audience, technical requirements, and visual direction. We lock down a fixed scope and delivery schedule."
+              step: "STEP 01",
+              title: "Discovery & Strategy",
+              desc: "We discuss your vision, target audience, technical needs, and project goals to create a clear project scope and realistic delivery timeline."
             },
             {
-              step: "STAGE 02",
-              title: "Design & Prototyping",
-              desc: "Interactive Figma mockups, custom 3D asset generation, motion physics, and typography hierarchy reviewed and refined with your feedback."
+              step: "STEP 02",
+              title: "Design & Concepts",
+              desc: "I design clean wireframes, visual prototypes, and interactive motion concepts so you can see and refine the direction before code is written."
             },
             {
-              step: "STAGE 03",
-              title: "Production Engineering",
-              desc: "Constructing clean, type-safe components with React 19, TypeScript, and Tailwind CSS. Hardened for responsive devices and instant page loads."
+              step: "STEP 03",
+              title: "Development",
+              desc: "I build your website using modern React and Next.js, with clean maintainable code and regular live preview links for your feedback."
             },
             {
-              step: "STAGE 04",
-              title: "QA, Speed & Launch",
-              desc: "Cross-browser stress testing, Lighthouse 100/100 performance tuning, SEO configuration, and seamless zero-downtime domain launch."
+              step: "STEP 04",
+              title: "Testing & Launch",
+              desc: "Full cross-browser testing, mobile optimization, SEO setup, and smooth deployment to your custom domain so you can launch with confidence."
             }
           ].map((item, idx) => (
             <TactileCard
@@ -395,7 +398,7 @@ export default function Home() {
       </section>
 
       {/* ===================================================
-          05 // VERIFIED CLIENT TESTIMONIAL & PRICING (#pricing)
+          05 // TESTIMONIAL & PACKAGES (#pricing)
           =================================================== */}
       <section id="pricing" className="py-36 px-6 md:px-16 lg:px-24 max-w-7xl mx-auto w-full relative z-10 pointer-events-none">
         
@@ -403,13 +406,13 @@ export default function Home() {
         <div className="max-w-2xl mb-20 pointer-events-auto">
           <div className="flex items-center gap-2.5 mb-3">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-highlight)]" />
-            <span className="section-label">PRICING // CLEAR ENGAGEMENT TIERS</span>
+            <span className="section-label">PACKAGES</span>
           </div>
           <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-[var(--color-text)] uppercase leading-none">
-            Simple, Transparent Pricing.
+            Transparent Pricing.
           </h2>
           <p className="text-[var(--color-text-muted)] text-sm md:text-base mt-4 font-sans leading-relaxed">
-            Fixed quotes with clear timelines and zero surprise hourly billing. Choose the package that matches your project scale.
+            Clear, upfront quotes with zero hidden fees or surprise hourly billing. Choose the package that matches your project scale, or reach out for custom requirements.
           </p>
         </div>
 
@@ -468,7 +471,7 @@ export default function Home() {
                 </a>
               </div>
               <div className="font-mono text-xs text-[var(--color-text-muted)] mt-0.5">
-                Project: Complete Agency Platform & Interactive 3D Web Architecture
+                Project: Full Agency Website & Interactive 3D Architecture
               </div>
             </div>
           </div>
@@ -483,18 +486,18 @@ export default function Home() {
           >
             <div>
               <div className="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-widest mb-3">
-                PACKAGE 01 // ESSENTIAL
+                STARTER
               </div>
               <h3 className="font-display text-2xl font-bold text-[var(--color-text)] mb-1">High-Impact Landing Page</h3>
               <div className="text-3xl font-display font-bold my-6 text-[var(--color-text)]">$499</div>
               
               <ul className="space-y-3.5 mb-10 font-mono text-xs text-[var(--color-text-muted)]">
                 {[
-                  'Single bespoke high-converting page',
-                  'Responsive mobile & desktop design',
-                  'Smooth kinetic motion & micro-interactions',
-                  '100/100 Lighthouse speed guarantee',
-                  'Domain connection, SSL & CDN deployment',
+                  'Custom-designed, high-converting single page',
+                  'Fully responsive across mobile, tablet & desktop',
+                  'Smooth scroll animations & micro-interactions',
+                  'Lighthouse 95+ performance guarantee',
+                  'Domain connection, SSL & hosting setup',
                   'Delivered in 5–7 business days'
                 ].map((ft, i) => (
                   <li key={i} className="flex items-center gap-3">
@@ -511,7 +514,7 @@ export default function Home() {
               }}
               className="luxury-btn-secondary w-full"
             >
-              START LANDING PAGE
+              GET STARTED
             </button>
           </TactileCard>
 
@@ -526,19 +529,19 @@ export default function Home() {
 
             <div>
               <div className="text-xs font-mono text-amber-400 uppercase tracking-widest mb-3">
-                PACKAGE 02 // 3D FLAGSHIP
+                FLAGSHIP
               </div>
               <h3 className="font-display text-2xl font-bold text-[var(--color-text)] mb-1">3D Brand Experience</h3>
               <div className="text-3xl font-display font-bold my-6 text-amber-300">$1,299</div>
               
               <ul className="space-y-3.5 mb-10 font-mono text-xs text-[var(--color-text)]">
                 {[
-                  'Full multi-page corporate or agency website',
-                  'Interactive 3D WebGL centerpiece or product viewer',
-                  'Scroll-driven camera choreography & physics',
-                  'Complete SEO & social share metadata setup',
-                  'CMS integration for effortless editing',
-                  'Dedicated sprint updates & 2-3 week delivery'
+                  'Complete multi-page website (up to 5 pages)',
+                  'Interactive 3D centerpiece or model viewer',
+                  'Custom animations & fluid scroll choreography',
+                  'Complete SEO & social share optimization',
+                  'CMS integration for easy content editing',
+                  'Delivered in 2–3 weeks with regular demos'
                 ].map((ft, i) => (
                   <li key={i} className="flex items-center gap-3">
                     <Check size={14} className="text-amber-400 flex-shrink-0" /> {ft}
@@ -554,7 +557,7 @@ export default function Home() {
               }}
               className="luxury-btn-primary w-full"
             >
-              BUILD 3D WEBSITE
+              GET STARTED
             </button>
           </TactileCard>
 
@@ -564,18 +567,18 @@ export default function Home() {
           >
             <div>
               <div className="text-xs font-mono text-[var(--color-text-muted)] uppercase tracking-widest mb-3">
-                PACKAGE 03 // FULL-STACK
+                TAILORED
               </div>
               <h3 className="font-display text-2xl font-bold text-[var(--color-text)] mb-1">Custom Web Application</h3>
               <div className="text-3xl font-display font-bold my-6 text-[var(--color-text)]">Custom Quote</div>
               
               <ul className="space-y-3.5 mb-10 font-mono text-xs text-[var(--color-text-muted)]">
                 {[
-                  'Production-ready Next.js / React web application',
-                  'User authentication & role-based dashboard',
-                  'Stripe / Escrow payment & billing integration',
-                  'PostgreSQL / Supabase backend & REST/GraphQL APIs',
-                  'Comprehensive documentation & 30-day post-launch support'
+                  'Full-stack application built with Next.js / React',
+                  'User accounts, authentication & dashboard',
+                  'Stripe or payment gateway integration',
+                  'Database setup (PostgreSQL / Supabase / Firebase)',
+                  'Comprehensive documentation & 30 days support'
                 ].map((ft, i) => (
                   <li key={i} className="flex items-center gap-3">
                     <Check size={14} className="text-amber-400 flex-shrink-0" /> {ft}
@@ -591,7 +594,7 @@ export default function Home() {
               }}
               className="luxury-btn-secondary w-full"
             >
-              DISCUSS APPLICATION
+              REQUEST A QUOTE
             </button>
           </TactileCard>
 

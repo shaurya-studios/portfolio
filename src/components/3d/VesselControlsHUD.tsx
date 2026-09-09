@@ -52,23 +52,23 @@ export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
             <span className="w-2 h-2 rounded-full bg-current animate-ping" />
             <span>
               {dockZone === 'works'
-                ? '📍 WORKS ISLAND · PRESS ENTER OR CLICK TO VIEW WORK'
+                ? '📍 WORKS ISLAND · PRESS ENTER TO VIEW WORK'
                 : dockZone === 'pricing'
-                ? '📍 PRICING ATOLL · PRESS ENTER OR CLICK TO VIEW PRICING'
-                : '📍 MAIN HARBOR · PRESS ENTER OR CLICK TO VIEW HERO'}
+                ? '📍 PRICING ISLAND · PRESS ENTER TO VIEW PRICING'
+                : '📍 MAIN ISLAND · PRESS ENTER TO VIEW TOP'}
             </span>
           </button>
         </div>
       )}
 
       {/* =========================================================
-          1. TELEMETRY & CRUISE BAR
+          1. BOAT STATUS & DRIVE BAR
           ========================================================= */}
       <div className={`pointer-events-auto flex items-center gap-3 rounded-full border bg-[#F7F5F0]/85 px-5 py-2.5 shadow-2xl backdrop-blur-md transition-all duration-300 dark:bg-[#0F1115]/85 ${
         isNight ? 'border-cyan-500/20 shadow-[0_0_25px_rgba(6,182,212,0.12)]' : 'border-black/10'
       }`}>
         
-        {/* Vessel Status Icon */}
+        {/* Boat Status Icon */}
         <div className="flex items-center gap-2">
           <Navigation
             size={15}
@@ -77,7 +77,7 @@ export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
             }`}
           />
           <span className="font-mono text-xs tracking-wider uppercase text-neutral-800 dark:text-neutral-200">
-            {isDocking ? 'MOORING VESSEL...' : isCruising ? 'PILOT ACTIVE' : 'TENDER MOORED'}
+            {isDocking ? 'DOCKING BOAT...' : isCruising ? 'DRIVING' : 'BOAT DOCKED'}
           </span>
         </div>
 
@@ -93,7 +93,7 @@ export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
             <div className="hidden md:flex items-center gap-1 text-[10px] text-neutral-400 dark:text-neutral-500">
               <span className="mx-1 text-neutral-300 dark:text-neutral-700">•</span>
               <span className="rounded border border-neutral-300 px-1 py-0.5 text-[9px] dark:border-neutral-700">R-CLICK</span>
-              <span>ORBIT</span>
+              <span>LOOK AROUND</span>
             </div>
           </div>
         ) : (
@@ -102,10 +102,10 @@ export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
             <span className="rounded border border-neutral-300 px-1 py-0.5 text-[10px] dark:border-neutral-700">A</span>
             <span className="rounded border border-neutral-300 px-1 py-0.5 text-[10px] dark:border-neutral-700">S</span>
             <span className="rounded border border-neutral-300 px-1 py-0.5 text-[10px] dark:border-neutral-700">D</span>
-            <span className="ml-0.5">TO PILOT</span>
+            <span className="ml-0.5">TO DRIVE</span>
             <span className="mx-1 text-neutral-300 dark:text-neutral-700">•</span>
-            <span className="rounded border border-neutral-300 px-1 py-0.5 text-[10px] dark:border-neutral-700">R-CLICK HOLD</span>
-            <span className="ml-0.5">3D VIEWPORT</span>
+            <span className="rounded border border-neutral-300 px-1 py-0.5 text-[10px] dark:border-neutral-700">RIGHT-CLICK</span>
+            <span className="ml-0.5">LOOK AROUND</span>
           </div>
         )}
 
@@ -123,12 +123,12 @@ export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
           {isCruising ? (
             <>
               <Anchor size={13} />
-              <span>DOCK VESSEL</span>
+              <span>DOCK BOAT</span>
             </>
           ) : (
             <>
               <Compass size={13} />
-              <span>CRUISE OCEAN</span>
+              <span>DRIVE BOAT</span>
             </>
           )}
         </button>

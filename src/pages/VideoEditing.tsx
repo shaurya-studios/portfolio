@@ -26,17 +26,17 @@ export default function VideoEditing() {
           >
             <div className="flex items-center justify-center gap-2 mb-8 font-mono text-xs text-[var(--color-text-muted)] tracking-widest uppercase">
               <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
-              <span>POST-PRODUCTION // HIGH-RETENTION EDITING</span>
+              <span>HIGH-RETENTION VIDEO EDITING</span>
             </div>
 
             <div className="font-display text-5xl sm:text-7xl md:text-8xl font-bold leading-[0.92] mb-8 tracking-[-0.04em] uppercase text-[var(--color-text)]">
               <KineticText as="h1" delay={0.1} stagger={0.04}>
-                ENGINEERED FOR RETENTION
+                EDITED TO KEEP VIEWERS WATCHING
               </KineticText>
             </div>
 
             <p className="text-[var(--color-text-muted)] text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-10 font-sans leading-relaxed">
-              Story-driven pacing, custom sound design, and micro-motion graphics designed to capture attention and sustain high viewer watch time across YouTube and digital platforms.
+              Tight pacing, rich sound design, and sharp motion graphics tailored for creators, founders, and brands who want higher watch time and real audience growth.
             </p>
             
             <div className="flex flex-wrap gap-4 items-center justify-center">
@@ -47,7 +47,7 @@ export default function VideoEditing() {
                 }}
                 className="luxury-btn-primary"
               >
-                START A VIDEO SPRINT
+                START A PROJECT
               </button>
               <a 
                 href="#timeline" 
@@ -58,7 +58,7 @@ export default function VideoEditing() {
                 }}
                 className="luxury-btn-secondary"
               >
-                EXPLORE TIMELINE
+                HOW I EDIT
               </a>
             </div>
           </motion.div>
@@ -72,13 +72,13 @@ export default function VideoEditing() {
         <div className="max-w-2xl mb-12">
           <div className="flex items-center gap-2.5 mb-3">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-            <span className="section-label">TIMELINE BREAKDOWN // RETENTION STRUCTURE</span>
+            <span className="section-label">EDITING BREAKDOWN</span>
           </div>
           <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-[var(--color-text)] uppercase leading-none">
-            Anatomy of a High-Retention Edit.
+            What Goes Into Every Edit.
           </h2>
           <p className="text-[var(--color-text-muted)] text-sm md:text-base mt-4 font-sans leading-relaxed">
-            Every cut, sound cue, and visual hook is planned to eliminate viewer drop-off and maximize engagement.
+            Every cut, sound effect, and graphic cue is timed to keep viewers hooked from the first five seconds through to the end.
           </p>
         </div>
 
@@ -100,13 +100,13 @@ export default function VideoEditing() {
               >
                 {isPlayingTimeline ? <Pause size={14} /> : <Play size={14} />}
               </button>
-              <span className="text-white font-semibold">SEQ_01_HERO_HOOK</span>
-              <span className="text-stone-400">24.00 FPS • 4K DCI</span>
+              <span className="text-white font-semibold">PROJECT_TIMELINE_PREVIEW</span>
+              <span className="text-stone-400">4K 60FPS • PRORES</span>
             </div>
             <div className="flex items-center gap-4 text-[11px]">
               <div className="flex items-center gap-1 text-emerald-400">
                 <Activity size={12} />
-                <span>+68.4% RETENTION AVERAGE</span>
+                <span>HIGH AUDIENCE RETENTION</span>
               </div>
             </div>
           </div>
@@ -115,16 +115,16 @@ export default function VideoEditing() {
           <div className="space-y-3 py-6 font-mono text-[11px]">
             {/* V3: Motion Graphics / VFX */}
             <div className="flex items-center gap-4">
-              <span className="w-16 text-stone-400 text-right">V3 VFX</span>
+              <span className="w-16 text-stone-400 text-right">V3 GRAPHICS</span>
               <div className="flex-1 h-8 rounded-lg bg-white/5 border border-white/5 relative overflow-hidden flex items-center px-3 gap-2">
                 <div className="h-5 px-3 rounded bg-amber-500/30 border border-amber-500/40 text-amber-300 flex items-center text-[10px]">
-                  3D Kinetic Monolith
+                  Custom Motion Graphics
                 </div>
                 <div className="h-5 px-3 rounded bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 flex items-center text-[10px]">
-                  Dynamic Retention Hook
+                  Opening Hook Title
                 </div>
                 <div className="h-5 px-3 rounded bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 flex items-center text-[10px]">
-                  Monospace Graphic
+                  Animated Infographics
                 </div>
               </div>
             </div>
@@ -189,35 +189,35 @@ export default function VideoEditing() {
           {/* Retention Impact Footer */}
           <div className="pt-6 border-t border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs font-mono">
             <div>
-              <span className="text-stone-400 block mb-1 uppercase text-[10px]">FIRST 30 SECONDS</span>
-              <strong className="text-white font-semibold">82.4% Retention Average</strong>
+              <span className="text-stone-400 block mb-1 uppercase text-[10px]">OPENING HOOK</span>
+              <strong className="text-white font-semibold">Immediate Visual Interest</strong>
             </div>
             <div>
-              <span className="text-stone-400 block mb-1 uppercase text-[10px]">HOOK CADENCE</span>
-              <strong className="text-white font-semibold">Every 3 to 4 Seconds</strong>
+              <span className="text-stone-400 block mb-1 uppercase text-[10px]">PACING & RHYTHM</span>
+              <strong className="text-white font-semibold">Visual Changes Every 3–5s</strong>
             </div>
             <div>
-              <span className="text-stone-400 block mb-1 uppercase text-[10px]">AUDIO DESIGN</span>
-              <strong className="text-white font-semibold">12-Layer Foley & Risers</strong>
+              <span className="text-stone-400 block mb-1 uppercase text-[10px]">SOUND DESIGN</span>
+              <strong className="text-white font-semibold">Layered SFX & Clean Audio</strong>
             </div>
           </div>
         </TactileCard>
       </section>
 
       {/* ===================================================
-          03 // POST-PRODUCTION PIPELINE
+          03 // WORKFLOW
           =================================================== */}
       <section id="process" className="py-28 px-6 md:px-16 lg:px-24 max-w-7xl mx-auto w-full">
         <div className="max-w-2xl mb-16">
           <div className="flex items-center gap-2.5 mb-3">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            <span className="section-label">WORKFLOW // 4-STAGE EDITORIAL SPRINT</span>
+            <span className="section-label">WORKFLOW</span>
           </div>
           <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-[var(--color-text)] uppercase leading-none">
-            From Raw Footage to Master.
+            How the Editing Process Works.
           </h2>
           <p className="text-[var(--color-text-muted)] text-sm md:text-base mt-4 font-sans leading-relaxed">
-            A streamlined 4-step workflow that delivers polished, publication-ready edits on time with zero fluff.
+            A clean 4-step workflow that delivers polished, publication-ready videos on schedule.
           </p>
         </div>
 
@@ -225,27 +225,27 @@ export default function VideoEditing() {
           {[
             { 
               icon: <Film size={18} className="text-amber-400" />, 
-              step: "STAGE 01", 
-              title: "Story Structure", 
-              desc: "Deep review of raw takes, elimination of filler sentences, and extraction of a high-tempo narrative spine." 
+              step: "STEP 01", 
+              title: "Story & Structure", 
+              desc: "Reviewing raw footage, cutting out dead air and rambling, and building a compelling story arc from the first second." 
             },
             { 
               icon: <Scissors size={18} className="text-cyan-400" />, 
-              step: "STAGE 02", 
+              step: "STEP 02", 
               title: "Pacing & Cuts", 
-              desc: "Excising micro-hesitations, locking in tension and release, and engineering visual pattern interrupts." 
+              desc: "Tightening edits, adding visual variety, and making sure the video never feels slow, dragged out, or repetitive." 
             },
             { 
               icon: <Sparkles size={18} className="text-emerald-400" />, 
-              step: "STAGE 03", 
-              title: "VFX & Sound Design", 
-              desc: "Custom animated typography, multi-layered foley, sub-bass impacts, and cinematic color grades." 
+              step: "STEP 03", 
+              title: "Motion & Sound", 
+              desc: "Adding animated titles, subtitles, sound effects, background music, and clean color grading that pops." 
             },
             { 
               icon: <MonitorPlay size={18} className="text-amber-400" />, 
-              step: "STAGE 04", 
-              title: "Mastering & Export", 
-              desc: "Loudness normalization (-14 LUFS for YouTube), master 4K ProRes renders, and A/B thumbnail consulting." 
+              step: "STEP 04", 
+              title: "Review & Export", 
+              desc: "Reviewing the cut together, making quick adjustments, and delivering full-quality 4K master files ready to upload." 
             }
           ].map((item, idx) => (
             <TactileCard
@@ -270,7 +270,7 @@ export default function VideoEditing() {
       </section>
 
       {/* ===================================================
-          04 // EDITORIAL ENGAGEMENT TERMS
+          04 // ENGAGEMENT TERMS
           =================================================== */}
       <section className="py-24 px-6 md:px-16 lg:px-24 max-w-7xl mx-auto w-full">
         <TactileCard
@@ -279,27 +279,27 @@ export default function VideoEditing() {
         >
           <div className="flex items-center justify-center gap-2 text-xs font-mono text-[var(--color-text-muted)] tracking-widest uppercase mb-4">
             <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-            <span>TRANSPARENT COLLABORATION TERMS</span>
+            <span>SIMPLE TERMS & FAST TURNAROUND</span>
           </div>
 
           <h3 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--color-text)] mb-4">
-            Direct Studio Terms.
+            Clear Pricing & Quick Delivery.
           </h3>
 
           <p className="text-[var(--color-text-muted)] text-sm md:text-base max-w-2xl mx-auto mb-10 font-sans leading-relaxed">
-            High-retention editing for tech founders, creators, and brands. Complete sound design, visual effects, and custom color grading included.
+            High-retention editing for YouTube channels, podcasts, and short-form content. Includes full sound design, motion graphics, and color grading.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-xl mx-auto mb-10 text-left font-mono">
             <div className="p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]/40">
-              <span className="text-[10px] uppercase text-[var(--color-text-muted)] block mb-1">PROJECT SCOPE</span>
-              <div className="text-2xl font-display font-bold text-[var(--color-text)]">Short & Long-Form</div>
+              <span className="text-[10px] uppercase text-[var(--color-text-muted)] block mb-1">PROJECT TYPES</span>
+              <div className="text-2xl font-display font-bold text-[var(--color-text)]">Shorts & Long-Form</div>
               <span className="text-[11px] text-[var(--color-text-muted)] mt-1 block">Custom quotes based on video length & complexity</span>
             </div>
             <div className="p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)]/40">
-              <span className="text-[10px] uppercase text-[var(--color-text-muted)] block mb-1">TURNAROUND TIME</span>
+              <span className="text-[10px] uppercase text-[var(--color-text-muted)] block mb-1">DELIVERY TIME</span>
               <div className="text-2xl font-display font-bold text-[var(--color-text)]">24h – 3 Days</div>
-              <span className="text-[11px] text-[var(--color-text-muted)] mt-1 block">Reliable delivery with iterative revisions</span>
+              <span className="text-[11px] text-[var(--color-text-muted)] mt-1 block">Reliable delivery with revisions included</span>
             </div>
           </div>
 
@@ -310,20 +310,20 @@ export default function VideoEditing() {
             }}
             className="luxury-btn-primary mx-auto flex items-center gap-2"
           >
-            <span>START A VIDEO SPRINT</span>
+            <span>START A VIDEO PROJECT</span>
             <ArrowUpRight size={14} />
           </button>
         </TactileCard>
       </section>
 
       {/* ===================================================
-          05 // SOFTWARE & COLOR SCIENTIFIC ARSENAL
+          05 // TOOLS & SOFTWARE
           =================================================== */}
       <section className="py-20 px-6 max-w-4xl mx-auto w-full text-center">
-        <div className="section-label mb-6">PRODUCTION SOFTWARE & HARDWARE SUITE</div>
+        <div className="section-label mb-6">TOOLS & SOFTWARE</div>
 
         <div className="flex flex-wrap justify-center gap-3">
-          {['DaVinci Resolve Studio', 'Adobe Premiere Pro', 'After Effects', 'Adobe Audition', 'FilmConvert Nitrate', 'Boris FX Mocha'].map((tool, i) => (
+          {['Adobe Premiere Pro', 'DaVinci Resolve Studio', 'After Effects', 'Adobe Audition', 'Photoshop', 'Blender'].map((tool, i) => (
             <div key={i} className="px-5 py-2.5 text-xs font-mono text-[var(--color-text)] border border-[var(--color-border)] rounded-full luxury-glass">
               {tool}
             </div>

@@ -31,10 +31,10 @@ export default function ContactFooter() {
       {/* Ultra-minimal copyright & location footer */}
       <div className="mt-20 flex flex-col md:flex-row justify-between items-center text-xs font-mono text-[var(--color-text-muted)] border-t border-[var(--color-border)] pt-8 tracking-widest uppercase">
         <div>© 2026 SHAURYA STUDIOS. ALL RIGHTS RESERVED.</div>
-        <div className="mt-4 md:mt-0 flex gap-6">
-          <span>LAT. 28.6139° N</span>
-          <span>//</span>
-          <span>CREATIVE DEV & DESIGN</span>
+        <div className="mt-4 md:mt-0 flex items-center gap-4">
+          <span>BENGALURU, INDIA</span>
+          <span>·</span>
+          <span>WORKING GLOBALLY</span>
         </div>
       </div>
     </section>

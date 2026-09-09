@@ -81,7 +81,7 @@ export default function Chatbot() {
             <div className="border-b border-[var(--color-border)] p-4 flex justify-between items-center bg-[var(--color-bg)]/80 backdrop-blur-md">
               <div className="flex items-center gap-2.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-semibold tracking-wider text-[var(--color-text)] uppercase">Buggie // Studio AI</span>
+                <span className="text-xs font-semibold tracking-wider text-[var(--color-text)] uppercase">Studio Assistant</span>
               </div>
               <button 
                 onClick={() => setIsOpen(false)} 
@@ -131,7 +131,7 @@ export default function Chatbot() {
                 type="text" 
                 value={input}
                 onChange={e => setInput(e.target.value)}
-                placeholder="Ask about scope, pricing, stack..." 
+                placeholder="Ask about web projects, video editing, pricing..." 
                 className="flex-grow bg-transparent border border-[var(--color-border)] rounded-full px-4 py-2.5 outline-none text-xs text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-text)] transition-colors"
               />
               <button 
