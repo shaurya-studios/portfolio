@@ -1,5 +1,6 @@
+import { useRef, useCallback } from 'react';
 import { Compass, Anchor, Navigation, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
-import { useScenery } from '../../context/SceneryContext';
+import { useScenery, useBoatSpeedTelemetry } from '../../context/SceneryContext';
 
 interface VesselControlsHUDProps {
   isCruising?: boolean;
@@ -11,12 +12,19 @@ interface VesselControlsHUDProps {
 export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
   const scenery = useScenery();
   const isCruising = props.isCruising ?? scenery.isCruising;
-  const speed = props.speed ?? scenery.boatSpeed;
   const isNight = props.isNight ?? (scenery.timeOfDay === 'night');
   const { dockZone, triggerDock, isDocking } = scenery;
 
-  // Convert Three.js units/s to realistic maritime Knots
-  const knots = (speed * 5.2).toFixed(1);
+  const knotsRef = useRef<HTMLSpanElement>(null);
+
+  // Subscribe to 60fps speed telemetry without triggering ANY React re-renders!
+  const handleSpeedTelemetry = useCallback((spd: number) => {
+    if (knotsRef.current) {
+      knotsRef.current.textContent = (spd * 5.2).toFixed(1);
+    }
+  }, []);
+
+  useBoatSpeedTelemetry(handleSpeedTelemetry);
 
   // Helper to trigger keyboard events for mobile on-screen buttons
   const triggerKey = (code: string, isDown: boolean) => {
@@ -87,7 +95,7 @@ export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
         {isCruising ? (
           <div className="flex items-center gap-2 font-mono text-xs text-neutral-900 dark:text-neutral-100">
             <div className="flex items-center gap-1">
-              <span className="text-cyan-500 font-semibold">{knots}</span>
+              <span ref={knotsRef} className="text-cyan-500 font-semibold">0.0</span>
               <span className="text-[10px] text-neutral-500">KTS</span>
             </div>
             <div className="hidden md:flex items-center gap-1 text-[10px] text-neutral-400 dark:text-neutral-500">

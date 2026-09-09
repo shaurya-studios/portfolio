@@ -8,6 +8,52 @@ import HydrofoilVessel from './HydrofoilVessel';
 import AtmosphericParticles from './AtmosphericParticles';
 import { useScenery } from '../../context/SceneryContext';
 
+// Static constant colors to eliminate in-loop GC allocations
+const SUN_COLOR_NIGHT = new THREE.Color('#93c5fd');
+const SUN_COLOR_SUNSET = new THREE.Color('#f59e0b');
+const SUN_COLOR_DAY = new THREE.Color('#ffffff');
+
+const HEMI_SKY_NIGHT = new THREE.Color('#1e293b');
+const HEMI_SKY_SUNSET = new THREE.Color('#fed7aa');
+const HEMI_SKY_DAY = new THREE.Color('#f8fafc');
+
+const HEMI_GROUND_NIGHT = new THREE.Color('#030712');
+const HEMI_GROUND_SUNSET = new THREE.Color('#0c4a6e');
+const HEMI_GROUND_DAY = new THREE.Color('#94a3b8');
+
+const RIM_COLOR_NIGHT = new THREE.Color('#38bdf8');
+const RIM_COLOR_SUNSET = new THREE.Color('#f43f5e');
+const RIM_COLOR_DAY = new THREE.Color('#cbd5e1');
+
+const FOG_COLOR_NIGHT = new THREE.Color('#070b12');
+const FOG_COLOR_SUNSET = new THREE.Color('#211529');
+const FOG_COLOR_DAY = new THREE.Color('#edf2f7');
+
+// Constant Waypoints for Islands & Archipelago
+const HERO_CAM_POS = new THREE.Vector3(0.6, 3.8, 8.0);
+const HERO_CAM_TARGET = new THREE.Vector3(2.2, 0.2, 0.0);
+
+const WORKS_CAM_POS = new THREE.Vector3(-1.4, 3.2, 3.8);
+const WORKS_CAM_TARGET = new THREE.Vector3(-4.5, 0.8, -2.5);
+
+const PRICING_CAM_POS = new THREE.Vector3(3.8, 3.2, 3.2);
+const PRICING_CAM_TARGET = new THREE.Vector3(6.8, 0.7, -3.2);
+
+const OVERVIEW_CAM_POS = new THREE.Vector3(1.2, 7.5, 14.0);
+const OVERVIEW_CAM_TARGET = new THREE.Vector3(1.5, 0.0, -1.0);
+
+// Pre-allocated scratch vectors for CameraController to eliminate GC pauses
+const _targetCamPos = new THREE.Vector3();
+const _targetLookAt = new THREE.Vector3();
+
+// Shortest-arc angular damping helper for 100% glitch-free camera rotations
+function dampAngle(current: number, target: number, lambda: number, dt: number): number {
+  let diff = (target - current) % (Math.PI * 2);
+  if (diff > Math.PI) diff -= Math.PI * 2;
+  if (diff < -Math.PI) diff += Math.PI * 2;
+  return current + diff * (1 - Math.exp(-lambda * dt));
+}
+
 function CameraController({
   boatPosRef,
   boatHeadingRef,
@@ -30,6 +76,11 @@ function CameraController({
   const dockTransitionTime = useRef<number | null>(null);
   const dockFromPos = useRef(new THREE.Vector3());
   const dockFromTarget = useRef(new THREE.Vector3());
+  const dockTargetZone = useRef<'works' | 'pricing' | 'hero'>('hero');
+
+  // Smoothed camera follow angle on boom-arm for silky arcade chase camera
+  const camFollowAngle = useRef(0.0);
+  const isCruisingInit = useRef(false);
 
   // Blender-style free viewport orbit refs
   const isRightDown = useRef(false);
@@ -39,23 +90,6 @@ function CameraController({
   const targetOrbitSpherical = useRef(new THREE.Spherical(12, 1.1, 0));
   const orbitCenter = useRef(new THREE.Vector3(2.2, 0.4, 0));
   const scrollAtRelease = useRef(0);
-
-  // Waypoints for the 3 Islands & Archipelago Overview
-  // 1. Hero: Main Studio Villa & Harbor (x = 2.2, z = 0.0)
-  const heroPos = new THREE.Vector3(0.6, 3.8, 8.0);
-  const heroTarget = new THREE.Vector3(2.2, 0.2, 0.0);
-
-  // 2. Works: West Beacon Atoll & Lighthouse (x = -4.5, z = -2.5)
-  const worksPos = new THREE.Vector3(-1.4, 3.2, 3.8);
-  const worksTarget = new THREE.Vector3(-4.5, 0.8, -2.5);
-
-  // 3. Pricing: East Modernist Telemetry Outpost with LEDs (x = 6.8, z = -3.2)
-  const pricingPos = new THREE.Vector3(3.8, 3.2, 3.2);
-  const pricingTarget = new THREE.Vector3(6.8, 0.7, -3.2);
-
-  // 4. Archipelago Panoramic Overview (Contact / Footer)
-  const overviewPos = new THREE.Vector3(1.2, 7.5, 14.0);
-  const overviewTarget = new THREE.Vector3(1.5, 0.0, -1.0);
 
 
   // Global listeners for Blender-style Right-Click Viewport Orbiting
@@ -185,6 +219,8 @@ function CameraController({
   }, [camera, isCruising, flyInComplete, setFlyInComplete, scrollYProgress, boatPosRef]);
 
   useFrame((state, delta) => {
+    const dt = Math.min(delta, 0.1);
+
     if (initialTime.current === null) {
       initialTime.current = state.clock.elapsedTime;
     }
@@ -195,41 +231,45 @@ function CameraController({
       dockTransitionTime.current = 0;
       dockFromPos.current.copy(camera.position);
       dockFromTarget.current.copy(currentTarget.current);
+      dockTargetZone.current = (dockZone as 'works' | 'pricing' | 'hero') || 'hero';
     }
     wasCruising.current = isCruising;
-
-    let targetCamPos = new THREE.Vector3();
-    let targetLookAt = new THREE.Vector3();
 
     // ========================================================
     // MODE 0: BLENDER-STYLE FREE VIEWPORT ORBIT
     // ========================================================
     if (isFreeOrbiting.current) {
       // Smooth spherical interpolation (damping)
-      orbitSpherical.current.theta = THREE.MathUtils.lerp(
+      orbitSpherical.current.theta = THREE.MathUtils.damp(
         orbitSpherical.current.theta,
         targetOrbitSpherical.current.theta,
-        0.14
+        12.0,
+        dt
       );
-      orbitSpherical.current.phi = THREE.MathUtils.lerp(
+      orbitSpherical.current.phi = THREE.MathUtils.damp(
         orbitSpherical.current.phi,
         targetOrbitSpherical.current.phi,
-        0.14
+        12.0,
+        dt
       );
-      orbitSpherical.current.radius = THREE.MathUtils.lerp(
+      orbitSpherical.current.radius = THREE.MathUtils.damp(
         orbitSpherical.current.radius,
         targetOrbitSpherical.current.radius,
-        0.14
+        12.0,
+        dt
       );
 
       // In cruise mode, keep orbit center anchored to the hydrofoil vessel
       if (isCruising) {
         const bx = boatPosRef.current.x;
         const bz = boatPosRef.current.y;
-        orbitCenter.current.lerp(new THREE.Vector3(bx, 0.35, bz), 0.12);
+        orbitCenter.current.lerp(new THREE.Vector3(bx, 0.35, bz), 1 - Math.exp(-8.0 * dt));
 
         // When user releases right click and drives forward, smoothly resume chase camera
         if (!isRightDown.current && boatSpeedRef.current > 0.08) {
+          // Initialize camFollowAngle to current relative camera angle to guarantee ZERO camera jump
+          const currentAngle = Math.atan2(camera.position.x - bx, camera.position.z - bz);
+          camFollowAngle.current = currentAngle;
           isFreeOrbiting.current = false;
         }
       } else {
@@ -251,14 +291,14 @@ function CameraController({
       const camY = Math.max(orbitCenter.current.y + r * Math.cos(phi), 0.3);
       const camZ = orbitCenter.current.z + r * Math.sin(phi) * Math.cos(theta);
 
-      targetCamPos.set(camX, camY, camZ);
-      targetLookAt.copy(orbitCenter.current);
+      _targetCamPos.set(camX, camY, camZ);
+      _targetLookAt.copy(orbitCenter.current);
 
-      currentPos.current.lerp(targetCamPos, 0.12);
-      currentTarget.current.lerp(targetLookAt, 0.12);
+      currentPos.current.lerp(_targetCamPos, 1 - Math.exp(-10.0 * dt));
+      currentTarget.current.lerp(_targetLookAt, 1 - Math.exp(-10.0 * dt));
     }
     // ========================================================
-    // MODE A: BRUNO SIMON-STYLE 3RD-PERSON CHASE CAMERA
+    // MODE A: BUTTER-SMOOTH ARCADE CHASE CAMERA (SPHERICAL BOOM ARM)
     // ========================================================
     else if (isCruising) {
       const bx = boatPosRef.current.x;
@@ -266,51 +306,61 @@ function CameraController({
       const heading = boatHeadingRef.current;
       const speed = boatSpeedRef.current;
 
-      // Dynamic camera trailing distance expands slightly at higher speed
-      const followDist = 4.2 + Math.min(speed * 0.3, 1.4);
-      const followHeight = 2.2 + Math.min(speed * 0.15, 0.5);
-
-      targetCamPos.set(
-        bx + Math.sin(heading) * followDist,
-        followHeight,
-        bz + Math.cos(heading) * followDist
-      );
-
-      targetLookAt.set(
-        bx - Math.sin(heading) * 2.0,
-        0.2,
-        bz - Math.cos(heading) * 2.0
-      );
-
-      // Smooth cinematic camera lag
-      currentPos.current.lerp(targetCamPos, 0.08);
-      currentTarget.current.lerp(targetLookAt, 0.09);
-    }
-    // ========================================================
-    // MODE A.2: CINEMATIC DOCKING TRANSITION EASE
-    // ========================================================
-    else if (dockTransitionTime.current !== null) {
-      dockTransitionTime.current += delta;
-      const duration = 1.25;
-      const progress = Math.min(dockTransitionTime.current / duration, 1.0);
-      // High-grade cubic deceleration curve
-      const ease = 1 - Math.pow(1 - progress, 3);
-
-      let destCamPos = heroPos;
-      let destLookAt = heroTarget;
-      if (dockZone === 'works') {
-        destCamPos = worksPos;
-        destLookAt = worksTarget;
-      } else if (dockZone === 'pricing') {
-        destCamPos = pricingPos;
-        destLookAt = pricingTarget;
+      if (!isCruisingInit.current) {
+        isCruisingInit.current = true;
+        camFollowAngle.current = heading;
       }
 
-      targetCamPos.lerpVectors(dockFromPos.current, destCamPos, ease);
-      targetLookAt.lerpVectors(dockFromTarget.current, destLookAt, ease);
+      // Shortest-arc angular damping tracks heading along an arc (never cuts chords or jitters)
+      camFollowAngle.current = dampAngle(camFollowAngle.current, heading, 3.8, dt);
 
-      currentPos.current.copy(targetCamPos);
-      currentTarget.current.copy(targetLookAt);
+      // Trailing distance expands subtly with speed
+      const followDist = 4.4 + Math.min(speed * 0.25, 1.2);
+      const followHeight = 2.3 + Math.min(speed * 0.12, 0.4);
+
+      // Camera sits on a constant-radius spherical boom arm behind the boat
+      _targetCamPos.set(
+        bx + Math.sin(camFollowAngle.current) * followDist,
+        followHeight,
+        bz + Math.cos(camFollowAngle.current) * followDist
+      );
+
+      // Target looks ahead along the vessel hull for dynamic horizon view
+      _targetLookAt.set(
+        bx - Math.sin(heading) * 1.5,
+        0.35,
+        bz - Math.cos(heading) * 1.5
+      );
+
+      // Framerate-independent fluid damping
+      currentPos.current.lerp(_targetCamPos, 1 - Math.exp(-10.0 * dt));
+      currentTarget.current.lerp(_targetLookAt, 1 - Math.exp(-12.0 * dt));
+    }
+    // ========================================================
+    // MODE A.2: CINEMATIC DOCKING TRANSITION EASE (LOCKED TARGET)
+    // ========================================================
+    else if (dockTransitionTime.current !== null) {
+      isCruisingInit.current = false;
+      dockTransitionTime.current += dt;
+      const duration = 1.25;
+      const progress = Math.min(dockTransitionTime.current / duration, 1.0);
+      const ease = 1 - Math.pow(1 - progress, 3);
+
+      let destCamPos = HERO_CAM_POS;
+      let destLookAt = HERO_CAM_TARGET;
+      if (dockTargetZone.current === 'works') {
+        destCamPos = WORKS_CAM_POS;
+        destLookAt = WORKS_CAM_TARGET;
+      } else if (dockTargetZone.current === 'pricing') {
+        destCamPos = PRICING_CAM_POS;
+        destLookAt = PRICING_CAM_TARGET;
+      }
+
+      _targetCamPos.lerpVectors(dockFromPos.current, destCamPos, ease);
+      _targetLookAt.lerpVectors(dockFromTarget.current, destLookAt, ease);
+
+      currentPos.current.copy(_targetCamPos);
+      currentTarget.current.copy(_targetLookAt);
 
       if (progress >= 1.0) {
         dockTransitionTime.current = null;
@@ -323,18 +373,18 @@ function CameraController({
       const progress = Math.min(elapsed / 2.4, 1);
       const ease = 1 - Math.pow(1 - progress, 3);
 
-      targetCamPos.lerpVectors(new THREE.Vector3(1.2, 16, 22), heroPos, ease);
-      targetLookAt.lerpVectors(new THREE.Vector3(1.2, 0, 0), heroTarget, ease);
+      _targetCamPos.lerpVectors(new THREE.Vector3(1.2, 16, 22), HERO_CAM_POS, ease);
+      _targetLookAt.lerpVectors(new THREE.Vector3(1.2, 0, 0), HERO_CAM_TARGET, ease);
 
       if (progress >= 0.99 && !flyInComplete) {
         setFlyInComplete(true);
       }
 
-      currentPos.current.lerp(targetCamPos, 0.06);
-      currentTarget.current.lerp(targetLookAt, 0.06);
+      currentPos.current.lerp(_targetCamPos, 1 - Math.exp(-4.5 * dt));
+      currentTarget.current.lerp(_targetLookAt, 1 - Math.exp(-4.5 * dt));
     }
     // ========================================================
-    // MODE C: EDITORIAL 3-ISLAND SCROLL CHOREOGRAPHY (NO HOVER JUMPING)
+    // MODE C: EDITORIAL 3-ISLAND SCROLL CHOREOGRAPHY
     // ========================================================
     else {
       const scroll = scrollYProgress.get();
@@ -342,28 +392,27 @@ function CameraController({
       if (scroll < 0.32) {
         // Hero Section (Main Studio Island) -> Works Island
         const t = scroll / 0.32;
-        targetCamPos.lerpVectors(heroPos, worksPos, t);
-        targetLookAt.lerpVectors(heroTarget, worksTarget, t);
+        _targetCamPos.lerpVectors(HERO_CAM_POS, WORKS_CAM_POS, t);
+        _targetLookAt.lerpVectors(HERO_CAM_TARGET, WORKS_CAM_TARGET, t);
       } else if (scroll < 0.68) {
         // Works Island -> Pricing & Telemetry Atoll
         const t = (scroll - 0.32) / 0.36;
-        targetCamPos.lerpVectors(worksPos, pricingPos, t);
-        targetLookAt.lerpVectors(worksTarget, pricingTarget, t);
+        _targetCamPos.lerpVectors(WORKS_CAM_POS, PRICING_CAM_POS, t);
+        _targetLookAt.lerpVectors(WORKS_CAM_TARGET, PRICING_CAM_TARGET, t);
       } else {
         // Pricing Atoll -> Full Archipelago Panoramic Overview
         const t = Math.min((scroll - 0.68) / 0.32, 1.0);
-        targetCamPos.lerpVectors(pricingPos, overviewPos, t);
-        targetLookAt.lerpVectors(pricingTarget, overviewTarget, t);
+        _targetCamPos.lerpVectors(PRICING_CAM_POS, OVERVIEW_CAM_POS, t);
+        _targetLookAt.lerpVectors(PRICING_CAM_TARGET, OVERVIEW_CAM_TARGET, t);
       }
 
       // Gentle organic mouse parallax damping (never jerks or snaps)
-      targetCamPos.x += state.pointer.x * 0.26;
-      targetCamPos.y += state.pointer.y * 0.16;
+      _targetCamPos.x += state.pointer.x * 0.26;
+      _targetCamPos.y += state.pointer.y * 0.16;
 
-      currentPos.current.lerp(targetCamPos, 0.055);
-      currentTarget.current.lerp(targetLookAt, 0.055);
+      currentPos.current.lerp(_targetCamPos, 1 - Math.exp(-4.0 * dt));
+      currentTarget.current.lerp(_targetLookAt, 1 - Math.exp(-4.0 * dt));
     }
-
 
     camera.position.copy(currentPos.current);
     camera.lookAt(currentTarget.current);
@@ -394,51 +443,27 @@ export default function Scene() {
     boatSpeedRef.current = speed;
     boatHeadingRef.current = heading;
 
-    // Throttle React state update for the HUD speedometer to 10Hz (100ms)
+    // Emits speed to HUD telemetry subscriber without React re-render thrashing
     const now = performance.now();
-    if (now - lastSpeedUpdate.current > 100) {
+    if (now - lastSpeedUpdate.current > 50) {
       lastSpeedUpdate.current = now;
       setBoatSpeed(speed);
     }
   };
 
   useFrame(() => {
-    // 1. Determine clean target colors and intensities for all 3 atmosphere modes
-    const targetSunColor = isNight
-      ? new THREE.Color('#93c5fd')
-      : isSunset
-      ? new THREE.Color('#f59e0b')
-      : new THREE.Color('#ffffff');
-
+    // 1. Static constant colors eliminate all in-loop GC allocations
+    const targetSunColor = isNight ? SUN_COLOR_NIGHT : isSunset ? SUN_COLOR_SUNSET : SUN_COLOR_DAY;
     const targetSunIntensity = isNight ? 0.85 : isSunset ? 1.85 : 1.7;
 
-    const targetHemiSky = isNight
-      ? new THREE.Color('#1e293b')
-      : isSunset
-      ? new THREE.Color('#fed7aa')
-      : new THREE.Color('#f8fafc');
-
-    const targetHemiGround = isNight
-      ? new THREE.Color('#030712')
-      : isSunset
-      ? new THREE.Color('#0c4a6e')
-      : new THREE.Color('#94a3b8');
-
+    const targetHemiSky = isNight ? HEMI_SKY_NIGHT : isSunset ? HEMI_SKY_SUNSET : HEMI_SKY_DAY;
+    const targetHemiGround = isNight ? HEMI_GROUND_NIGHT : isSunset ? HEMI_GROUND_SUNSET : HEMI_GROUND_DAY;
     const targetHemiIntensity = isNight ? 0.32 : isSunset ? 0.6 : 0.72;
 
-    const targetRimColor = isNight
-      ? new THREE.Color('#38bdf8')
-      : isSunset
-      ? new THREE.Color('#f43f5e')
-      : new THREE.Color('#cbd5e1');
-
+    const targetRimColor = isNight ? RIM_COLOR_NIGHT : isSunset ? RIM_COLOR_SUNSET : RIM_COLOR_DAY;
     const targetRimIntensity = isNight ? 0.55 : isSunset ? 0.65 : 0.45;
 
-    const targetFogColor = isNight
-      ? new THREE.Color('#070b12')
-      : isSunset
-      ? new THREE.Color('#211529')
-      : new THREE.Color('#edf2f7');
+    const targetFogColor = isNight ? FOG_COLOR_NIGHT : isSunset ? FOG_COLOR_SUNSET : FOG_COLOR_DAY;
 
     // 2. Smoothly lerp all active light properties for pristine, clean transitions
     if (dirLightRef.current) {

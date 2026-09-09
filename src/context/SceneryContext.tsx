@@ -31,13 +31,34 @@ interface SceneryContextType {
 
 const SceneryContext = createContext<SceneryContextType | undefined>(undefined);
 
+// High-frequency boat telemetry listener to prevent full-tree React re-renders
+type SpeedListener = (speed: number) => void;
+const speedListeners = new Set<SpeedListener>();
+
+export function emitBoatSpeed(speed: number) {
+  speedListeners.forEach((listener) => listener(speed));
+}
+
+export function useBoatSpeedTelemetry(listener: SpeedListener) {
+  useEffect(() => {
+    speedListeners.add(listener);
+    return () => {
+      speedListeners.delete(listener);
+    };
+  }, [listener]);
+}
+
 export function SceneryProvider({ children }: { children: React.ReactNode }) {
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('day');
   const [activeBiome, setActiveBiome] = useState<string>('hero');
   const [flyInComplete, setFlyInComplete] = useState<boolean>(false);
   const [isCruising, setIsCruising] = useState<boolean>(false);
-  const [boatSpeed, setBoatSpeed] = useState<number>(0);
+  const boatSpeed = 0;
   const [focusedTarget, setFocusedTarget] = useState<string | null>(null);
+
+  const setBoatSpeed = (val: number) => {
+    emitBoatSpeed(val);
+  };
 
   // View Mode: '3d' (Full open world PC) or 'lite' (clean lightweight mobile)
   const [viewMode, setViewModeState] = useState<ViewMode>(() => {

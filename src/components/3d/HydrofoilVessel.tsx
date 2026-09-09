@@ -18,6 +18,9 @@ const keys = {
   brake: false,
 };
 
+// Pre-allocated scratch vector to eliminate in-loop GC pauses
+const _posScratch = new THREE.Vector2();
+
 export default function HydrofoilVessel({
   isControllable = true,
   onPositionUpdate,
@@ -42,7 +45,7 @@ export default function HydrofoilVessel({
   const { timeOfDay, setDockZone, triggerDock, isCruising } = useScenery();
 
   const isNight = timeOfDay === 'night';
-  const lastDockZone = useRef<string | null>(null);
+  const lastDockZone = useRef<'works' | 'pricing' | 'hero' | null>(null);
 
   // Physical State of the Hydrofoil Tender
   const state = useRef({
@@ -117,48 +120,46 @@ export default function HydrofoilVessel({
   useFrame((sceneState, delta) => {
     if (!groupRef.current) return;
 
-    const dt = Math.min(delta, 0.1);
+    const dt = Math.min(delta, 0.05);
     const s = state.current;
 
-    // 1. ENGINE ACCELERATION & BRAKING (Responsive, snappy throttle)
-    const maxForwardSpeed = 4.6;
-    const maxReverseSpeed = -1.5;
-    const accel = 4.2;
-    const drag = keys.brake ? 5.5 : 1.4;
+    // 1. ENGINE ACCELERATION & BRAKING (Responsive, snappy, arcade-fluid)
+    const maxForwardSpeed = 4.8;
+    const maxReverseSpeed = -2.0;
 
-    if (keys.forward) {
-      s.speed += accel * dt;
-      if (s.speed > maxForwardSpeed) s.speed = maxForwardSpeed;
+    if (keys.brake) {
+      // Spacebar active hydrodynamic braking
+      s.speed = THREE.MathUtils.damp(s.speed, 0, 8.0, dt);
+    } else if (keys.forward) {
+      if (s.speed < 0) {
+        // Active brake out of reverse
+        s.speed += 7.0 * dt;
+      } else {
+        s.speed = THREE.MathUtils.damp(s.speed, maxForwardSpeed, 3.2, dt);
+      }
     } else if (keys.backward) {
-      s.speed -= accel * dt;
-      if (s.speed < maxReverseSpeed) s.speed = maxReverseSpeed;
+      if (s.speed > 0) {
+        // Active reverse thruster brake
+        s.speed -= 7.0 * dt;
+      } else {
+        s.speed = THREE.MathUtils.damp(s.speed, maxReverseSpeed, 3.0, dt);
+      }
     } else {
       // Natural water hydrodynamic friction drag
-      if (s.speed > 0) {
-        s.speed = Math.max(0, s.speed - drag * dt);
-      } else if (s.speed < 0) {
-        s.speed = Math.min(0, s.speed + drag * dt);
-      }
+      s.speed = THREE.MathUtils.damp(s.speed, 0, 1.8, dt);
+      if (Math.abs(s.speed) < 0.005) s.speed = 0;
     }
 
-    // 2. RESPONSIVE STEERING WITH STATIONARY ROTATION
-    const turnRate = 3.4;
-    const steerAuthority = Math.max(0.75, Math.min(Math.abs(s.speed) * 0.7 + 0.6, 1.25));
+    // 2. UNIFIED CONTINUOUS STEERING (Zero snapping, bow thrusters + rudder)
+    const steerInput = (keys.left ? 1 : 0) - (keys.right ? 1 : 0);
+    // Generous base turning authority even when stopped (twin bow thrusters)
+    const bowAuthority = 2.6;
+    const rudderAuthority = Math.min(Math.abs(s.speed) * 0.45, 1.2);
+    const totalTurnAuthority = bowAuthority + rudderAuthority;
 
-    if (keys.left) {
-      s.angularVel = THREE.MathUtils.lerp(s.angularVel, turnRate * steerAuthority, dt * 8.0);
-    } else if (keys.right) {
-      s.angularVel = THREE.MathUtils.lerp(s.angularVel, -turnRate * steerAuthority, dt * 8.0);
-    } else {
-      s.angularVel = THREE.MathUtils.lerp(s.angularVel, 0, dt * 7.0);
-    }
-
-    // Allow in-place turning when stationary or slow (bow thruster maneuvering)
-    if (Math.abs(s.speed) < 0.25 && (keys.left || keys.right)) {
-      s.heading += (keys.left ? 2.4 : -2.4) * dt;
-    } else {
-      s.heading += s.angularVel * dt;
-    }
+    const targetAngularVel = steerInput * totalTurnAuthority;
+    s.angularVel = THREE.MathUtils.damp(s.angularVel, targetAngularVel, 12.0, dt);
+    s.heading += s.angularVel * dt;
 
     // 3. VELOCITY VECTOR UPDATE
     const vx = -Math.sin(s.heading) * s.speed;
@@ -169,40 +170,20 @@ export default function HydrofoilVessel({
 
     // Boundaries: expansive open-world ocean perimeter
     const distFromOrigin = Math.hypot(s.x, s.z);
-    if (distFromOrigin > 38.0) {
+    if (distFromOrigin > 36.0) {
       const angle = Math.atan2(s.z, s.x);
-      s.x = Math.cos(angle) * 38.0;
-      s.z = Math.sin(angle) * 38.0;
-      s.speed *= 0.85;
+      s.x = Math.cos(angle) * 36.0;
+      s.z = Math.sin(angle) * 36.0;
+      s.speed *= 0.94;
     }
 
-    // 4. MULTI-ATOLL SHORELINE COLLISION & TANGENTIAL SLIP
+    // 4. MULTI-ATOLL SHORELINE COLLISION & TANGENTIAL GLIDE (Zero Sticking)
     const islands = [
-      { x: 2.2, z: 0.0, r: 3.35 },    // Main Studio Island
-      { x: -4.5, z: -2.5, r: 1.85 },  // Works Island (Beacon Atoll)
-      { x: -6.0, z: 4.8, r: 1.25 },   // West Sea-Stack Outpost
-      { x: 6.8, z: -3.2, r: 2.35 },   // East Horizon Pricing Atoll
+      { x: 2.2, z: 0.0, r: 3.4 },    // Main Studio Island
+      { x: -4.5, z: -2.5, r: 1.95 },  // Works Island (Beacon Atoll)
+      { x: -6.0, z: 4.8, r: 1.35 },   // West Sea-Stack Outpost
+      { x: 6.8, z: -3.2, r: 2.45 },   // East Horizon Pricing Atoll
     ];
-
-    // 4.5. PROXIMITY DETECTION TO THE 3 ISLAND DOCK ZONES
-    const distWorks = Math.hypot(s.x - (-4.5), s.z - (-2.5));
-    const distPricing = Math.hypot(s.x - 6.8, s.z - (-3.2));
-    const distHero = Math.hypot(s.x - 1.4, s.z - 4.0);
-
-    let currentZone: 'works' | 'pricing' | 'hero' | null = null;
-    if (distWorks < 3.5) {
-      currentZone = 'works';
-    } else if (distPricing < 3.5) {
-      currentZone = 'pricing';
-    } else if (distHero < 2.8) {
-      currentZone = 'hero';
-    }
-
-    if (currentZone !== lastDockZone.current) {
-      lastDockZone.current = currentZone;
-      setDockZone(currentZone);
-    }
-
 
     for (const isl of islands) {
       const dx = s.x - isl.x;
@@ -212,45 +193,75 @@ export default function HydrofoilVessel({
       if (dist < isl.r) {
         const nx = dx / (dist || 1);
         const nz = dz / (dist || 1);
+        const overlap = isl.r - dist;
 
-        // Keep boat cleanly on the outer shoreline water
-        s.x = isl.x + nx * isl.r;
-        s.z = isl.z + nz * isl.r;
+        // Smoothly push boat out along the surface normal
+        s.x += nx * (overlap + 0.02);
+        s.z += nz * (overlap + 0.02);
 
-        // Tangential deflection along coastline (butter-smooth gliding with zero sticking)
+        // Inward velocity into the shoreline
         const normalVel = vx * nx + vz * nz;
+
         if (normalVel < 0) {
-          // Remove the inward velocity component so it glides along the tangent
+          // Tangent vector along coastline
           const tangentX = -nz;
           const tangentZ = nx;
-          const dotTangent = vx * tangentX + vz * tangentZ;
-          
-          s.speed = Math.max(0, s.speed * 0.92);
-          if (Math.abs(dotTangent) > 0.05) {
-            s.heading += (dotTangent > 0 ? 0.8 : -0.8) * dt;
-          }
+          const tangentVel = vx * tangentX + vz * tangentZ;
+
+          // Retain speed along the coastline tangent with slight hydrodynamic friction
+          s.speed = Math.sign(s.speed || 1) * Math.min(Math.abs(s.speed), Math.abs(tangentVel) + 0.35);
+
+          // Smoothly glance heading away from the island normal (prevents nose sticking)
+          const cross = (-Math.sin(s.heading)) * nz - (-Math.cos(s.heading)) * nx;
+          s.heading += (cross >= 0 ? 1.5 : -1.5) * dt;
         }
-        break;
       }
     }
 
-    // 4. HYDROFOIL WAVE BUOYANCY & KINETIC BANKING
+    // 4.5. PROXIMITY DETECTION TO THE 3 ISLAND DOCK ZONES (WITH STRONG HYSTERESIS)
+    const distWorks = Math.hypot(s.x - (-4.5), s.z - (-2.5));
+    const distPricing = Math.hypot(s.x - 6.8, s.z - (-3.2));
+    const distHero = Math.hypot(s.x - 2.2, s.z - 0.0);
+
+    const ENTER_RADIUS = 3.8;
+    const EXIT_RADIUS = 4.8;
+
+    let targetZone: 'works' | 'pricing' | 'hero' | null = lastDockZone.current;
+
+    if (targetZone === 'works') {
+      if (distWorks > EXIT_RADIUS) targetZone = null;
+    } else if (targetZone === 'pricing') {
+      if (distPricing > EXIT_RADIUS) targetZone = null;
+    } else if (targetZone === 'hero') {
+      if (distHero > EXIT_RADIUS) targetZone = null;
+    } else {
+      if (distWorks < ENTER_RADIUS) targetZone = 'works';
+      else if (distPricing < ENTER_RADIUS) targetZone = 'pricing';
+      else if (distHero < ENTER_RADIUS) targetZone = 'hero';
+    }
+
+    if (targetZone !== lastDockZone.current) {
+      lastDockZone.current = targetZone;
+      setDockZone(targetZone);
+    }
+
+    // 5. HYDROFOIL WAVE BUOYANCY & KINETIC BANKING
     const t = sceneState.clock.elapsedTime;
     const waveElev =
-      Math.sin(s.x * 0.75 + s.z * 0.5 + t * 1.2) * 0.04 +
-      Math.sin(s.x * 1.35 - s.z * 0.85 + t * 1.6) * 0.025;
+      Math.sin(s.x * 0.75 + s.z * 0.5 + t * 1.2) * 0.035 +
+      Math.sin(s.x * 1.35 - s.z * 0.85 + t * 1.6) * 0.02;
 
     // Foil dynamic lift: rises out of the water at high planing speeds
-    const hydrofoilLift = Math.abs(s.speed) * 0.04;
+    const hydrofoilLift = Math.abs(s.speed) * 0.035;
     const targetY = -0.27 + waveElev + hydrofoilLift;
 
-    // Banking roll (tilts into turns like a high-speed racing tender)
-    const targetRoll = -s.angularVel * 0.18;
+    // Banking roll (tilts into turns like a racing hydrofoil)
+    const targetRoll = -s.angularVel * 0.16;
     // Pitch (bow rises under acceleration, digs down under braking)
-    const targetPitch = (keys.forward ? 0.07 : 0) - (keys.backward ? 0.05 : 0);
+    const targetPitch = (keys.forward ? 0.06 : 0) - (keys.backward || keys.brake ? 0.05 : 0);
 
-    s.roll = THREE.MathUtils.lerp(s.roll, targetRoll, dt * 6.0);
-    s.pitch = THREE.MathUtils.lerp(s.pitch, targetPitch, dt * 5.0);
+    s.roll = THREE.MathUtils.damp(s.roll, targetRoll, 8.0, dt);
+    s.pitch = THREE.MathUtils.damp(s.pitch, targetPitch, 8.0, dt);
 
     // Apply transformation
     groupRef.current.position.set(s.x, targetY, s.z);
@@ -258,24 +269,26 @@ export default function HydrofoilVessel({
     groupRef.current.rotation.z = s.roll;
     groupRef.current.rotation.x = s.pitch;
 
-    // 5. ANIMATED COCKPIT CONTROLS & MECHANICAL ELEMENTS
+    // 6. ANIMATED COCKPIT CONTROLS & MECHANICAL ELEMENTS
     // Steering wheel turns with steering input
     if (steeringWheelRef.current) {
       const targetWheelAngle = keys.left ? 0.8 : keys.right ? -0.8 : 0;
-      steeringWheelRef.current.rotation.z = THREE.MathUtils.lerp(
+      steeringWheelRef.current.rotation.z = THREE.MathUtils.damp(
         steeringWheelRef.current.rotation.z,
         targetWheelAngle,
-        dt * 8.0
+        12.0,
+        dt
       );
     }
 
     // Throttle lever pitches with forward/backward thrust
     if (throttleLeverRef.current) {
       const targetLeverPitch = keys.forward ? -0.45 : keys.backward ? 0.35 : 0;
-      throttleLeverRef.current.rotation.x = THREE.MathUtils.lerp(
+      throttleLeverRef.current.rotation.x = THREE.MathUtils.damp(
         throttleLeverRef.current.rotation.x,
         targetLeverPitch,
-        dt * 8.0
+        12.0,
+        dt
       );
     }
 
@@ -302,29 +315,25 @@ export default function HydrofoilVessel({
       radarSweepRef.current.rotation.z -= dt * 3.5;
     }
 
-    // Inform parent scene for water wake & camera tracking
-    onPositionUpdate?.(new THREE.Vector2(s.x, s.z), Math.abs(s.speed), s.heading);
+    // Inform parent scene for water wake & camera tracking (reusing scratch vector)
+    _posScratch.set(s.x, s.z);
+    onPositionUpdate?.(_posScratch, Math.abs(s.speed), s.heading);
 
-    // 6. HEADLIGHT VOLUMETRIC TARGETS & NIGHT ILLUMINATION
+    // 7. HEADLIGHTS & NIGHT ILLUMINATION
     if (leftHeadlightRef.current && rightHeadlightRef.current) {
-      const targetDist = 5.0;
-      const targetX = s.x - Math.sin(s.heading) * targetDist;
-      const targetZ = s.z - Math.cos(s.heading) * targetDist;
-
-      targetLeftRef.current.position.set(targetX - 0.25, targetY - 0.25, targetZ);
-      targetRightRef.current.position.set(targetX + 0.25, targetY - 0.25, targetZ);
-
       const isSunset = timeOfDay === 'sunset';
       const targetIntensity = isNight ? 2.6 : isSunset ? 1.4 : 0.0;
-      leftHeadlightRef.current.intensity = THREE.MathUtils.lerp(
+      leftHeadlightRef.current.intensity = THREE.MathUtils.damp(
         leftHeadlightRef.current.intensity,
         targetIntensity,
-        0.05
+        6.0,
+        dt
       );
-      rightHeadlightRef.current.intensity = THREE.MathUtils.lerp(
+      rightHeadlightRef.current.intensity = THREE.MathUtils.damp(
         rightHeadlightRef.current.intensity,
         targetIntensity,
-        0.05
+        6.0,
+        dt
       );
     }
 
@@ -332,15 +341,17 @@ export default function HydrofoilVessel({
     if (underwaterLightLeftRef.current && underwaterLightRightRef.current) {
       const isSunset = timeOfDay === 'sunset';
       const underwaterTarget = isNight ? 2.0 : isSunset ? 1.0 : 0.0;
-      underwaterLightLeftRef.current.intensity = THREE.MathUtils.lerp(
+      underwaterLightLeftRef.current.intensity = THREE.MathUtils.damp(
         underwaterLightLeftRef.current.intensity,
         underwaterTarget,
-        0.05
+        6.0,
+        dt
       );
-      underwaterLightRightRef.current.intensity = THREE.MathUtils.lerp(
+      underwaterLightRightRef.current.intensity = THREE.MathUtils.damp(
         underwaterLightRightRef.current.intensity,
         underwaterTarget,
-        0.05
+        6.0,
+        dt
       );
     }
 
@@ -348,35 +359,35 @@ export default function HydrofoilVessel({
     if (cockpitAmbientLightRef.current) {
       const isSunset = timeOfDay === 'sunset';
       const cockpitTarget = isNight ? 1.2 : isSunset ? 0.7 : 0.0;
-      cockpitAmbientLightRef.current.intensity = THREE.MathUtils.lerp(
+      cockpitAmbientLightRef.current.intensity = THREE.MathUtils.damp(
         cockpitAmbientLightRef.current.intensity,
         cockpitTarget,
-        0.05
+        6.0,
+        dt
       );
     }
   });
 
   return (
-    <>
-      <primitive object={targetLeftRef.current} />
-      <primitive object={targetRightRef.current} />
-
-      <group
-        ref={groupRef}
-        position={[1.4, -0.28, 4.0]}
-        rotation={[0, 0, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          state.current.isCruising = true;
-          onCruiseToggle?.(true);
-        }}
-        onPointerOver={() => {
-          document.body.style.cursor = 'pointer';
-        }}
-        onPointerOut={() => {
-          document.body.style.cursor = 'auto';
-        }}
-      >
+    <group
+      ref={groupRef}
+      position={[1.4, -0.28, 4.0]}
+      rotation={[0, 0, 0]}
+      onClick={(e) => {
+        e.stopPropagation();
+        state.current.isCruising = true;
+        onCruiseToggle?.(true);
+      }}
+      onPointerOver={() => {
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = 'auto';
+      }}
+    >
+      {/* Headlight Local Target Anchors (automatically rotate and move with the vessel) */}
+      <primitive object={targetLeftRef.current} position={[-0.11, 0.05, -6.0]} />
+      <primitive object={targetRightRef.current} position={[0.11, 0.05, -6.0]} />
         {/* ===================================================================
             1. SCULPTED COMPOUND DEEP-V AXE-BOW HULL (Carbon Monocoque & Titanium)
             =================================================================== */}
@@ -1363,6 +1374,20 @@ export default function HydrofoilVessel({
           intensity={0.0}
         />
 
+        {/* Volumetric Headlight Beams (Night Atmosphere) */}
+        {isNight && (
+          <group position={[0, 0.1, -0.6]}>
+            <mesh position={[-0.11, -0.04, -1.5]} rotation={[Math.PI / 2, 0, 0]}>
+              <coneGeometry args={[0.3, 3.0, 16]} />
+              <meshBasicMaterial color="#fef08a" transparent opacity={0.12} depthWrite={false} />
+            </mesh>
+            <mesh position={[0.11, -0.04, -1.5]} rotation={[Math.PI / 2, 0, 0]}>
+              <coneGeometry args={[0.3, 3.0, 16]} />
+              <meshBasicMaterial color="#fef08a" transparent opacity={0.12} depthWrite={false} />
+            </mesh>
+          </group>
+        )}
+
         {/* Flush Stainless Navigation Running Lights (Port Ruby / Starboard Emerald) */}
         {/* Port (Ruby Red) */}
         <group position={[-0.194, 0.092, -0.28]}>
@@ -1414,6 +1439,5 @@ export default function HydrofoilVessel({
           intensity={0.0}
         />
       </group>
-    </>
   );
 }
