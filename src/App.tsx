@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Lenis from '@studio-freight/lenis';
 import { Canvas } from '@react-three/fiber';
+import * as THREE from 'three';
 import Scene from './components/3d/Scene';
 import Navbar from './components/Navbar';
 import Chatbot from './components/Chatbot';
@@ -86,11 +87,14 @@ function AppContent() {
               eventSource={document.getElementById('main-scroll-container') || undefined}
               camera={{ position: [0, 18, 22], fov: 40 }}
               dpr={[1, 1.5]}
+              shadows
               gl={{
                 antialias: true,
                 alpha: true,
                 powerPreference: 'high-performance',
                 stencil: false,
+                toneMapping: THREE.ACESFilmicToneMapping,
+                toneMappingExposure: 1.02,
               }}
               className="w-full h-full pointer-events-auto"
             >

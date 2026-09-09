@@ -340,10 +340,13 @@ function CameraController({
 
 export default function Scene() {
   const { timeOfDay, setIsCruising, setBoatSpeed } = useScenery();
+  const { scene } = useThree();
+
   const isNight = timeOfDay === 'night';
+  const isSunset = timeOfDay === 'sunset';
 
   const dirLightRef = useRef<THREE.DirectionalLight>(null);
-  const ambientLightRef = useRef<THREE.AmbientLight>(null);
+  const hemiLightRef = useRef<THREE.HemisphereLight>(null);
   const rimLightRef = useRef<THREE.DirectionalLight>(null);
 
   // Shared boat state refs for 60fps rendering without React re-render thrashing
@@ -358,7 +361,6 @@ export default function Scene() {
     boatHeadingRef.current = heading;
 
     // Throttle React state update for the HUD speedometer to 10Hz (100ms)
-    // This completely eliminates the 60-120fps React re-render thrashing!
     const now = performance.now();
     if (now - lastSpeedUpdate.current > 100) {
       lastSpeedUpdate.current = now;
@@ -367,35 +369,78 @@ export default function Scene() {
   };
 
   useFrame(() => {
-    // Smooth lighting transition between Day and Night
+    // 1. Determine clean target colors and intensities for all 3 atmosphere modes
+    const targetSunColor = isNight
+      ? new THREE.Color('#93c5fd')
+      : isSunset
+      ? new THREE.Color('#f59e0b')
+      : new THREE.Color('#ffffff');
+
+    const targetSunIntensity = isNight ? 0.85 : isSunset ? 1.85 : 1.7;
+
+    const targetHemiSky = isNight
+      ? new THREE.Color('#1e293b')
+      : isSunset
+      ? new THREE.Color('#fed7aa')
+      : new THREE.Color('#f8fafc');
+
+    const targetHemiGround = isNight
+      ? new THREE.Color('#030712')
+      : isSunset
+      ? new THREE.Color('#0c4a6e')
+      : new THREE.Color('#94a3b8');
+
+    const targetHemiIntensity = isNight ? 0.32 : isSunset ? 0.6 : 0.72;
+
+    const targetRimColor = isNight
+      ? new THREE.Color('#38bdf8')
+      : isSunset
+      ? new THREE.Color('#f43f5e')
+      : new THREE.Color('#cbd5e1');
+
+    const targetRimIntensity = isNight ? 0.55 : isSunset ? 0.65 : 0.45;
+
+    const targetFogColor = isNight
+      ? new THREE.Color('#070b12')
+      : isSunset
+      ? new THREE.Color('#211529')
+      : new THREE.Color('#edf2f7');
+
+    // 2. Smoothly lerp all active light properties for pristine, clean transitions
     if (dirLightRef.current) {
-      const targetColor = isNight ? new THREE.Color('#d6f1f5') : new THREE.Color('#fff8ed');
-      dirLightRef.current.color.lerp(targetColor, 0.05);
+      dirLightRef.current.color.lerp(targetSunColor, 0.05);
       dirLightRef.current.intensity = THREE.MathUtils.lerp(
         dirLightRef.current.intensity,
-        isNight ? 1.2 : 2.2,
+        targetSunIntensity,
         0.05
       );
     }
 
-    if (ambientLightRef.current) {
-      const targetAmbColor = isNight ? new THREE.Color('#0a131c') : new THREE.Color('#F7F5F0');
-      ambientLightRef.current.color.lerp(targetAmbColor, 0.05);
-      ambientLightRef.current.intensity = THREE.MathUtils.lerp(
-        ambientLightRef.current.intensity,
-        isNight ? 0.38 : 0.85,
+    if (hemiLightRef.current) {
+      hemiLightRef.current.color.lerp(targetHemiSky, 0.05);
+      hemiLightRef.current.groundColor.lerp(targetHemiGround, 0.05);
+      hemiLightRef.current.intensity = THREE.MathUtils.lerp(
+        hemiLightRef.current.intensity,
+        targetHemiIntensity,
         0.05
       );
     }
 
     if (rimLightRef.current) {
-      const targetRimColor = isNight ? new THREE.Color('#38bdf8') : new THREE.Color('#C6B8A8');
       rimLightRef.current.color.lerp(targetRimColor, 0.05);
       rimLightRef.current.intensity = THREE.MathUtils.lerp(
         rimLightRef.current.intensity,
-        isNight ? 0.7 : 0.4,
+        targetRimIntensity,
         0.05
       );
+    }
+
+    // 3. Smoothly dissolve background and atmospheric fog
+    if (scene.fog && 'color' in scene.fog) {
+      scene.fog.color.lerp(targetFogColor, 0.05);
+    }
+    if (scene.background && scene.background instanceof THREE.Color) {
+      scene.background.lerp(targetFogColor, 0.05);
     }
   });
 
@@ -407,36 +452,39 @@ export default function Scene() {
         boatSpeedRef={boatSpeedRef}
       />
 
-      {/* Atmospheric Fog and Sky Color (Vast Open-World Horizon) */}
-      <color attach="background" args={[isNight ? '#080c14' : '#eaf0f4']} />
-      <fog attach="fog" args={[isNight ? '#080c14' : '#e8eff3', 20, 75]} />
+      {/* Pristine Studio Horizon Fog and Background */}
+      <color attach="background" args={[isNight ? '#070b12' : isSunset ? '#211529' : '#edf2f7']} />
+      <fog attach="fog" args={[isNight ? '#070b12' : isSunset ? '#211529' : '#edf2f7', 24, 85]} />
 
-      {/* Key Directional Sun / Moon Light with Tightly Bounded Shadow Camera */}
+      {/* Key Directional Sun / Moon Light with Clean 2K Shadow Penumbra */}
       <directionalLight
         ref={dirLightRef}
-        position={[8, 14, 8]}
-        intensity={2.2}
-        color="#fff8ed"
+        position={isSunset ? [16, 6, 8] : isNight ? [-8, 16, 8] : [10, 16, 8]}
+        intensity={isSunset ? 1.85 : isNight ? 0.85 : 1.7}
+        color={isSunset ? '#f59e0b' : isNight ? '#93c5fd' : '#ffffff'}
         castShadow
-        shadow-mapSize={[1024, 1024]}
-        shadow-camera-near={0.5}
-        shadow-camera-far={45}
-        shadow-camera-left={-12}
-        shadow-camera-right={12}
-        shadow-camera-top={12}
-        shadow-camera-bottom={-12}
-        shadow-bias={-0.0004}
+        shadow-mapSize={[2048, 2048]}
+        shadow-camera-near={1.0}
+        shadow-camera-far={48}
+        shadow-camera-left={-14}
+        shadow-camera-right={14}
+        shadow-camera-top={14}
+        shadow-camera-bottom={-14}
+        shadow-bias={-0.00015}
       />
 
-      {/* Fill Ambient Light */}
-      <ambientLight ref={ambientLightRef} intensity={0.85} color="#F7F5F0" />
+      {/* Natural Hemisphere Fill: Sky-to-Ground Gradient for Clean Studio GI */}
+      <hemisphereLight
+        ref={hemiLightRef}
+        args={['#f8fafc', '#94a3b8', 0.72]}
+      />
 
-      {/* Rim / Bounce Light */}
+      {/* Clean High-Angle Silhouette Rim Light (Scupting silhouettes from above) */}
       <directionalLight
         ref={rimLightRef}
-        position={[-8, -5, -8]}
-        intensity={0.4}
-        color="#C6B8A8"
+        position={[-10, 12, -8]}
+        intensity={0.45}
+        color="#cbd5e1"
       />
 
       {/* Atmospheric Floating Dust / Bioluminescent Fireflies */}

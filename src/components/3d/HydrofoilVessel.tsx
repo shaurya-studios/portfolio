@@ -285,7 +285,8 @@ export default function HydrofoilVessel({
       targetLeftRef.current.position.set(targetX - 0.25, targetY - 0.25, targetZ);
       targetRightRef.current.position.set(targetX + 0.25, targetY - 0.25, targetZ);
 
-      const targetIntensity = isNight ? 2.8 : 0.0;
+      const isSunset = timeOfDay === 'sunset';
+      const targetIntensity = isNight ? 2.6 : isSunset ? 1.4 : 0.0;
       leftHeadlightRef.current.intensity = THREE.MathUtils.lerp(
         leftHeadlightRef.current.intensity,
         targetIntensity,
@@ -298,9 +299,10 @@ export default function HydrofoilVessel({
       );
     }
 
-    // Underwater transom lights
+    // Underwater transom lights (clean in day, luminous in sunset/night)
     if (underwaterLightLeftRef.current && underwaterLightRightRef.current) {
-      const underwaterTarget = isNight ? 2.2 : 0.0;
+      const isSunset = timeOfDay === 'sunset';
+      const underwaterTarget = isNight ? 2.0 : isSunset ? 1.0 : 0.0;
       underwaterLightLeftRef.current.intensity = THREE.MathUtils.lerp(
         underwaterLightLeftRef.current.intensity,
         underwaterTarget,
@@ -315,7 +317,8 @@ export default function HydrofoilVessel({
 
     // Cockpit ambient LED
     if (cockpitAmbientLightRef.current) {
-      const cockpitTarget = isNight ? 1.5 : 0.2;
+      const isSunset = timeOfDay === 'sunset';
+      const cockpitTarget = isNight ? 1.2 : isSunset ? 0.7 : 0.0;
       cockpitAmbientLightRef.current.intensity = THREE.MathUtils.lerp(
         cockpitAmbientLightRef.current.intensity,
         cockpitTarget,

@@ -13,16 +13,16 @@ const GerstnerWaterShader = {
     uBoatSpeed: { value: 0.0 },
     uIslandCenter: { value: new THREE.Vector2(2.2, 0.0) },
     uNightMode: { value: 0.0 },
-    // Day palette (The Editorial Alabaster & Ocean)
-    uDeepDay: { value: new THREE.Color('#466874') },
-    uShallowDay: { value: new THREE.Color('#d4e8ea') },
-    uSkyDay: { value: new THREE.Color('#F7F5F0') },
-    uSunDirDay: { value: new THREE.Vector3(7, 12, 6).normalize() },
-    // Night palette (Onyx & Bioluminescent Cyan)
+    // Day palette (Clean Architectural Azure & Crystalline Shallows)
+    uDeepDay: { value: new THREE.Color('#16425b') },
+    uShallowDay: { value: new THREE.Color('#b8e2f2') },
+    uSkyDay: { value: new THREE.Color('#edf2f7') },
+    uSunDirDay: { value: new THREE.Vector3(10, 16, 8).normalize() },
+    // Night palette (Clean Onyx & Luminous Abyss)
     uDeepNight: { value: new THREE.Color('#02060b') },
-    uShallowNight: { value: new THREE.Color('#092232') },
-    uSkyNight: { value: new THREE.Color('#080d15') },
-    uMoonDirNight: { value: new THREE.Vector3(-5, 11, -5).normalize() },
+    uShallowNight: { value: new THREE.Color('#061d2d') },
+    uSkyNight: { value: new THREE.Color('#070b12') },
+    uMoonDirNight: { value: new THREE.Vector3(-8, 16, 8).normalize() },
   },
   vertexShader: `
     uniform float uTime;
@@ -298,8 +298,9 @@ export default function StylizedWater({
       );
     }
 
-    // Smooth Day / Night transition
-    const targetNight = isNight ? 1.0 : 0.0;
+    // Smooth Day / Sunset / Night transition
+    const isSunset = timeOfDay === 'sunset';
+    const targetNight = isNight ? 1.0 : isSunset ? 0.45 : 0.0;
     const currentNight = materialRef.current.uniforms.uNightMode.value;
     materialRef.current.uniforms.uNightMode.value = THREE.MathUtils.lerp(currentNight, targetNight, 0.05);
   });

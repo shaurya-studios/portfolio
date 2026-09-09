@@ -101,14 +101,22 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
       anemometerRef.current.rotation.y += anemometerSpeed;
     }
 
-    // 6. Lights
+    const isSunset = timeOfDay === 'sunset';
+
+    // 6. Calibrated Architectural Lights (Clean in day, luminous in sunset/night)
     if (mastLightRef.current) {
-      const strobe = Math.sin(state.clock.elapsedTime * 4.0) > 0.4 ? 2.0 : 0.2;
-      mastLightRef.current.intensity = isNight ? strobe : 0.2;
+      const strobe = Math.sin(state.clock.elapsedTime * 4.0) > 0.4 ? 2.0 : 0.05;
+      mastLightRef.current.intensity = (isNight || isSunset) ? strobe : 0.0;
     }
 
     if (villaInteriorLightRef.current) {
-      const villaTarget = focusedTarget === 'villa' ? 4.2 : (isNight ? 2.4 : 0.4);
+      const villaTarget = focusedTarget === 'villa'
+        ? 3.8
+        : isNight
+        ? 2.2
+        : isSunset
+        ? 1.6
+        : 0.0;
       villaInteriorLightRef.current.intensity = THREE.MathUtils.lerp(
         villaInteriorLightRef.current.intensity,
         villaTarget,
@@ -117,15 +125,31 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
     }
 
     if (pierLightRef.current) {
-      pierLightRef.current.intensity = isNight ? 1.8 : 0.2;
+      const pierTarget = isNight ? 1.6 : isSunset ? 1.0 : 0.0;
+      pierLightRef.current.intensity = THREE.MathUtils.lerp(
+        pierLightRef.current.intensity,
+        pierTarget,
+        0.08
+      );
     }
 
     if (poolLightRef.current) {
-      poolLightRef.current.intensity = isNight ? 1.4 : 0.3;
+      const poolTarget = isNight ? 1.2 : isSunset ? 0.7 : 0.08;
+      poolLightRef.current.intensity = THREE.MathUtils.lerp(
+        poolLightRef.current.intensity,
+        poolTarget,
+        0.08
+      );
     }
 
     if (lighthouseLightRef.current) {
-      const targetLighthouse = (focusedTarget === 'editify' || focusedTarget === 'sanctuary') ? 4.8 : (isNight ? 2.5 : 0.2);
+      const targetLighthouse = (focusedTarget === 'editify' || focusedTarget === 'sanctuary')
+        ? 4.2
+        : isNight
+        ? 2.4
+        : isSunset
+        ? 1.6
+        : 0.0;
       lighthouseLightRef.current.intensity = THREE.MathUtils.lerp(
         lighthouseLightRef.current.intensity,
         targetLighthouse,
@@ -134,7 +158,13 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
     }
 
     if (underReefLight1Ref.current && underReefLight2Ref.current) {
-      const reefTarget = focusedTarget === 'thumbpilot' ? 4.2 : (isNight ? 2.2 : 0.0);
+      const reefTarget = focusedTarget === 'thumbpilot'
+        ? 3.8
+        : isNight
+        ? 2.0
+        : isSunset
+        ? 1.2
+        : 0.0;
       underReefLight1Ref.current.intensity = THREE.MathUtils.lerp(
         underReefLight1Ref.current.intensity,
         reefTarget,
