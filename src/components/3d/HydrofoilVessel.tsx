@@ -26,6 +26,15 @@ export default function HydrofoilVessel({
   const groupRef = useRef<THREE.Group>(null);
   const leftHeadlightRef = useRef<THREE.SpotLight>(null);
   const rightHeadlightRef = useRef<THREE.SpotLight>(null);
+  const underwaterLightLeftRef = useRef<THREE.PointLight>(null);
+  const underwaterLightRightRef = useRef<THREE.PointLight>(null);
+  const cockpitAmbientLightRef = useRef<THREE.PointLight>(null);
+
+  const steeringWheelRef = useRef<THREE.Group>(null);
+  const throttleLeverRef = useRef<THREE.Group>(null);
+  const propellerRef = useRef<THREE.Group>(null);
+  const sternSprayRef = useRef<THREE.Group>(null);
+
   const targetLeftRef = useRef<THREE.Object3D>(new THREE.Object3D());
   const targetRightRef = useRef<THREE.Object3D>(new THREE.Object3D());
   const { timeOfDay } = useScenery();
@@ -101,10 +110,10 @@ export default function HydrofoilVessel({
     const s = state.current;
 
     // 1. ENGINE ACCELERATION & BRAKING
-    const maxForwardSpeed = 3.8;
-    const maxReverseSpeed = -1.2;
-    const accel = 3.2;
-    const drag = keys.brake ? 4.5 : 1.4;
+    const maxForwardSpeed = 4.2;
+    const maxReverseSpeed = -1.3;
+    const accel = 3.6;
+    const drag = keys.brake ? 5.0 : 1.35;
 
     if (keys.forward) {
       s.speed += accel * dt;
@@ -113,7 +122,7 @@ export default function HydrofoilVessel({
       s.speed -= accel * dt;
       if (s.speed < maxReverseSpeed) s.speed = maxReverseSpeed;
     } else {
-      // Natural water friction drag
+      // Natural water hydrodynamic friction drag
       if (s.speed > 0) {
         s.speed = Math.max(0, s.speed - drag * dt);
       } else if (s.speed < 0) {
@@ -122,16 +131,15 @@ export default function HydrofoilVessel({
     }
 
     // 2. STEERING WITH HYDROFOIL RUDDER
-    const turnRate = 2.4;
-    // Steering is more effective when moving, but retains slight harbor manoeuvrability
-    const steerAuthority = Math.min(Math.abs(s.speed) * 0.7 + 0.35, 1.0);
+    const turnRate = 2.6;
+    const steerAuthority = Math.min(Math.abs(s.speed) * 0.75 + 0.35, 1.0);
 
     if (keys.left) {
-      s.angularVel = THREE.MathUtils.lerp(s.angularVel, turnRate * steerAuthority, dt * 6.0);
+      s.angularVel = THREE.MathUtils.lerp(s.angularVel, turnRate * steerAuthority, dt * 7.0);
     } else if (keys.right) {
-      s.angularVel = THREE.MathUtils.lerp(s.angularVel, -turnRate * steerAuthority, dt * 6.0);
+      s.angularVel = THREE.MathUtils.lerp(s.angularVel, -turnRate * steerAuthority, dt * 7.0);
     } else {
-      s.angularVel = THREE.MathUtils.lerp(s.angularVel, 0, dt * 5.0);
+      s.angularVel = THREE.MathUtils.lerp(s.angularVel, 0, dt * 6.0);
     }
 
     s.heading += s.angularVel * dt;
@@ -144,43 +152,42 @@ export default function HydrofoilVessel({
     s.z += vz * dt;
 
     // Boundaries: soft sea perimeter clamping
-    const distFromOrigin = Math.sqrt(s.x * s.x + s.z * s.z);
-    if (distFromOrigin > 8.5) {
+    const distFromOrigin = Math.hypot(s.x, s.z);
+    if (distFromOrigin > 9.0) {
       const angle = Math.atan2(s.z, s.x);
-      s.x = Math.cos(angle) * 8.5;
-      s.z = Math.sin(angle) * 8.5;
+      s.x = Math.cos(angle) * 9.0;
+      s.z = Math.sin(angle) * 9.0;
       s.speed *= 0.85;
     }
 
     // Island collision deflection (Island center approx at [1.2, 0], radius ~2.1)
     const dx = s.x - 1.2;
     const dz = s.z - 0.0;
-    const islandDist = Math.sqrt(dx * dx + dz * dz);
+    const islandDist = Math.hypot(dx, dz);
     if (islandDist < 2.25) {
       const pushAngle = Math.atan2(dz, dx);
       s.x = 1.2 + Math.cos(pushAngle) * 2.26;
       s.z = 0.0 + Math.sin(pushAngle) * 2.26;
-      s.speed *= 0.6; // Gentle harbor bumper recoil
+      s.speed *= 0.6; // Gentle harbor fender recoil
     }
 
     // 4. HYDROFOIL WAVE BUOYANCY & KINETIC BANKING
     const t = sceneState.clock.elapsedTime;
-    // Approximate Gerstner wave height at boat location
-    const waveElev = 
+    const waveElev =
       Math.sin(s.x * 0.75 + s.z * 0.5 + t * 1.2) * 0.04 +
       Math.sin(s.x * 1.35 - s.z * 0.85 + t * 1.6) * 0.025;
 
-    // Foil lift: rises higher as speed increases
-    const hydrofoilLift = Math.abs(s.speed) * 0.035;
-    const targetY = -0.26 + waveElev + hydrofoilLift;
+    // Foil dynamic lift: rises out of the water at high planing speeds
+    const hydrofoilLift = Math.abs(s.speed) * 0.04;
+    const targetY = -0.27 + waveElev + hydrofoilLift;
 
-    // Banking roll (tilting into turns like a real racing tender)
-    const targetRoll = -s.angularVel * 0.16;
-    // Pitch (bow rises under acceleration)
-    const targetPitch = (keys.forward ? 0.06 : 0) - (keys.backward ? 0.04 : 0);
+    // Banking roll (tilts into turns like a high-speed racing tender)
+    const targetRoll = -s.angularVel * 0.18;
+    // Pitch (bow rises under acceleration, digs down under braking)
+    const targetPitch = (keys.forward ? 0.07 : 0) - (keys.backward ? 0.05 : 0);
 
-    s.roll = THREE.MathUtils.lerp(s.roll, targetRoll, dt * 5.0);
-    s.pitch = THREE.MathUtils.lerp(s.pitch, targetPitch, dt * 4.0);
+    s.roll = THREE.MathUtils.lerp(s.roll, targetRoll, dt * 6.0);
+    s.pitch = THREE.MathUtils.lerp(s.pitch, targetPitch, dt * 5.0);
 
     // Apply transformation
     groupRef.current.position.set(s.x, targetY, s.z);
@@ -188,19 +195,52 @@ export default function HydrofoilVessel({
     groupRef.current.rotation.z = s.roll;
     groupRef.current.rotation.x = s.pitch;
 
+    // 5. ANIMATED COCKPIT CONTROLS & MECHANICAL ELEMENTS
+    // Steering wheel turns with steering input
+    if (steeringWheelRef.current) {
+      const targetWheelAngle = keys.left ? 0.8 : keys.right ? -0.8 : 0;
+      steeringWheelRef.current.rotation.z = THREE.MathUtils.lerp(
+        steeringWheelRef.current.rotation.z,
+        targetWheelAngle,
+        dt * 8.0
+      );
+    }
+
+    // Throttle lever pitches with forward/backward thrust
+    if (throttleLeverRef.current) {
+      const targetLeverPitch = keys.forward ? -0.45 : keys.backward ? 0.35 : 0;
+      throttleLeverRef.current.rotation.x = THREE.MathUtils.lerp(
+        throttleLeverRef.current.rotation.x,
+        targetLeverPitch,
+        dt * 8.0
+      );
+    }
+
+    // High-speed underwater propeller spin
+    if (propellerRef.current) {
+      propellerRef.current.rotation.z += (s.speed * 25.0 + 1.0) * dt;
+    }
+
+    // Stern spray visibility at planing speeds
+    if (sternSprayRef.current) {
+      const sprayScale = Math.max(0, (Math.abs(s.speed) - 1.0) / 3.0);
+      sternSprayRef.current.scale.set(sprayScale, sprayScale, sprayScale);
+      sternSprayRef.current.visible = sprayScale > 0.05;
+    }
+
     // Inform parent scene for water wake & camera tracking
     onPositionUpdate?.(new THREE.Vector2(s.x, s.z), Math.abs(s.speed), s.heading);
 
-    // 5. HEADLIGHT VOLUMETRIC TARGETS & NIGHT ILLUMINATION
+    // 6. HEADLIGHT VOLUMETRIC TARGETS & NIGHT ILLUMINATION
     if (leftHeadlightRef.current && rightHeadlightRef.current) {
-      const targetDist = 4.5;
+      const targetDist = 5.0;
       const targetX = s.x - Math.sin(s.heading) * targetDist;
       const targetZ = s.z - Math.cos(s.heading) * targetDist;
 
-      targetLeftRef.current.position.set(targetX - 0.2, targetY - 0.2, targetZ);
-      targetRightRef.current.position.set(targetX + 0.2, targetY - 0.2, targetZ);
+      targetLeftRef.current.position.set(targetX - 0.25, targetY - 0.25, targetZ);
+      targetRightRef.current.position.set(targetX + 0.25, targetY - 0.25, targetZ);
 
-      const targetIntensity = isNight ? 2.5 : 0.0;
+      const targetIntensity = isNight ? 2.8 : 0.0;
       leftHeadlightRef.current.intensity = THREE.MathUtils.lerp(
         leftHeadlightRef.current.intensity,
         targetIntensity,
@@ -209,6 +249,31 @@ export default function HydrofoilVessel({
       rightHeadlightRef.current.intensity = THREE.MathUtils.lerp(
         rightHeadlightRef.current.intensity,
         targetIntensity,
+        0.05
+      );
+    }
+
+    // Underwater transom lights
+    if (underwaterLightLeftRef.current && underwaterLightRightRef.current) {
+      const underwaterTarget = isNight ? 2.2 : 0.0;
+      underwaterLightLeftRef.current.intensity = THREE.MathUtils.lerp(
+        underwaterLightLeftRef.current.intensity,
+        underwaterTarget,
+        0.05
+      );
+      underwaterLightRightRef.current.intensity = THREE.MathUtils.lerp(
+        underwaterLightRightRef.current.intensity,
+        underwaterTarget,
+        0.05
+      );
+    }
+
+    // Cockpit ambient LED
+    if (cockpitAmbientLightRef.current) {
+      const cockpitTarget = isNight ? 1.5 : 0.2;
+      cockpitAmbientLightRef.current.intensity = THREE.MathUtils.lerp(
+        cockpitAmbientLightRef.current.intensity,
+        cockpitTarget,
         0.05
       );
     }
@@ -236,121 +301,413 @@ export default function HydrofoilVessel({
         }}
       >
         {/* ===================================================
-            LUXURY ELECTRIC HYDROFOIL TENDER GEOMETRY
+            1. MULTI-FACETED AXE-BOW HULL (Carbon & Titanium)
             =================================================== */}
-
-        {/* 1. Main Faceted Monocoque Hull (Matte Onyx & Titanium) */}
-        <mesh castShadow receiveShadow position={[0, 0.05, 0]}>
-          <boxGeometry args={[0.32, 0.12, 0.82]} />
+        {/* Main Monocoque Hull Body */}
+        <mesh castShadow receiveShadow position={[0, 0.06, 0.02]}>
+          <boxGeometry args={[0.38, 0.14, 0.88]} />
           <meshStandardMaterial
-            color={isNight ? '#0a0d12' : '#1e2229'}
-            metalness={0.85}
-            roughness={0.25}
+            color={isNight ? '#0b0e14' : '#1a1e26'}
+            metalness={0.9}
+            roughness={0.2}
           />
         </mesh>
 
-        {/* Sharpened Bow Nose */}
-        <mesh position={[0, 0.045, -0.48]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-          <coneGeometry args={[0.16, 0.26, 4]} />
+        {/* Sharp Axe-Bow Knife-Edge Prow */}
+        <mesh position={[0, 0.05, -0.52]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <coneGeometry args={[0.19, 0.32, 4]} />
           <meshStandardMaterial
-            color={isNight ? '#0d1017' : '#232830'}
-            metalness={0.85}
-            roughness={0.25}
+            color={isNight ? '#0d1017' : '#222731'}
+            metalness={0.9}
+            roughness={0.2}
           />
         </mesh>
 
-        {/* 2. Teak Wood Deck Slatting (Quiet Luxury Detail) */}
-        <mesh position={[0, 0.115, 0.02]} receiveShadow>
-          <boxGeometry args={[0.26, 0.015, 0.62]} />
+        {/* Starboard & Port Spray Chine Strakes (Planing Ledges) */}
+        <mesh position={[0.195, 0.015, -0.05]} rotation={[0, 0.04, 0]}>
+          <boxGeometry args={[0.02, 0.015, 0.82]} />
+          <meshStandardMaterial color="#8E929E" metalness={0.95} roughness={0.15} />
+        </mesh>
+        <mesh position={[-0.195, 0.015, -0.05]} rotation={[0, -0.04, 0]}>
+          <boxGeometry args={[0.02, 0.015, 0.82]} />
+          <meshStandardMaterial color="#8E929E" metalness={0.95} roughness={0.15} />
+        </mesh>
+
+        {/* Satin Champagne Gold Waterline Accent Stripe */}
+        <mesh position={[0, 0.005, 0.02]}>
+          <boxGeometry args={[0.388, 0.018, 0.87]} />
           <meshStandardMaterial
-            color={isNight ? '#3a2d20' : '#8d6d4c'}
-            roughness={0.65}
+            color="#E9D8A6"
+            metalness={0.95}
+            roughness={0.15}
+            emissive="#E9D8A6"
+            emissiveIntensity={isNight ? 0.35 : 0.05}
           />
         </mesh>
 
-        {/* 3. Sleek Tinted Aerodynamic Windscreen */}
-        <mesh position={[0, 0.155, -0.12]} rotation={[0.42, 0, 0]} castShadow>
-          <boxGeometry args={[0.26, 0.075, 0.03]} />
+        {/* Aft Teak Swim Platform & Transom Terrace */}
+        <mesh position={[0, 0.02, 0.49]} receiveShadow>
+          <boxGeometry args={[0.34, 0.025, 0.14]} />
+          <meshStandardMaterial color={isNight ? '#2e2319' : '#825f3e'} roughness={0.7} />
+        </mesh>
+
+        {/* Stainless Steel Swim Ladder Details on Transom */}
+        <mesh position={[0.11, 0.015, 0.53]}>
+          <boxGeometry args={[0.05, 0.01, 0.04]} />
+          <meshStandardMaterial color="#d1d5db" metalness={0.95} roughness={0.1} />
+        </mesh>
+
+        {/* ===================================================
+            2. TEAK DECKING WITH CAULKING & COCKPIT RECESS
+            =================================================== */}
+        {/* Foredeck Teak Inlay */}
+        <mesh position={[0, 0.134, -0.32]} receiveShadow>
+          <boxGeometry args={[0.3, 0.012, 0.26]} />
+          <meshStandardMaterial color={isNight ? '#382b1e' : '#8d6d4c'} roughness={0.65} />
+        </mesh>
+
+        {/* Flush Tinted Foredeck Skylight Hatch */}
+        <mesh position={[0, 0.142, -0.34]}>
+          <boxGeometry args={[0.14, 0.006, 0.14]} />
           <meshPhysicalMaterial
-            color={isNight ? '#38bdf8' : '#111827'}
-            transmission={0.85}
-            opacity={0.9}
+            color="#0F1115"
+            metalness={0.3}
+            roughness={0.1}
+            transmission={0.8}
             transparent
-            roughness={0.08}
+            opacity={0.85}
+          />
+        </mesh>
+
+        {/* Cockpit Floor Teak Planking */}
+        <mesh position={[0, 0.065, 0.12]} receiveShadow>
+          <boxGeometry args={[0.29, 0.015, 0.44]} />
+          <meshStandardMaterial color={isNight ? '#35281b' : '#856645'} roughness={0.7} />
+        </mesh>
+
+        {/* Under-Gunwale Concealed LED Strip (Glows along cockpit coaming) */}
+        {isNight && (
+          <>
+            <mesh position={[-0.145, 0.115, 0.12]}>
+              <boxGeometry args={[0.008, 0.008, 0.42]} />
+              <meshBasicMaterial color="#fde68a" />
+            </mesh>
+            <mesh position={[0.145, 0.115, 0.12]}>
+              <boxGeometry args={[0.008, 0.008, 0.42]} />
+              <meshBasicMaterial color="#fde68a" />
+            </mesh>
+          </>
+        )}
+        <pointLight
+          ref={cockpitAmbientLightRef}
+          position={[0, 0.18, 0.12]}
+          color="#fef3c7"
+          distance={1.6}
+          intensity={0.2}
+        />
+
+        {/* ===================================================
+            3. ERGONOMIC PILOT HELM & TWIN SPORTS BUCKET SEATS
+            =================================================== */}
+        {/* Port Bucket Seat (Driver) */}
+        <group position={[-0.075, 0.14, 0.04]}>
+          {/* Carbon Fiber Shell Backing */}
+          <mesh castShadow>
+            <boxGeometry args={[0.11, 0.14, 0.025]} />
+            <meshStandardMaterial color="#111317" roughness={0.3} metalness={0.8} />
+          </mesh>
+          {/* Stitched Saddle Leather Cushion */}
+          <mesh position={[0, -0.045, 0.05]}>
+            <boxGeometry args={[0.105, 0.04, 0.1]} />
+            <meshStandardMaterial color={isNight ? '#543d2b' : '#9a6b47'} roughness={0.65} />
+          </mesh>
+          {/* Back Cushion */}
+          <mesh position={[0, 0.015, 0.015]}>
+            <boxGeometry args={[0.095, 0.11, 0.02]} />
+            <meshStandardMaterial color={isNight ? '#543d2b' : '#9a6b47'} roughness={0.65} />
+          </mesh>
+        </group>
+
+        {/* Starboard Bucket Seat (Navigator) */}
+        <group position={[0.075, 0.14, 0.04]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.11, 0.14, 0.025]} />
+            <meshStandardMaterial color="#111317" roughness={0.3} metalness={0.8} />
+          </mesh>
+          <mesh position={[0, -0.045, 0.05]}>
+            <boxGeometry args={[0.105, 0.04, 0.1]} />
+            <meshStandardMaterial color={isNight ? '#543d2b' : '#9a6b47'} roughness={0.65} />
+          </mesh>
+          <mesh position={[0, 0.015, 0.015]}>
+            <boxGeometry args={[0.095, 0.11, 0.02]} />
+            <meshStandardMaterial color={isNight ? '#543d2b' : '#9a6b47'} roughness={0.65} />
+          </mesh>
+        </group>
+
+        {/* Aft Sun-Lounge Daybed */}
+        <group position={[0, 0.11, 0.32]}>
+          <mesh castShadow receiveShadow>
+            <boxGeometry args={[0.28, 0.05, 0.18]} />
+            <meshStandardMaterial color={isNight ? '#1e2430' : '#dedad3'} roughness={0.6} />
+          </mesh>
+          {/* Bolster Cushion */}
+          <mesh position={[0, 0.04, -0.07]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.022, 0.022, 0.27, 12]} />
+            <meshStandardMaterial color={isNight ? '#2a3344' : '#c8c2b7'} roughness={0.5} />
+          </mesh>
+        </group>
+
+        {/* ===================================================
+            4. ACTIVE HELM STATION & CONTROLS
+            =================================================== */}
+        {/* Modernist Sculpted Dashboard Console */}
+        <mesh position={[0, 0.165, -0.1]}>
+          <boxGeometry args={[0.29, 0.07, 0.06]} />
+          <meshStandardMaterial color="#11141a" metalness={0.8} roughness={0.2} />
+        </mesh>
+
+        {/* Dual Multi-Function Displays (MFDs) */}
+        {/* Left Primary Display (Radar / Speed Telemetry) */}
+        <mesh position={[-0.07, 0.185, -0.07]} rotation={[-0.45, 0, 0]}>
+          <planeGeometry args={[0.085, 0.04]} />
+          <meshBasicMaterial color={isNight ? '#38bdf8' : '#0284c7'} />
+        </mesh>
+        {/* Right Secondary Display (Engine Diagnostics) */}
+        <mesh position={[0.07, 0.185, -0.07]} rotation={[-0.45, 0, 0]}>
+          <planeGeometry args={[0.085, 0.04]} />
+          <meshBasicMaterial color={isNight ? '#f59e0b' : '#d97706'} />
+        </mesh>
+
+        {/* 3-Spoke Sports Steering Wheel (Rotates with A/D input) */}
+        <group ref={steeringWheelRef} position={[-0.075, 0.165, -0.04]} rotation={[-0.45, 0, 0]}>
+          {/* Wheel Rim */}
+          <mesh castShadow>
+            <torusGeometry args={[0.032, 0.005, 12, 24]} />
+            <meshStandardMaterial color="#1f242e" metalness={0.8} roughness={0.3} />
+          </mesh>
+          {/* Champagne Gold Center Hub & Spokes */}
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.008, 0.008, 0.012, 12]} />
+            <meshStandardMaterial color="#E9D8A6" metalness={0.95} />
+          </mesh>
+          <mesh>
+            <boxGeometry args={[0.058, 0.004, 0.004]} />
+            <meshStandardMaterial color="#E9D8A6" metalness={0.95} />
+          </mesh>
+        </group>
+
+        {/* Polished Throttle Binnacle & Levers (Pitches with W/S input) */}
+        <group ref={throttleLeverRef} position={[0.0, 0.155, -0.04]}>
+          <mesh>
+            <boxGeometry args={[0.024, 0.015, 0.03]} />
+            <meshStandardMaterial color="#0F1115" metalness={0.9} />
+          </mesh>
+          {/* Twin Polished Metal Levers */}
+          <mesh position={[-0.006, 0.02, 0]}>
+            <cylinderGeometry args={[0.002, 0.002, 0.035, 6]} />
+            <meshStandardMaterial color="#d1d5db" metalness={0.95} roughness={0.1} />
+          </mesh>
+          <mesh position={[0.006, 0.02, 0]}>
+            <cylinderGeometry args={[0.002, 0.002, 0.035, 6]} />
+            <meshStandardMaterial color="#d1d5db" metalness={0.95} roughness={0.1} />
+          </mesh>
+        </group>
+
+        {/* Spherical Dome Magnetic Compass */}
+        <mesh position={[0, 0.205, -0.09]}>
+          <sphereGeometry args={[0.014, 12, 12]} />
+          <meshPhysicalMaterial color="#38bdf8" transmission={0.9} roughness={0.1} transparent />
+        </mesh>
+
+        {/* ===================================================
+            5. FRAMELESS AERODYNAMIC TINTED WINDSCREEN
+            =================================================== */}
+        <mesh position={[0, 0.205, -0.16]} rotation={[0.48, 0, 0]} castShadow>
+          <boxGeometry args={[0.33, 0.095, 0.022]} />
+          <meshPhysicalMaterial
+            color={isNight ? '#38bdf8' : '#0F1115'}
+            transmission={0.9}
+            opacity={0.88}
+            transparent
+            roughness={0.05}
             ior={1.52}
           />
         </mesh>
-
-        {/* 4. Luxury Champagne Gold Trim Accents */}
-        <mesh position={[0.165, 0.07, 0]}>
-          <boxGeometry args={[0.012, 0.02, 0.76]} />
-          <meshStandardMaterial color="#E9D8A6" metalness={0.9} roughness={0.2} />
-        </mesh>
-        <mesh position={[-0.165, 0.07, 0]}>
-          <boxGeometry args={[0.012, 0.02, 0.76]} />
-          <meshStandardMaterial color="#E9D8A6" metalness={0.9} roughness={0.2} />
+        {/* Windscreen Titanium Clamp Trim */}
+        <mesh position={[0, 0.16, -0.14]}>
+          <boxGeometry args={[0.335, 0.012, 0.02]} />
+          <meshStandardMaterial color="#C6B8A8" metalness={0.95} roughness={0.2} />
         </mesh>
 
-        {/* 5. Minimalist Glass Cockpit Instrument Console */}
-        <mesh position={[0, 0.135, -0.06]} rotation={[-0.4, 0, 0]}>
-          <planeGeometry args={[0.14, 0.05]} />
-          <meshBasicMaterial color={isNight ? '#38bdf8' : '#e9d8a6'} />
+        {/* ===================================================
+            6. EXTERIOR HARDWARE, CLEATS & ANTENNA
+            =================================================== */}
+        {/* Bow Stainless Anchor Roller & Miniature Plow Anchor */}
+        <mesh position={[0, 0.065, -0.66]}>
+          <boxGeometry args={[0.028, 0.018, 0.06]} />
+          <meshStandardMaterial color="#e5e7eb" metalness={0.95} roughness={0.1} />
+        </mesh>
+        <mesh position={[0, 0.045, -0.69]} rotation={[0.4, 0, 0]}>
+          <coneGeometry args={[0.018, 0.04, 3]} />
+          <meshStandardMaterial color="#d1d5db" metalness={0.95} roughness={0.1} />
         </mesh>
 
-        {/* 6. Submerged Hydrofoil Struts (Below Waterline) */}
-        <mesh position={[0, -0.09, -0.15]}>
-          <cylinderGeometry args={[0.012, 0.012, 0.16, 8]} />
+        {/* Pop-Up Stainless Mooring Cleats */}
+        {/* Bow Port & Starboard */}
+        <mesh position={[-0.14, 0.138, -0.42]}>
+          <boxGeometry args={[0.012, 0.008, 0.038]} />
+          <meshStandardMaterial color="#d1d5db" metalness={0.95} />
+        </mesh>
+        <mesh position={[0.14, 0.138, -0.42]}>
+          <boxGeometry args={[0.012, 0.008, 0.038]} />
+          <meshStandardMaterial color="#d1d5db" metalness={0.95} />
+        </mesh>
+        {/* Stern Port & Starboard */}
+        <mesh position={[-0.17, 0.128, 0.4]}>
+          <boxGeometry args={[0.012, 0.008, 0.038]} />
+          <meshStandardMaterial color="#d1d5db" metalness={0.95} />
+        </mesh>
+        <mesh position={[0.17, 0.128, 0.4]}>
+          <boxGeometry args={[0.012, 0.008, 0.038]} />
+          <meshStandardMaterial color="#d1d5db" metalness={0.95} />
+        </mesh>
+
+        {/* Slender Stern VHF Whip Antenna with Nav Light */}
+        <mesh position={[0.165, 0.35, 0.44]}>
+          <cylinderGeometry args={[0.003, 0.006, 0.46, 6]} />
           <meshStandardMaterial color="#8E929E" metalness={0.9} />
         </mesh>
-        <mesh position={[0, -0.17, -0.15]}>
-          <boxGeometry args={[0.38, 0.012, 0.06]} />
-          <meshStandardMaterial color="#C6B8A8" metalness={0.95} />
+        <mesh position={[0.165, 0.59, 0.44]}>
+          <sphereGeometry args={[0.009, 8, 8]} />
+          <meshBasicMaterial color={isNight ? '#fde68a' : '#C6B8A8'} />
         </mesh>
 
-        {/* 7. DUAL PROJECTOR HEADLIGHTS (Forward illumination in dark mode) */}
-        {/* Left Projector */}
-        <mesh position={[-0.1, 0.08, -0.44]}>
-          <sphereGeometry args={[0.022, 12, 12]} />
+        {/* ===================================================
+            7. RETRACTABLE HYDROFOIL WINGS & PROPULSION POD
+            =================================================== */}
+        {/* Forward Main Hydrofoil Assembly */}
+        {/* Twin Vertical Carbon Struts */}
+        <mesh position={[-0.14, -0.12, -0.12]}>
+          <cylinderGeometry args={[0.012, 0.015, 0.22, 8]} />
+          <meshStandardMaterial color="#1a1e26" metalness={0.85} roughness={0.3} />
+        </mesh>
+        <mesh position={[0.14, -0.12, -0.12]}>
+          <cylinderGeometry args={[0.012, 0.015, 0.22, 8]} />
+          <meshStandardMaterial color="#1a1e26" metalness={0.85} roughness={0.3} />
+        </mesh>
+
+        {/* Swept Main Hydrofoil Wing (Inverted-T with Winglets) */}
+        <mesh position={[0, -0.22, -0.12]}>
+          <boxGeometry args={[0.48, 0.014, 0.075]} />
+          <meshStandardMaterial color="#C6B8A8" metalness={0.95} roughness={0.15} />
+        </mesh>
+        {/* Port Winglet */}
+        <mesh position={[-0.24, -0.19, -0.12]} rotation={[0, 0, -0.4]}>
+          <boxGeometry args={[0.012, 0.065, 0.06]} />
+          <meshStandardMaterial color="#E9D8A6" metalness={0.95} />
+        </mesh>
+        {/* Starboard Winglet */}
+        <mesh position={[0.24, -0.19, -0.12]} rotation={[0, 0, 0.4]}>
+          <boxGeometry args={[0.012, 0.065, 0.06]} />
+          <meshStandardMaterial color="#E9D8A6" metalness={0.95} />
+        </mesh>
+
+        {/* Aft Rudder Strut & Electric Torpedo Pod Motor */}
+        <mesh position={[0, -0.11, 0.36]}>
+          <boxGeometry args={[0.016, 0.22, 0.065]} />
+          <meshStandardMaterial color="#1a1e26" metalness={0.9} />
+        </mesh>
+        {/* Torpedo Motor Housing */}
+        <mesh position={[0, -0.21, 0.36]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.032, 0.032, 0.16, 16]} />
+          <meshStandardMaterial color="#0F1115" metalness={0.9} />
+        </mesh>
+
+        {/* 4-Blade Spinning Propeller (Spins with boat velocity!) */}
+        <group ref={propellerRef} position={[0, -0.21, 0.45]}>
+          {/* Propeller Hub */}
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.012, 0.016, 0.024, 12]} />
+            <meshStandardMaterial color="#d97706" metalness={0.95} roughness={0.1} />
+          </mesh>
+          {/* 4 Swept Blades */}
+          {[0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2].map((angle, i) => (
+            <mesh key={`prop-blade-${i}`} rotation={[0, 0, angle]} position={[0, 0.032, 0]}>
+              <boxGeometry args={[0.012, 0.048, 0.004]} />
+              <meshStandardMaterial color="#d97706" metalness={0.95} roughness={0.1} />
+            </mesh>
+          ))}
+        </group>
+
+        {/* Stern Planing Spray Rooster Tail (Visible when moving fast) */}
+        <group ref={sternSprayRef} position={[0, -0.18, 0.58]} visible={false}>
+          <mesh rotation={[-Math.PI / 2.3, 0, 0]}>
+            <coneGeometry args={[0.18, 0.45, 8]} />
+            <meshBasicMaterial color="#ffffff" transparent opacity={0.45} />
+          </mesh>
+        </group>
+
+        {/* ===================================================
+            8. ADVANCED LIGHTING & NAVIGATION POSITION LEDS
+            =================================================== */}
+        {/* Dual Forward Focused Projector Headlights */}
+        <mesh position={[-0.11, 0.085, -0.52]}>
+          <sphereGeometry args={[0.024, 12, 12]} />
           <meshBasicMaterial color={isNight ? '#fef08a' : '#C6B8A8'} />
         </mesh>
         <spotLight
           ref={leftHeadlightRef}
           target={targetLeftRef.current}
-          position={[-0.1, 0.12, -0.45]}
+          position={[-0.11, 0.13, -0.53]}
           color="#fff8db"
-          angle={0.45}
-          penumbra={0.65}
-          distance={8.0}
+          angle={0.42}
+          penumbra={0.6}
+          distance={8.5}
           intensity={0.0}
           castShadow
         />
 
-        {/* Right Projector */}
-        <mesh position={[0.1, 0.08, -0.44]}>
-          <sphereGeometry args={[0.022, 12, 12]} />
+        <mesh position={[0.11, 0.085, -0.52]}>
+          <sphereGeometry args={[0.024, 12, 12]} />
           <meshBasicMaterial color={isNight ? '#fef08a' : '#C6B8A8'} />
         </mesh>
         <spotLight
           ref={rightHeadlightRef}
           target={targetRightRef.current}
-          position={[0.1, 0.12, -0.45]}
+          position={[0.11, 0.13, -0.53]}
           color="#fff8db"
-          angle={0.45}
-          penumbra={0.65}
-          distance={8.0}
+          angle={0.42}
+          penumbra={0.6}
+          distance={8.5}
           intensity={0.0}
           castShadow
         />
 
-        {/* 8. Stern Navigational Position Light (Ruby & Emerald) */}
-        <mesh position={[-0.14, 0.09, 0.38]}>
-          <sphereGeometry args={[0.014, 8, 8]} />
+        {/* Recessed Port (Ruby Red) & Starboard (Emerald Green) Navigation Lights */}
+        <mesh position={[-0.192, 0.09, -0.28]}>
+          <boxGeometry args={[0.008, 0.016, 0.04]} />
           <meshBasicMaterial color="#ef4444" />
         </mesh>
-        <mesh position={[0.14, 0.09, 0.38]}>
-          <sphereGeometry args={[0.014, 8, 8]} />
-          <meshBasicMaterial color="#22c55e" />
+        <mesh position={[0.192, 0.09, -0.28]}>
+          <boxGeometry args={[0.008, 0.016, 0.04]} />
+          <meshBasicMaterial color="#10b981" />
         </mesh>
+
+        {/* Dual Underwater Transom Luminescence Lights (Cyan glow in water wake) */}
+        <pointLight
+          ref={underwaterLightLeftRef}
+          position={[-0.12, -0.12, 0.48]}
+          color="#06b6d4"
+          distance={3.0}
+          intensity={0.0}
+        />
+        <pointLight
+          ref={underwaterLightRightRef}
+          position={[0.12, -0.12, 0.48]}
+          color="#06b6d4"
+          distance={3.0}
+          intensity={0.0}
+        />
       </group>
     </>
   );
