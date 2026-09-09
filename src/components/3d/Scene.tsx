@@ -57,8 +57,8 @@ function CameraController({
       const speed = boatSpeedRef.current;
 
       // Dynamic camera trailing distance expands slightly at higher speed
-      const followDist = 3.6 + Math.min(speed * 0.3, 1.2);
-      const followHeight = 1.6 + Math.min(speed * 0.1, 0.5);
+      const followDist = 4.2 + Math.min(speed * 0.3, 1.4);
+      const followHeight = 2.2 + Math.min(speed * 0.15, 0.5);
 
       targetCamPos.set(
         bx + Math.sin(heading) * followDist,
@@ -67,14 +67,14 @@ function CameraController({
       );
 
       targetLookAt.set(
-        bx - Math.sin(heading) * 1.8,
+        bx - Math.sin(heading) * 2.0,
         0.2,
-        bz - Math.cos(heading) * 1.8
+        bz - Math.cos(heading) * 2.0
       );
 
-      // Subtle turn banking on camera
-      currentPos.current.lerp(targetCamPos, 0.075);
-      currentTarget.current.lerp(targetLookAt, 0.08);
+      // Smooth cinematic camera lag
+      currentPos.current.lerp(targetCamPos, 0.08);
+      currentTarget.current.lerp(targetLookAt, 0.09);
     }
     // ========================================================
     // MODE B: CINEMATIC FLY-IN INTRO
@@ -189,9 +189,9 @@ export default function Scene() {
         boatSpeedRef={boatSpeedRef}
       />
 
-      {/* Atmospheric Fog and Sky Color */}
-      <color attach="background" args={[isNight ? '#0A0B0E' : '#F7F5F0']} />
-      <fog attach="fog" args={[isNight ? '#0A0B0E' : '#FBF9F6', 14, 38]} />
+      {/* Atmospheric Fog and Sky Color (Vast Open-World Horizon) */}
+      <color attach="background" args={[isNight ? '#080c14' : '#eaf0f4']} />
+      <fog attach="fog" args={[isNight ? '#080c14' : '#e8eff3', 20, 75]} />
 
       {/* Key Directional Sun / Moon Light */}
       <directionalLight

@@ -182,10 +182,13 @@ const GerstnerWaterShader = {
       // Perturb shoreline distance with 2 octaves of noise to contour naturally around rocks
       float shoreNoise = (organicNoise(vWorldPosition.xz * 2.2) - 0.5) * 0.45;
       float pierInfluence = max(0.0, 1.0 - length(vWorldPosition.xz - vec2(1.4, 3.2)) * 0.5);
-      float organicDist = rawDist + shoreNoise - pierInfluence * 0.35;
+      // Multi-Atoll Organic Distances
+      float beaconDist = length(vWorldPosition.xz - vec2(-4.5, -2.5));
+      float stackDist = length(vWorldPosition.xz - vec2(-6.0, 4.8));
+      float organicDist = min(rawDist + shoreNoise - pierInfluence * 0.35, min(beaconDist * 1.4, stackDist * 2.2));
 
       // 3. DEPTH ABSORPTION GRADIENT
-      float depthFactor = smoothstep(1.8, 6.8, organicDist);
+      float depthFactor = smoothstep(1.8, 7.5, organicDist);
       vec3 waterColor = mix(shallowColor, deepColor, depthFactor);
 
       // 4. PROCEDURAL SEABED CAUSTICS (in shallow crystalline waters)
@@ -241,8 +244,8 @@ const GerstnerWaterShader = {
       vec3 foamColor = mix(vec3(0.98, 0.98, 0.97), vec3(0.8, 0.95, 1.0), uNightMode);
       waterColor = mix(waterColor, foamColor, totalFoam);
 
-      // 9. RADIAL EDGE DISSOLVE
-      float outerFade = 1.0 - smoothstep(8.5, 12.0, length(vWorldPosition.xz));
+      // 9. VAST OPEN-WORLD HORIZON DISSOLVE
+      float outerFade = 1.0 - smoothstep(55.0, 80.0, length(vWorldPosition.xz));
 
       // Translucency in shallows, density in deep abyss
       float alpha = mix(0.78, 0.94, depthFactor) * outerFade;
@@ -298,7 +301,7 @@ export default function StylizedWater({ boatPosition, boatSpeed = 0 }: StylizedW
       position={[0, -0.32, 0]}
       receiveShadow
     >
-      <planeGeometry args={[25, 25, 128, 128]} />
+      <planeGeometry args={[160, 160, 256, 256]} />
       <shaderMaterial
         ref={materialRef}
         args={[GerstnerWaterShader]}

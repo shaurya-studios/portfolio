@@ -156,36 +156,42 @@ export default function HydrofoilVessel({
     s.x += vx * dt;
     s.z += vz * dt;
 
-    // Boundaries: soft outer ocean perimeter clamping
+    // Boundaries: expansive open-world ocean perimeter
     const distFromOrigin = Math.hypot(s.x, s.z);
-    if (distFromOrigin > 9.5) {
+    if (distFromOrigin > 38.0) {
       const angle = Math.atan2(s.z, s.x);
-      s.x = Math.cos(angle) * 9.5;
-      s.z = Math.sin(angle) * 9.5;
+      s.x = Math.cos(angle) * 38.0;
+      s.z = Math.sin(angle) * 38.0;
       s.speed *= 0.85;
     }
 
-    // 4. ROBUST ISLAND SHORELINE COLLISION & TANGENTIAL SLIP (Never gush into concrete!)
-    const islandX = 2.2;
-    const islandZ = 0.0;
-    const minRadius = 3.35; // True safe water boundary clear of all rocks & terraces
+    // 4. MULTI-ATOLL SHORELINE COLLISION & TANGENTIAL SLIP
+    const islands = [
+      { x: 2.2, z: 0.0, r: 3.35 },    // Main Studio Island
+      { x: -4.5, z: -2.5, r: 1.85 },  // Beacon Atoll
+      { x: -6.0, z: 4.8, r: 1.25 },   // West Sea-Stack Outpost
+      { x: 7.0, z: -4.5, r: 1.25 },   // East Horizon Reef
+    ];
 
-    const dx = s.x - islandX;
-    const dz = s.z - islandZ;
-    const islandDist = Math.hypot(dx, dz);
+    for (const isl of islands) {
+      const dx = s.x - isl.x;
+      const dz = s.z - isl.z;
+      const dist = Math.hypot(dx, dz);
 
-    if (islandDist < minRadius) {
-      const nx = dx / (islandDist || 1);
-      const nz = dz / (islandDist || 1);
+      if (dist < isl.r) {
+        const nx = dx / (dist || 1);
+        const nz = dz / (dist || 1);
 
-      // Keep boat cleanly on the outer shoreline water
-      s.x = islandX + nx * minRadius;
-      s.z = islandZ + nz * minRadius;
+        // Keep boat cleanly on the outer shoreline water
+        s.x = isl.x + nx * isl.r;
+        s.z = isl.z + nz * isl.r;
 
-      // Deflect velocity along the tangential coastline (smooth gliding, zero clipping)
-      const normalVel = vx * nx + vz * nz;
-      if (normalVel < 0) {
-        s.speed *= 0.7;
+        // Deflect velocity along the tangential coastline (smooth gliding, zero clipping)
+        const normalVel = vx * nx + vz * nz;
+        if (normalVel < 0) {
+          s.speed *= 0.75;
+        }
+        break;
       }
     }
 
