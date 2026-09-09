@@ -46,11 +46,18 @@ export default function VesselControlsHUD({
 
         <div className="h-3.5 w-[1px] bg-neutral-300 dark:bg-neutral-700" />
 
-        {/* Speed Indicator */}
+        {/* Speed / Control Indicators */}
         {isCruising ? (
-          <div className="flex items-center gap-1.5 font-mono text-xs text-neutral-900 dark:text-neutral-100">
-            <span className="text-cyan-500 font-semibold">{knots}</span>
-            <span className="text-[10px] text-neutral-500">KTS</span>
+          <div className="flex items-center gap-2 font-mono text-xs text-neutral-900 dark:text-neutral-100">
+            <div className="flex items-center gap-1">
+              <span className="text-cyan-500 font-semibold">{knots}</span>
+              <span className="text-[10px] text-neutral-500">KTS</span>
+            </div>
+            <div className="hidden md:flex items-center gap-1 text-[10px] text-neutral-400 dark:text-neutral-500">
+              <span className="mx-1 text-neutral-300 dark:text-neutral-700">•</span>
+              <span className="rounded border border-neutral-300 px-1 py-0.5 text-[9px] dark:border-neutral-700">R-CLICK</span>
+              <span>ORBIT</span>
+            </div>
           </div>
         ) : (
           <div className="hidden sm:flex items-center gap-1.5 font-mono text-[11px] text-neutral-500 dark:text-neutral-400">
@@ -58,7 +65,10 @@ export default function VesselControlsHUD({
             <span className="rounded border border-neutral-300 px-1 py-0.5 text-[10px] dark:border-neutral-700">A</span>
             <span className="rounded border border-neutral-300 px-1 py-0.5 text-[10px] dark:border-neutral-700">S</span>
             <span className="rounded border border-neutral-300 px-1 py-0.5 text-[10px] dark:border-neutral-700">D</span>
-            <span className="ml-1">TO PILOT</span>
+            <span className="ml-0.5">TO PILOT</span>
+            <span className="mx-1 text-neutral-300 dark:text-neutral-700">•</span>
+            <span className="rounded border border-neutral-300 px-1 py-0.5 text-[10px] dark:border-neutral-700">R-CLICK HOLD</span>
+            <span className="ml-0.5">3D VIEWPORT</span>
           </div>
         )}
 

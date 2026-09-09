@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useScroll } from 'framer-motion';
 import * as THREE from 'three';
@@ -25,6 +25,15 @@ function CameraController({
   const currentPos = useRef(new THREE.Vector3(0.6, 16, 22)); // High-altitude cinematic entry
   const currentTarget = useRef(new THREE.Vector3(2.2, 0, 0));
 
+  // Blender-style free viewport orbit refs
+  const isRightDown = useRef(false);
+  const isFreeOrbiting = useRef(false);
+  const lastPointerPos = useRef({ x: 0, y: 0 });
+  const orbitSpherical = useRef(new THREE.Spherical(12, 1.1, 0));
+  const targetOrbitSpherical = useRef(new THREE.Spherical(12, 1.1, 0));
+  const orbitCenter = useRef(new THREE.Vector3(2.2, 0.4, 0));
+  const scrollAtRelease = useRef(0);
+
   // Waypoints for the biomes (Island offset at x = 2.2 so left 50% is pure typography)
   const heroPos = new THREE.Vector3(0.6, 3.8, 8.0);
   const heroTarget = new THREE.Vector3(2.2, 0.2, 0.0);
@@ -38,6 +47,132 @@ function CameraController({
   const contactPos = new THREE.Vector3(1.6, 2.0, 5.4);
   const contactTarget = new THREE.Vector3(2.2, 0.4, 0.0);
 
+  // Global listeners for Blender-style Right-Click Viewport Orbiting
+  useEffect(() => {
+    // Suppress context menu so right-click drag is never interrupted by the browser menu
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
+    const handlePointerDown = (e: PointerEvent) => {
+      if (e.button === 2) {
+        e.preventDefault();
+        isRightDown.current = true;
+        lastPointerPos.current = { x: e.clientX, y: e.clientY };
+
+        // Determine pivot point: vessel in cruise mode, or current section target
+        if (isCruising) {
+          orbitCenter.current.set(boatPosRef.current.x, 0.35, boatPosRef.current.y);
+        } else {
+          orbitCenter.current.copy(currentTarget.current);
+        }
+
+        // Calculate spherical angles from current camera position relative to pivot
+        const offset = new THREE.Vector3().subVectors(camera.position, orbitCenter.current);
+        const spherical = new THREE.Spherical().setFromVector3(offset);
+
+        // Clamp phi so we don't start below ocean level or looking straight down gimbal lock
+        spherical.phi = THREE.MathUtils.clamp(spherical.phi, 0.08, Math.PI / 2 - 0.03);
+        spherical.radius = THREE.MathUtils.clamp(spherical.radius, 2.5, 45.0);
+
+        orbitSpherical.current.copy(spherical);
+        targetOrbitSpherical.current.copy(spherical);
+        isFreeOrbiting.current = true;
+
+        if (!flyInComplete) {
+          setFlyInComplete(true);
+        }
+
+        document.body.classList.add('blender-orbit-active');
+      }
+    };
+
+    const handlePointerMove = (e: PointerEvent) => {
+      if (!isRightDown.current) return;
+
+      const dx = e.clientX - lastPointerPos.current.x;
+      const dy = e.clientY - lastPointerPos.current.y;
+      lastPointerPos.current = { x: e.clientX, y: e.clientY };
+
+      if (e.shiftKey) {
+        // Blender-style Pan: Shift + Right Drag pans the camera target
+        const panSpeed = targetOrbitSpherical.current.radius * 0.0015;
+        const right = new THREE.Vector3();
+        camera.getWorldDirection(right);
+        right.cross(camera.up).normalize();
+
+        orbitCenter.current.addScaledVector(right, -dx * panSpeed);
+        orbitCenter.current.y += dy * panSpeed;
+        orbitCenter.current.y = Math.max(orbitCenter.current.y, 0.1);
+      } else {
+        // Blender-style Orbit: Right Drag rotates azimuth and elevation
+        const rotSpeed = 0.0055;
+        targetOrbitSpherical.current.theta -= dx * rotSpeed;
+        targetOrbitSpherical.current.phi -= dy * rotSpeed;
+
+        // Keep camera above water plane y=0 and prevent inverted flip
+        targetOrbitSpherical.current.phi = THREE.MathUtils.clamp(
+          targetOrbitSpherical.current.phi,
+          0.08,
+          Math.PI / 2 - 0.03
+        );
+      }
+    };
+
+    const handlePointerUp = (e: PointerEvent) => {
+      if (e.button === 2) {
+        isRightDown.current = false;
+        scrollAtRelease.current = scrollYProgress.get();
+        document.body.classList.remove('blender-orbit-active');
+      }
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      // Zoom with wheel when holding right click or when cruising in free orbit
+      if (isRightDown.current || (isCruising && isFreeOrbiting.current)) {
+        const zoomSpeed = 0.01;
+        targetOrbitSpherical.current.radius = THREE.MathUtils.clamp(
+          targetOrbitSpherical.current.radius + e.deltaY * zoomSpeed,
+          2.5,
+          45.0
+        );
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Escape or R resets free orbit back to default view
+      if (e.key === 'Escape' || e.key === 'r' || e.key === 'R') {
+        if (isFreeOrbiting.current && !isCruising) {
+          isFreeOrbiting.current = false;
+        }
+      }
+    };
+
+    const handleBlur = () => {
+      isRightDown.current = false;
+      document.body.classList.remove('blender-orbit-active');
+    };
+
+    window.addEventListener('contextmenu', handleContextMenu);
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      window.removeEventListener('contextmenu', handleContextMenu);
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('blur', handleBlur);
+      document.body.classList.remove('blender-orbit-active');
+    };
+  }, [camera, isCruising, flyInComplete, setFlyInComplete, scrollYProgress, boatPosRef]);
+
   useFrame((state) => {
     if (initialTime.current === null) {
       initialTime.current = state.clock.elapsedTime;
@@ -48,9 +183,65 @@ function CameraController({
     let targetLookAt = new THREE.Vector3();
 
     // ========================================================
+    // MODE 0: BLENDER-STYLE FREE VIEWPORT ORBIT
+    // ========================================================
+    if (isFreeOrbiting.current) {
+      // Smooth spherical interpolation (damping)
+      orbitSpherical.current.theta = THREE.MathUtils.lerp(
+        orbitSpherical.current.theta,
+        targetOrbitSpherical.current.theta,
+        0.14
+      );
+      orbitSpherical.current.phi = THREE.MathUtils.lerp(
+        orbitSpherical.current.phi,
+        targetOrbitSpherical.current.phi,
+        0.14
+      );
+      orbitSpherical.current.radius = THREE.MathUtils.lerp(
+        orbitSpherical.current.radius,
+        targetOrbitSpherical.current.radius,
+        0.14
+      );
+
+      // In cruise mode, keep orbit center anchored to the hydrofoil vessel
+      if (isCruising) {
+        const bx = boatPosRef.current.x;
+        const bz = boatPosRef.current.y;
+        orbitCenter.current.lerp(new THREE.Vector3(bx, 0.35, bz), 0.12);
+
+        // When user releases right click and drives forward, smoothly resume chase camera
+        if (!isRightDown.current && boatSpeedRef.current > 0.08) {
+          isFreeOrbiting.current = false;
+        }
+      } else {
+        // In portfolio view, if user scrolls page noticeably after release, return to choreography
+        if (!isRightDown.current) {
+          const currentScroll = scrollYProgress.get();
+          if (Math.abs(currentScroll - scrollAtRelease.current) > 0.02) {
+            isFreeOrbiting.current = false;
+          }
+        }
+      }
+
+      // Convert spherical coordinates to 3D Cartesian space
+      const r = orbitSpherical.current.radius;
+      const phi = orbitSpherical.current.phi;
+      const theta = orbitSpherical.current.theta;
+
+      const camX = orbitCenter.current.x + r * Math.sin(phi) * Math.sin(theta);
+      const camY = Math.max(orbitCenter.current.y + r * Math.cos(phi), 0.3);
+      const camZ = orbitCenter.current.z + r * Math.sin(phi) * Math.cos(theta);
+
+      targetCamPos.set(camX, camY, camZ);
+      targetLookAt.copy(orbitCenter.current);
+
+      currentPos.current.lerp(targetCamPos, 0.12);
+      currentTarget.current.lerp(targetLookAt, 0.12);
+    }
+    // ========================================================
     // MODE A: BRUNO SIMON-STYLE 3RD-PERSON CHASE CAMERA
     // ========================================================
-    if (isCruising) {
+    else if (isCruising) {
       const bx = boatPosRef.current.x;
       const bz = boatPosRef.current.y;
       const heading = boatHeadingRef.current;
