@@ -24,26 +24,26 @@
    ============================================ */
 
 :root {
-  --color-bg: #F7F5F0;
-  --color-text: #0F1115;
-  --color-text-muted: #5A5E6B;
-  --color-border: rgba(15, 17, 21, 0.08);
-  --color-border-hover: rgba(15, 17, 21, 0.25);
-  --color-card-bg: rgba(247, 245, 240, 0.75);
-  --color-card-border: rgba(15, 17, 21, 0.08);
+  --color-bg: #F5F3EF;
+  --color-text: #090A0E;
+  --color-text-muted: #374151;
+  --color-border: rgba(15, 17, 21, 0.12);
+  --color-border-hover: rgba(15, 17, 21, 0.35);
+  --color-card-bg: rgba(255, 255, 255, 0.94);
+  --color-card-border: rgba(15, 17, 21, 0.12);
   --color-accent: #0F1115;
-  --color-highlight: #C6B8A8;
-  --color-fog: #FBF9F6;
+  --color-highlight: #92400E;
+  --color-fog: #F5F3EF;
 }
 
 .dark {
   --color-bg: #0A0B0E;
-  --color-text: #F7F5F0;
-  --color-text-muted: #8E929E;
-  --color-border: rgba(247, 245, 240, 0.1);
-  --color-border-hover: rgba(233, 216, 166, 0.35);
-  --color-card-bg: rgba(15, 17, 21, 0.75);
-  --color-card-border: rgba(255, 255, 255, 0.08);
+  --color-text: #F9FAFB;
+  --color-text-muted: #9CA3AF;
+  --color-border: rgba(247, 245, 240, 0.12);
+  --color-border-hover: rgba(233, 216, 166, 0.4);
+  --color-card-bg: rgba(17, 20, 27, 0.88);
+  --color-card-border: rgba(255, 255, 255, 0.1);
   --color-accent: #E9D8A6;
   --color-highlight: #E9D8A6;
   --color-fog: #0A0B0E;

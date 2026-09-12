@@ -4,6 +4,7 @@ import { Float } from '@react-three/drei';
 import * as THREE from 'three';
 import { useScenery } from '../../context/SceneryContext';
 import { playTactileClick } from '../../utils/audioHaptics';
+import IslandBillboard from './IslandBillboard';
 
 interface IslandTerrainProps {
   boatPosition?: THREE.Vector2;
@@ -32,7 +33,7 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
   const underReefLight1Ref = useRef<THREE.PointLight>(null);
   const underReefLight2Ref = useRef<THREE.PointLight>(null);
 
-  const { timeOfDay, focusedTarget } = useScenery();
+  const { timeOfDay, focusedTarget, triggerDock } = useScenery();
   const isNight = timeOfDay === 'night';
 
   const [hoveredZone, setHoveredZone] = useState<'villa' | 'sanctuary' | 'pier' | 'outpost' | null>(null);
@@ -689,6 +690,19 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
             </mesh>
           </group>
         ))}
+
+        {/* --- HIGH-VISIBILITY 3D ARCHITECTURAL BILLBOARD --- */}
+        <IslandBillboard
+          title="SHAURYA STUDIOS"
+          subtitle="Full-Stack Web & 3D Experiences"
+          tag="Sector 01 // Headquarters"
+          actionText="Dock to View Studio"
+          accentColor="#10b981"
+          position={[-0.4, 0.45, 1.85]}
+          rotation={[0, -0.15, 0]}
+          scale={0.85}
+          onClick={() => triggerDock('hero')}
+        />
       </group>
 
       {/* ===================================================================
@@ -817,6 +831,19 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
             </group>
           </Float>
         </group>
+
+        {/* --- HIGH-VISIBILITY 3D ARCHITECTURAL BILLBOARD (WORKS) --- */}
+        <IslandBillboard
+          title="SELECTED WORK"
+          subtitle="Editify Studios · ThumbPilot"
+          tag="Sector 02 // Client Projects"
+          actionText="Dock to View Work"
+          accentColor="#06b6d4"
+          position={[0.75, 0.45, 0.95]}
+          rotation={[0, 0.65, 0]}
+          scale={0.85}
+          onClick={() => triggerDock('works')}
+        />
       </group>
 
       {/* ===================================================================
@@ -1074,6 +1101,19 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
           color="#06b6d4"
           distance={4.5}
           intensity={isNight ? 2.4 : 0.3}
+        />
+
+        {/* --- HIGH-VISIBILITY 3D ARCHITECTURAL BILLBOARD (PRICING) --- */}
+        <IslandBillboard
+          title="TRANSPARENT PRICING"
+          subtitle="Fixed Rates · No Hidden Fees"
+          tag="Sector 03 // Packages & Scopes"
+          actionText="Dock to View Pricing"
+          accentColor="#f59e0b"
+          position={[-1.2, 0.45, -0.2]}
+          rotation={[0, -1.25, 0]}
+          scale={0.85}
+          onClick={() => triggerDock('pricing')}
         />
       </group>
 

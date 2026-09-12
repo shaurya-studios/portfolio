@@ -3,12 +3,12 @@ import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useContact } from '../context/ContactContext';
 import { useScenery } from '../context/SceneryContext';
-import { Sun, Moon, Compass } from 'lucide-react';
+import { Sun, Moon, Compass, Sparkles, Monitor } from 'lucide-react';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { openContact } = useContact();
-  const { timeOfDay, toggleTimeOfDay, isCruising, setIsCruising } = useScenery();
+  const { timeOfDay, toggleTimeOfDay, isCruising, setIsCruising, viewMode, toggleViewMode } = useScenery();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -91,28 +91,49 @@ export default function Navbar() {
         </nav>
 
         {/* Right Action Cluster */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          {/* Cruise Ocean Mode Toggle */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* View Mode 3D / Lite Switch */}
           <button
-            onClick={() => setIsCruising(!isCruising)}
-            aria-label="Toggle Ocean Cruise Mode"
+            onClick={toggleViewMode}
+            aria-label="Toggle 3D World or Clean Lite View"
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-mono tracking-wider uppercase transition-all ${
-              isCruising
-                ? 'border-cyan-500 bg-cyan-500/10 text-cyan-500 font-semibold shadow-[0_0_12px_rgba(6,182,212,0.25)]'
+              viewMode === '3d'
+                ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold shadow-[0_0_12px_rgba(16,185,129,0.2)]'
                 : 'border-[var(--color-border)] hover:border-[var(--color-text)] bg-[var(--color-card-bg)] text-[var(--color-text-muted)]'
             }`}
-            title="Pilot the Luxury Electric Hydrofoil Tender (WASD)"
+            title={viewMode === '3d' ? 'Switch to Lite View (Disables 3D Models)' : 'Switch to Full 3D Interactive World'}
           >
-            <Compass size={13} className={isCruising ? 'text-cyan-500 animate-spin' : ''} />
-            <span className="hidden sm:inline text-[10px]">{isCruising ? 'DOCK' : 'CRUISE'}</span>
+            {viewMode === '3d' ? (
+              <Sparkles size={13} className="text-emerald-500" />
+            ) : (
+              <Monitor size={13} />
+            )}
+            <span className="text-[10px] font-bold">{viewMode === '3d' ? '3D WORLD' : 'LITE'}</span>
           </button>
+
+          {/* Cruise Ocean Mode Toggle (Only in 3D Mode) */}
+          {viewMode === '3d' && (
+            <button
+              onClick={() => setIsCruising(!isCruising)}
+              aria-label="Toggle Ocean Cruise Mode"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-mono tracking-wider uppercase transition-all ${
+                isCruising
+                  ? 'border-cyan-500 bg-cyan-500/10 text-cyan-500 font-semibold shadow-[0_0_12px_rgba(6,182,212,0.25)]'
+                  : 'border-[var(--color-border)] hover:border-[var(--color-text)] bg-[var(--color-card-bg)] text-[var(--color-text-muted)]'
+              }`}
+              title="Drive the Hydrofoil Boat (WASD)"
+            >
+              <Compass size={13} className={isCruising ? 'text-cyan-500 animate-spin' : ''} />
+              <span className="hidden sm:inline text-[10px]">{isCruising ? 'DOCK' : 'CRUISE'}</span>
+            </button>
+          )}
 
           {/* Day / Midnight Scenery Switch */}
           <button
             onClick={toggleTimeOfDay}
             aria-label="Toggle Island Atmosphere"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--color-border)] hover:border-[var(--color-text)] bg-[var(--color-card-bg)] text-xs font-mono tracking-widest uppercase transition-all"
-            title={isNight ? "Switch to Golden Hour" : "Switch to Midnight"}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[var(--color-border)] hover:border-[var(--color-text)] bg-[var(--color-card-bg)] text-xs font-mono tracking-widest uppercase transition-all"
+            title={isNight ? 'Switch to Golden Hour' : 'Switch to Midnight'}
           >
             {isNight ? (
               <>
@@ -129,8 +150,11 @@ export default function Navbar() {
 
           {/* Contact Button */}
           <button 
-            onClick={openContact}
-            className="px-4 sm:px-5 py-2 rounded-full bg-[var(--color-text)] text-[var(--color-bg)] text-xs font-mono font-semibold tracking-[0.15em] uppercase hover:opacity-90 transition-opacity"
+            onClick={() => {
+              if (isCruising) setIsCruising(false);
+              openContact();
+            }}
+            className="px-4 sm:px-5 py-2 rounded-full bg-[var(--color-text)] text-[var(--color-bg)] text-xs font-mono font-semibold tracking-[0.15em] uppercase hover:opacity-90 active:scale-[0.98] transition-all shadow-md"
           >
             Contact
           </button>

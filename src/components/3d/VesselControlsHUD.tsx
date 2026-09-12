@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import { Compass, Anchor, Navigation, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useScenery, useBoatSpeedTelemetry } from '../../context/SceneryContext';
 
@@ -26,6 +26,19 @@ export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
 
   useBoatSpeedTelemetry(handleSpeedTelemetry);
 
+  // Enter key shortcut when in docking range
+  useEffect(() => {
+    if (!isCruising || !dockZone) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Enter') {
+        e.preventDefault();
+        triggerDock(dockZone);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isCruising, dockZone, triggerDock]);
+
   // Helper to trigger keyboard events for mobile on-screen buttons
   const triggerKey = (code: string, isDown: boolean) => {
     const eventType = isDown ? 'keydown' : 'keyup';
@@ -43,29 +56,86 @@ export default function VesselControlsHUD(props: VesselControlsHUDProps = {}) {
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-6 z-40 flex flex-col items-center justify-end px-4 sm:bottom-8">
       {/* =========================================================
-          0. ISLAND DOCKING ACTION BANNER (When near an Island)
+          0. ISLAND ARRIVAL CARD (When Vessel is in Range)
           ========================================================= */}
       {isCruising && dockZone && (
-        <div className="pointer-events-auto mb-3 animate-bounce">
-          <button
-            onClick={() => triggerDock(dockZone)}
-            className={`flex items-center gap-2 px-5 py-2 rounded-full border shadow-2xl backdrop-blur-xl font-mono text-xs font-semibold tracking-wider transition-all duration-300 ${
+        <div className="pointer-events-auto mb-4 w-full max-w-md px-2 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div
+            className={`rounded-2xl border p-4 sm:p-5 shadow-2xl backdrop-blur-2xl transition-all duration-300 ${
               dockZone === 'works'
-                ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.35)]'
+                ? 'border-cyan-500/40 bg-[#0F1115]/90 text-white shadow-[0_0_40px_rgba(6,182,212,0.25)]'
                 : dockZone === 'pricing'
-                ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_25px_rgba(6,182,212,0.35)]'
-                : 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-[0_0_25px_rgba(16,185,129,0.35)]'
+                ? 'border-amber-500/40 bg-[#0F1115]/90 text-white shadow-[0_0_40px_rgba(245,158,11,0.25)]'
+                : 'border-emerald-500/40 bg-[#0F1115]/90 text-white shadow-[0_0_40px_rgba(16,185,129,0.25)]'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-current animate-ping" />
-            <span>
+            {/* Header: Sector Badge + Live Ping */}
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`w-2.5 h-2.5 rounded-full animate-ping ${
+                    dockZone === 'works'
+                      ? 'bg-cyan-400'
+                      : dockZone === 'pricing'
+                      ? 'bg-amber-400'
+                      : 'bg-emerald-400'
+                  }`}
+                />
+                <span
+                  className={`font-mono text-[10px] sm:text-xs font-bold tracking-widest uppercase ${
+                    dockZone === 'works'
+                      ? 'text-cyan-400'
+                      : dockZone === 'pricing'
+                      ? 'text-amber-400'
+                      : 'text-emerald-400'
+                  }`}
+                >
+                  {dockZone === 'works'
+                    ? 'SECTOR 02 // BEACON ATOLL'
+                    : dockZone === 'pricing'
+                    ? 'SECTOR 03 // EAST ATOLL'
+                    : 'SECTOR 01 // MAIN VILLA'}
+                </span>
+              </div>
+              <span className="font-mono text-[10px] text-neutral-400 tracking-wider">
+                IN DOCKING RANGE
+              </span>
+            </div>
+
+            {/* Destination Title & Overview */}
+            <h3 className="font-display text-base sm:text-lg font-bold tracking-tight text-white mb-1 uppercase">
               {dockZone === 'works'
-                ? '📍 WORKS ISLAND · PRESS ENTER TO VIEW WORK'
+                ? 'Selected Works & Case Studies'
                 : dockZone === 'pricing'
-                ? '📍 PRICING ISLAND · PRESS ENTER TO VIEW PRICING'
-                : '📍 MAIN ISLAND · PRESS ENTER TO VIEW TOP'}
-            </span>
-          </button>
+                ? 'Transparent Pricing & Reviews'
+                : 'Studio Headquarters & Overview'}
+            </h3>
+            <p className="text-xs text-neutral-300 mb-3.5 font-sans leading-relaxed">
+              {dockZone === 'works'
+                ? 'Live production projects: Editify Studios, ThumbPilot SaaS & web applications.'
+                : dockZone === 'pricing'
+                ? 'Clear scope packages, verified 5-star client reviews, and direct deliverables.'
+                : 'Full-stack engineering manifesto, 100/100 speed benchmarks, and project kickoff.'}
+            </p>
+
+            {/* High-Visibility Dock Button */}
+            <button
+              onClick={() => triggerDock(dockZone)}
+              className={`w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl font-mono text-xs font-bold tracking-wider uppercase transition-all duration-200 shadow-lg active:scale-[0.98] ${
+                dockZone === 'works'
+                  ? 'bg-cyan-500 text-black hover:bg-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.4)]'
+                  : dockZone === 'pricing'
+                  ? 'bg-amber-500 text-black hover:bg-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.4)]'
+                  : 'bg-emerald-500 text-black hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.4)]'
+              }`}
+            >
+              <Anchor size={14} className="stroke-[2.5]" />
+              <span>DOCK VESSEL & OPEN SECTION</span>
+              <kbd className="hidden sm:inline-block ml-1 px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">
+                ENTER ↵
+              </kbd>
+            </button>
+          </div>
         </div>
       )}
 

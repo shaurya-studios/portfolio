@@ -6,7 +6,6 @@ import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
 import Scene from './components/3d/Scene';
 import Navbar from './components/Navbar';
-import Chatbot from './components/Chatbot';
 import Cursor from './components/Cursor';
 import Home from './pages/Home';
 import VideoEditing from './pages/VideoEditing';
@@ -15,8 +14,6 @@ import { SceneryProvider, useScenery } from './context/SceneryContext';
 import ContactModal from './components/ContactModal';
 import Preloader from './components/Preloader';
 import VesselControlsHUD from './components/3d/VesselControlsHUD';
-import { AtelierBar } from './components/AtelierBar';
-import ViewModeSwitch from './components/ViewModeSwitch';
 
 function AppContent() {
   const [appReady, setAppReady] = useState(false);
@@ -108,16 +105,11 @@ function AppContent() {
             <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-transparent via-[var(--color-card-bg)]/30 to-transparent" />
           )}
 
-          {/* View Mode Switcher (Fixed side button for toggling 3D World vs Lite Mobile) */}
-          <ViewModeSwitch />
+          {/* Layer 1: Luxury Telemetry Vessel HUD (Only in 3D Mode) */}
+          {viewMode === '3d' && <VesselControlsHUD />}
 
-          {/* Layer 1: Luxury Telemetry Vessel HUD & Atelier Lab Controls (Only in 3D Mode) */}
-          {viewMode === '3d' && (
-            <>
-              <VesselControlsHUD />
-              <AtelierBar />
-            </>
-          )}
+          {/* Persistent Header: Always interactive and accessible */}
+          <Navbar />
           
           {/* Layer 2: Editorial HTML Content with Cinematic Docking Focus Transition */}
           <div
@@ -129,18 +121,16 @@ function AppContent() {
                 : 'opacity-100 scale-100 blur-0'
             }`}
           >
-            <Navbar />
-            
             <main className="flex-grow">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/video-editing" element={<VideoEditing />} />
               </Routes>
             </main>
-
-            <ContactModal />
-            <Chatbot />
           </div>
+
+          {/* Root-Level Contact Modal: Guaranteed global overlay, completely immune to parent transforms */}
+          <ContactModal />
         </Router>
       </motion.div>
     </>
