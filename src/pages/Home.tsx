@@ -293,7 +293,7 @@ export default function Home() {
               title: "Full-Stack Web Development",
               tag: "REACT & NEXT.JS",
               icon: <ShieldCheck size={20} className="text-amber-400" />,
-              desc: "Next.js, React, TypeScript, and Tailwind CSS. Clean component architecture, fast routing, and seamless responsive design that looks flawless on every screen."
+              desc: "Next.js, React, TypeScript, and Tailwind CSS. Clean component architecture, fast routing, and responsive design that works perfectly on any screen."
             },
             {
               index: "02",
