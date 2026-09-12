@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
               req.on('end', async () => {
                 try {
                   const { message } = JSON.parse(bodyStr || '{}');
-                  const apiKey = env.GEMINI_API_KEY || 'AQ.Ab8RN6JkZztbo8GdEfQRhyX9FclkvAA1NS1aC2nlQ6ak0madrA';
+                  const apiKey = env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
                   
                   const gRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent', {
                     method: 'POST',
