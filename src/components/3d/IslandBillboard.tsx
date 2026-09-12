@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { useFrame } from '@react-three/fiber';
 import { useScenery } from '../../context/SceneryContext';
 import { playTactileClick } from '../../utils/audioHaptics';
 
@@ -28,119 +29,123 @@ export default function IslandBillboard({
 }: IslandBillboardProps) {
   const { timeOfDay } = useScenery();
   const isNight = timeOfDay === 'night';
+  const groupRef = useRef<THREE.Group>(null);
 
-  // Generate razor-sharp 1024x512 procedural billboard texture
+  // Floating bob animation for the hologram
+  useFrame((state) => {
+    if (groupRef.current) {
+      groupRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2) * 0.05;
+    }
+  });
+
+  // Generate ultra-crisp transparent digital HUD canvas
   const texture = useMemo(() => {
     const canvas = document.createElement('canvas');
-    canvas.width = 1024;
-    canvas.height = 512;
+    canvas.width = 1200;
+    canvas.height = 600;
     const ctx = canvas.getContext('2d');
     if (!ctx) return new THREE.Texture();
 
-    // 1. Sleek Deep Onyx Carbon Background
-    ctx.fillStyle = '#07090e';
-    ctx.fillRect(0, 0, 1024, 512);
+    // 1. Transparent Digital Glass Background
+    ctx.clearRect(0, 0, 1200, 600);
+    
+    // Slight dark tint for readability
+    ctx.fillStyle = 'rgba(5, 8, 15, 0.55)';
+    ctx.beginPath();
+    ctx.roundRect(10, 10, 1180, 580, 32);
+    ctx.fill();
 
-    // 2. Subtle architectural telemetry grid
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+    // 2. High-tech HUD Grid
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.lineWidth = 1;
-    for (let x = 40; x < 1024; x += 40) {
+    for (let x = 60; x < 1200; x += 60) {
       ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, 512);
+      ctx.moveTo(x, 10);
+      ctx.lineTo(x, 590);
       ctx.stroke();
     }
-    for (let y = 40; y < 512; y += 40) {
+    for (let y = 60; y < 600; y += 60) {
       ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(1024, y);
+      ctx.moveTo(10, y);
+      ctx.lineTo(1190, y);
       ctx.stroke();
     }
 
-    // 3. Glowing Outer Neon Border & Corner Accents
+    // 3. Glowing LED Border & Corner Accents
     ctx.strokeStyle = accentColor;
-    ctx.lineWidth = 6;
-    ctx.strokeRect(12, 12, 1000, 488);
+    ctx.lineWidth = 4;
+    ctx.strokeRect(30, 30, 1140, 540);
 
-    // Corner brackets
-    ctx.lineWidth = 14;
-    const bracket = 36;
+    // Tech corners
+    ctx.lineWidth = 12;
+    const bracket = 50;
+    const offset = 30;
+    
     // Top-left
-    ctx.beginPath();
-    ctx.moveTo(12, 12 + bracket);
-    ctx.lineTo(12, 12);
-    ctx.lineTo(12 + bracket, 12);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(offset, offset + bracket); ctx.lineTo(offset, offset); ctx.lineTo(offset + bracket, offset); ctx.stroke();
     // Top-right
-    ctx.beginPath();
-    ctx.moveTo(1012 - bracket, 12);
-    ctx.lineTo(1012, 12);
-    ctx.lineTo(1012, 12 + bracket);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(1200 - offset - bracket, offset); ctx.lineTo(1200 - offset, offset); ctx.lineTo(1200 - offset, offset + bracket); ctx.stroke();
     // Bottom-left
-    ctx.beginPath();
-    ctx.moveTo(12, 500 - bracket);
-    ctx.lineTo(12, 500);
-    ctx.lineTo(12 + bracket, 500);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(offset, 600 - offset - bracket); ctx.lineTo(offset, 600 - offset); ctx.lineTo(offset + bracket, 600 - offset); ctx.stroke();
     // Bottom-right
-    ctx.beginPath();
-    ctx.moveTo(1012 - bracket, 500);
-    ctx.lineTo(1012, 500);
-    ctx.lineTo(1012, 500 - bracket);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(1200 - offset - bracket, 600 - offset); ctx.lineTo(1200 - offset, 600 - offset); ctx.lineTo(1200 - offset, 600 - offset - bracket); ctx.stroke();
 
-    // 4. Sector Tag Header Strip
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
-    ctx.fillRect(48, 48, 928, 54);
+    // 4. Header Bar
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.fillRect(80, 70, 1040, 60);
     ctx.fillStyle = accentColor;
-    ctx.fillRect(48, 48, 6, 54);
+    ctx.fillRect(80, 70, 8, 60);
 
-    // Active status dot
+    // Active Pulse Dot
     ctx.beginPath();
-    ctx.arc(80, 75, 8, 0, Math.PI * 2);
+    ctx.arc(120, 100, 10, 0, Math.PI * 2);
     ctx.fillStyle = '#22c55e';
     ctx.fill();
 
-    ctx.font = '600 24px "JetBrains Mono", monospace';
+    ctx.font = '700 28px "JetBrains Mono", monospace';
     ctx.fillStyle = accentColor;
-    ctx.fillText(tag.toUpperCase(), 105, 83);
+    ctx.fillText(tag.toUpperCase(), 150, 110);
 
-    // 5. High-Impact Big Display Title
-    ctx.font = '900 64px "Space Grotesk", sans-serif';
+    // 5. Main Typography - Crisp & Bold
+    ctx.font = '900 76px "Space Grotesk", sans-serif';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(title.toUpperCase(), 48, 195);
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 10;
+    ctx.fillText(title.toUpperCase(), 80, 240);
+    ctx.shadowBlur = 0; // reset
 
-    // 6. Descriptive Subtitle
-    ctx.font = '500 28px "JetBrains Mono", monospace';
-    ctx.fillStyle = '#9ca3af';
-    ctx.fillText(subtitle.toUpperCase(), 48, 250);
+    // 6. Subtitle
+    ctx.font = '500 32px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillText(subtitle.toUpperCase(), 80, 310);
 
-    // 7. Divider Line
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-    ctx.lineWidth = 2;
+    // 7. Precision Line
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(48, 290);
-    ctx.lineTo(976, 290);
+    ctx.moveTo(80, 360);
+    ctx.lineTo(1120, 360);
     ctx.stroke();
 
-    // 8. Large, Highly Visible Call-To-Action Pill Button
-    const btnX = 48;
-    const btnY = 330;
-    const btnW = 928;
+    // 8. Call to Action Action Bar
+    const btnX = 80;
+    const btnY = 410;
+    const btnW = 1040;
     const btnH = 120;
 
-    // Button Background
+    // Button Glow/Backing
     ctx.fillStyle = accentColor;
+    ctx.globalAlpha = 0.85;
     ctx.beginPath();
-    ctx.roundRect(btnX, btnY, btnW, btnH, 24);
+    ctx.roundRect(btnX, btnY, btnW, btnH, 20);
     ctx.fill();
+    ctx.globalAlpha = 1.0;
 
     // Button Text
-    ctx.font = '900 40px "Space Grotesk", sans-serif';
-    ctx.fillStyle = '#080a0f';
+    ctx.font = '800 44px "Space Grotesk", sans-serif';
+    ctx.fillStyle = '#05070a'; // ultra dark text for contrast
     ctx.textAlign = 'center';
-    ctx.fillText(`⚓ ${actionText.toUpperCase()}  [ PRESS ENTER ↵ ]`, btnX + btnW / 2, btnY + 74);
+    ctx.fillText(`\u2192 ${actionText.toUpperCase()}  [ PRESS ENTER \u23CE ]`, btnX + btnW / 2, btnY + 76);
     ctx.textAlign = 'left';
 
     const tex = new THREE.CanvasTexture(canvas);
@@ -154,6 +159,7 @@ export default function IslandBillboard({
 
   return (
     <group
+      ref={groupRef}
       position={position}
       rotation={rotation}
       scale={scale}
@@ -170,73 +176,44 @@ export default function IslandBillboard({
         document.body.style.cursor = 'auto';
       }}
     >
-      {/* 1. Brushed Titanium Monolith Outer Frame */}
-      <mesh position={[0, 0.72, 0]} castShadow receiveShadow>
-        <boxGeometry args={[2.08, 1.16, 0.1]} />
-        <meshStandardMaterial color="#0b0e14" metalness={0.9} roughness={0.18} />
-      </mesh>
-
-      {/* 2. Beveled Backplate Panel */}
-      <mesh position={[0, 0.72, -0.055]} receiveShadow>
-        <boxGeometry args={[2.04, 1.12, 0.02]} />
-        <meshStandardMaterial color="#121620" metalness={0.7} roughness={0.4} />
-      </mesh>
-
-      {/* 3. Glowing Digital Display Screen (Front) */}
-      <mesh position={[0, 0.72, 0.052]}>
-        <planeGeometry args={[1.96, 1.04]} />
+      {/* 
+        Ultra-sleek double-sided floating holographic screen.
+        Completely transparent background, glowing emissive mapping, no bulky metal frame blocking the view.
+      */}
+      <mesh position={[0, 0, 0]}>
+        <planeGeometry args={[3.0, 1.5]} />
         <meshStandardMaterial
           map={texture}
           emissiveMap={texture}
           emissive="#ffffff"
-          emissiveIntensity={isNight ? 0.85 : 0.42}
-          roughness={0.15}
-          metalness={0.6}
+          emissiveIntensity={isNight ? 1.6 : 0.7}
+          transparent={true}
+          opacity={0.95}
+          side={THREE.DoubleSide}
+          roughness={0.1}
+          metalness={0.5}
+          depthWrite={false}
         />
       </mesh>
 
-      {/* 4. Display Screen (Back) for 360 Open Sea Visibility */}
-      <mesh position={[0, 0.72, -0.067]} rotation={[0, Math.PI, 0]}>
-        <planeGeometry args={[1.96, 1.04]} />
-        <meshStandardMaterial
-          map={texture}
-          emissiveMap={texture}
-          emissive="#ffffff"
-          emissiveIntensity={isNight ? 0.85 : 0.42}
-          roughness={0.15}
-          metalness={0.6}
-        />
-      </mesh>
-
-      {/* 5. Overhead Hooded Architectural Luminaire Bar */}
-      <mesh position={[0, 1.34, 0.04]} castShadow>
-        <boxGeometry args={[2.08, 0.06, 0.16]} />
-        <meshStandardMaterial color="#0b0e14" metalness={0.9} roughness={0.2} />
-      </mesh>
-
-      {/* Hood Underside Emissive Strip */}
-      <mesh position={[0, 1.305, 0.07]}>
-        <boxGeometry args={[1.96, 0.015, 0.05]} />
-        <meshBasicMaterial color={accentColor} />
-      </mesh>
-
-      {/* 6. Heavy Industrial Pylons Anchored in Island Bedrock */}
-      {[-0.78, 0.78].map((px, i) => (
-        <group key={`pylon-${i}`} position={[px, 0, 0]}>
-          {/* Main Steel Column */}
-          <mesh position={[0, 0.35, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.042, 0.055, 0.72, 16]} />
-            <meshStandardMaterial color="#1a202c" metalness={0.85} roughness={0.25} />
+      {/* Futuristic Hologram Projector Bases (No big pillars blocking view) */}
+      {[-1.2, 1.2].map((px, i) => (
+        <group key={`projector-${i}`} position={[px, -0.75, 0]}>
+          {/* Base Plate */}
+          <mesh position={[0, 0.02, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.15, 0.2, 0.04, 16]} />
+            <meshStandardMaterial color="#0b0e14" metalness={0.9} roughness={0.2} />
           </mesh>
-          {/* Hydraulic Collar */}
-          <mesh position={[0, 0.65, 0]} castShadow>
-            <cylinderGeometry args={[0.06, 0.06, 0.08, 16]} />
-            <meshStandardMaterial color="#2d3748" metalness={0.9} roughness={0.2} />
+          {/* Emissive Up-light lens */}
+          <mesh position={[0, 0.05, 0]}>
+            <cylinderGeometry args={[0.1, 0.1, 0.02, 16]} />
+            <meshBasicMaterial color={accentColor} />
+            <pointLight color={accentColor} intensity={isNight ? 0.4 : 0.1} distance={2} />
           </mesh>
-          {/* Ground Footing Foundation Stone */}
-          <mesh position={[0, 0.04, 0]} castShadow receiveShadow>
-            <boxGeometry args={[0.22, 0.08, 0.22]} />
-            <meshStandardMaterial color="#222834" roughness={0.7} />
+          {/* Laser beam connecting projector to screen */}
+          <mesh position={[0, 0.35, 0]}>
+            <cylinderGeometry args={[0.01, 0.01, 0.7, 8]} />
+            <meshBasicMaterial color={accentColor} transparent opacity={0.15} />
           </mesh>
         </group>
       ))}
