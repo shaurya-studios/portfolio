@@ -20,6 +20,21 @@ function AppContent() {
   const { isCruising, setIsCruising, viewMode, isDocking } = useScenery();
   const lenisRef = useRef<Lenis | null>(null);
 
+  // P0: Render Loop Pausing
+  const [frameloop, setFrameloop] = useState<'always' | 'demand' | 'never'>('always');
+  
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setFrameloop('never');
+      } else {
+        setFrameloop('always');
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -83,6 +98,7 @@ function AppContent() {
           {viewMode === '3d' ? (
             <div className="fixed inset-0 z-0 pointer-events-none">
               <Canvas
+                frameloop={frameloop}
                 eventSource={document.getElementById('main-scroll-container') || undefined}
                 camera={{ position: [0, 18, 22], fov: 40 }}
                 dpr={[1, 1.5]}

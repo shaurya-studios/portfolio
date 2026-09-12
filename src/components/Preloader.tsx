@@ -1,43 +1,104 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useProgress } from '@react-three/drei';
+import { useScenery } from '../context/SceneryContext';
 
 export default function Preloader({ onComplete }: { onComplete: () => void }) {
   const [percent, setPercent] = useState(0);
   const [isDone, setIsDone] = useState(false);
-
+  const { firstFrameRendered, viewMode } = useScenery();
+  const { progress } = useProgress();
+  const startTime = useRef(performance.now());
+  
   useEffect(() => {
-    // Lock scroll during preloader
     document.body.style.overflow = 'hidden';
 
-    // High-performance smooth counter
-    const timer = setInterval(() => {
-      setPercent((prev) => {
-        // Fast, smooth increments that reach 100% in ~1.2s
-        const step = Math.floor(Math.random() * 12) + 8;
-        const next = prev + step;
+    let isMounted = true;
+    let fallbackTimer: any;
 
-        if (next >= 100) {
-          clearInterval(timer);
-          
-          setTimeout(() => {
-            setIsDone(true);
-            document.body.style.overflow = 'unset';
-            onComplete();
-          }, 300);
+    async function trackLoading() {
+      // 1. Wait for fonts
+      let fontsLoaded = false;
+      try {
+        await document.fonts.ready;
+        fontsLoaded = true;
+      } catch (e) {
+        fontsLoaded = true; // Fallback
+      }
 
-          return 100;
+      // We poll to see if criteria are met
+      const checkInterval = setInterval(() => {
+        if (!isMounted) return;
+        
+        const is3D = viewMode === '3d';
+        const frameRendered = is3D ? firstFrameRendered : true;
+        const elapsed = performance.now() - startTime.current;
+
+        // Calculate a target percentage based on real completion
+        let targetPercent = 15;
+        if (fontsLoaded) targetPercent += 20;
+        if (is3D) {
+          targetPercent += (progress * 0.4); // up to 40%
+          if (frameRendered) targetPercent += 25; // final 25%
+        } else {
+          targetPercent = 100; // Lite mode immediately ready after fonts
         }
-        return next;
-      });
-    }, 55);
+
+        // Smooth increment towards target
+        setPercent(prev => {
+          const diff = targetPercent - prev;
+          let next = prev + (diff * 0.1) + Math.random() * 2;
+          
+          if (targetPercent === 100 && next >= 98) {
+            next = 100;
+          }
+          return Math.min(next, 100);
+        });
+
+        // Done condition
+        if (targetPercent >= 100 && percent > 98) {
+          // Minimum perceptual floor: 600ms
+          if (elapsed > 600) {
+            finishLoading();
+          }
+        }
+      }, 50);
+
+      // Timeout fallback (max 3 seconds)
+      fallbackTimer = setTimeout(() => {
+        if (isMounted && !isDone) {
+          finishLoading();
+        }
+      }, 3000);
+
+      return () => {
+        clearInterval(checkInterval);
+        clearTimeout(fallbackTimer);
+      };
+    }
+
+    trackLoading();
+
+    function finishLoading() {
+      setPercent(100);
+      setTimeout(() => {
+        if (!isMounted) return;
+        setIsDone(true);
+        document.body.style.overflow = 'unset';
+        onComplete();
+      }, 300);
+    }
 
     return () => {
-      clearInterval(timer);
+      isMounted = false;
       document.body.style.overflow = 'unset';
     };
-  }, [onComplete]);
+  }, [firstFrameRendered, progress, viewMode, onComplete, percent, isDone]);
 
   const getTelemetryStage = (p: number) => {
+    if (viewMode === 'lite') {
+      return p < 50 ? 'Loading core assets...' : 'System initialized.';
+    }
     if (p < 25) return 'Generating spatial island geometry...';
     if (p < 55) return 'Calibrating liquid depth & shoreline foam...';
     if (p < 85) return 'Compiling WebGL light shaders...';
@@ -73,7 +134,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
             {/* Percentage Readout */}
             <div className="flex flex-col items-center gap-2.5 font-mono">
               <div className="text-4xl sm:text-6xl font-bold tracking-tight text-[var(--color-text)] tabular-nums">
-                {Math.min(percent, 100)}%
+                {Math.floor(Math.min(percent, 100))}%
               </div>
               
               <div className="text-[11px] uppercase tracking-widest text-[var(--color-text-muted)] h-4">

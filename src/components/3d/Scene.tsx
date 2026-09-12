@@ -422,7 +422,7 @@ function CameraController({
 }
 
 export default function Scene() {
-  const { timeOfDay, setIsCruising, setBoatSpeed } = useScenery();
+  const { timeOfDay, setIsCruising, setBoatSpeed, setFirstFrameRendered } = useScenery();
   const { scene } = useThree();
 
   const isNight = timeOfDay === 'night';
@@ -431,6 +431,14 @@ export default function Scene() {
   const dirLightRef = useRef<THREE.DirectionalLight>(null);
   const hemiLightRef = useRef<THREE.HemisphereLight>(null);
   const rimLightRef = useRef<THREE.DirectionalLight>(null);
+  
+  const hasRenderedFirstFrame = useRef(false);
+  useFrame(() => {
+    if (!hasRenderedFirstFrame.current) {
+      hasRenderedFirstFrame.current = true;
+      setFirstFrameRendered(true);
+    }
+  });
 
   // Shared boat state refs for 60fps rendering without React re-render thrashing
   const boatPosRef = useRef<THREE.Vector2>(new THREE.Vector2(1.4, 4.0));

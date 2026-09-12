@@ -36,11 +36,12 @@ export default function Home() {
             </motion.div>
 
             {/* Kinetic Masked Display Title */}
-            <div className="font-display text-[14vw] sm:text-[10vw] lg:text-[6.5vw] font-bold leading-[0.88] tracking-[-0.04em] uppercase text-[var(--color-text)] mb-8 select-none">
-              <KineticText as="h1" delay={0.2} stagger={0.05}>
+            <h1 className="font-display text-[14vw] sm:text-[10vw] lg:text-[6.5vw] font-bold leading-[0.88] tracking-[-0.04em] uppercase text-[var(--color-text)] mb-8 select-none">
+              <span className="sr-only">Shaurya Studios - Full-Stack Web Developer</span>
+              <KineticText as="span" delay={0.2} stagger={0.05}>
                 SHAURYA STUDIOS
               </KineticText>
-            </div>
+            </h1>
 
             {/* Human-Friendly Subhead */}
             <p className="text-[var(--color-text-muted)] text-base sm:text-lg md:text-xl font-normal leading-relaxed max-w-lg mb-8 font-sans">

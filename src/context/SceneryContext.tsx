@@ -27,6 +27,8 @@ interface SceneryContextType {
   isDocking: boolean;
   setIsDocking: (val: boolean) => void;
   triggerDock: (zone?: 'works' | 'pricing' | 'hero') => void;
+  firstFrameRendered: boolean;
+  setFirstFrameRendered: (val: boolean) => void;
 }
 
 const SceneryContext = createContext<SceneryContextType | undefined>(undefined);
@@ -65,6 +67,18 @@ export function SceneryProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('shaurya_portfolio_viewmode');
       if (saved === 'lite' || saved === '3d') return saved;
+
+      // P0: DEVICE CAPABILITY CHECK
+      // Fallback to Lite mode for phones, touch devices with low core count, or explicitly low memory
+      const isMobile = window.innerWidth < 768;
+      const isCoarse = window.matchMedia('(pointer: coarse)').matches;
+      const cores = navigator.hardwareConcurrency || 4;
+      // @ts-ignore
+      const memory = navigator.deviceMemory || 8; 
+
+      if (isMobile || (isCoarse && cores <= 4) || memory < 4) {
+        return 'lite';
+      }
     }
     return '3d';
   });
@@ -72,6 +86,9 @@ export function SceneryProvider({ children }: { children: React.ReactNode }) {
   // Docking Zone & Transition State
   const [dockZone, setDockZone] = useState<DockZone>(null);
   const [isDocking, setIsDocking] = useState<boolean>(false);
+  
+  // Real Preloader Tracking
+  const [firstFrameRendered, setFirstFrameRendered] = useState(false);
 
   const setViewMode = (mode: ViewMode) => {
     setViewModeState(mode);
@@ -145,6 +162,8 @@ export function SceneryProvider({ children }: { children: React.ReactNode }) {
         isDocking,
         setIsDocking,
         triggerDock,
+        firstFrameRendered,
+        setFirstFrameRendered,
       }}
     >
       {children}
