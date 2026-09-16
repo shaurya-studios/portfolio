@@ -423,7 +423,17 @@ function CameraController({
 
 export default function Scene() {
   const { timeOfDay, setIsCruising, setBoatSpeed, setFirstFrameRendered } = useScenery();
-  const { scene } = useThree();
+  const { scene, invalidate } = useThree();
+
+  useEffect(() => {
+    const triggerRender = () => invalidate();
+    window.addEventListener('invalidate-frame', triggerRender);
+    window.addEventListener('mousemove', triggerRender); // Also render if they move the mouse (hover effects)
+    return () => {
+      window.removeEventListener('invalidate-frame', triggerRender);
+      window.removeEventListener('mousemove', triggerRender);
+    };
+  }, [invalidate]);
 
   const isNight = timeOfDay === 'night';
   const isSunset = timeOfDay === 'sunset';

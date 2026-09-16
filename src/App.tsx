@@ -20,20 +20,23 @@ function AppContent() {
   const { isCruising, setIsCruising, viewMode, isDocking } = useScenery();
   const lenisRef = useRef<Lenis | null>(null);
 
-  // P0: Render Loop Pausing
+  // P0: Render Loop Pausing & On-Demand Rendering
   const [frameloop, setFrameloop] = useState<'always' | 'demand' | 'never'>('always');
   
   useEffect(() => {
-    const handleVisibilityChange = () => {
+    const updateFrameloop = () => {
       if (document.hidden) {
         setFrameloop('never');
       } else {
-        setFrameloop('always');
+        // Run constantly if driving or transitioning. Freeze background if just reading HTML.
+        setFrameloop(isCruising || isDocking ? 'always' : 'demand');
       }
     };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, []);
+
+    updateFrameloop();
+    document.addEventListener('visibilitychange', updateFrameloop);
+    return () => document.removeEventListener('visibilitychange', updateFrameloop);
+  }, [isCruising, isDocking]);
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -52,11 +55,18 @@ function AppContent() {
     }
     animId = requestAnimationFrame(raf);
 
+    // Invalidate R3F frameloop on scroll so the background moves
+    lenis.on('scroll', () => {
+      if (frameloop === 'demand') {
+        window.dispatchEvent(new Event('invalidate-frame'));
+      }
+    });
+
     return () => {
       cancelAnimationFrame(animId);
       lenis.destroy();
     };
-  }, []);
+  }, [frameloop]);
 
   // Freeze smooth scrolling while the user is actively piloting the hydrofoil
   useEffect(() => {

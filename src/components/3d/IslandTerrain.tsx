@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Float } from '@react-three/drei';
+import { Float, Instances, Instance } from '@react-three/drei';
 import * as THREE from 'three';
 import { useScenery } from '../../context/SceneryContext';
 import { playTactileClick } from '../../utils/audioHaptics';
@@ -240,27 +240,26 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
         </mesh>
 
         {/* Natural Multi-Faceted Coastal Boulders along Waterline */}
-        {[
-          { pos: [-2.1, -0.15, 1.2], scale: [0.35, 0.25, 0.32], rot: [0.2, 0.5, 0.1] },
-          { pos: [-2.3, -0.18, 0.4], scale: [0.28, 0.22, 0.3], rot: [-0.1, 0.8, 0.2] },
-          { pos: [-1.8, -0.16, -1.6], scale: [0.42, 0.3, 0.38], rot: [0.3, -0.4, 0.1] },
-          { pos: [0.4, -0.18, -2.4], scale: [0.38, 0.26, 0.34], rot: [-0.2, 0.3, -0.1] },
-          { pos: [1.8, -0.15, -1.8], scale: [0.45, 0.32, 0.4], rot: [0.1, 0.7, -0.2] },
-          { pos: [2.3, -0.17, -0.2], scale: [0.35, 0.24, 0.32], rot: [-0.3, 0.2, 0.4] },
-          { pos: [2.1, -0.16, 1.1], scale: [0.32, 0.22, 0.3], rot: [0.2, -0.5, 0.1] },
-        ].map((boulder, i) => (
-          <mesh
-            key={`boulder-${i}`}
-            position={boulder.pos as [number, number, number]}
-            scale={boulder.scale as [number, number, number]}
-            rotation={boulder.rot as [number, number, number]}
-            castShadow
-            receiveShadow
-          >
-            <dodecahedronGeometry args={[1, 0]} />
-            <meshStandardMaterial color={isNight ? '#141a24' : '#b3aba0'} roughness={0.85} />
-          </mesh>
-        ))}
+        <Instances castShadow receiveShadow>
+          <dodecahedronGeometry args={[1, 0]} />
+          <meshStandardMaterial color={isNight ? '#141a24' : '#b3aba0'} roughness={0.85} />
+          {[
+            { pos: [-2.1, -0.15, 1.2], scale: [0.35, 0.25, 0.32], rot: [0.2, 0.5, 0.1] },
+            { pos: [-2.3, -0.18, 0.4], scale: [0.28, 0.22, 0.3], rot: [-0.1, 0.8, 0.2] },
+            { pos: [-1.8, -0.16, -1.6], scale: [0.42, 0.3, 0.38], rot: [0.3, -0.4, 0.1] },
+            { pos: [0.4, -0.18, -2.4], scale: [0.38, 0.26, 0.34], rot: [-0.2, 0.3, -0.1] },
+            { pos: [1.8, -0.15, -1.8], scale: [0.45, 0.32, 0.4], rot: [0.1, 0.7, -0.2] },
+            { pos: [2.3, -0.17, -0.2], scale: [0.35, 0.24, 0.32], rot: [-0.3, 0.2, 0.4] },
+            { pos: [2.1, -0.16, 1.1], scale: [0.32, 0.22, 0.3], rot: [0.2, -0.5, 0.1] },
+          ].map((boulder, i) => (
+            <Instance
+              key={`boulder-${i}`}
+              position={boulder.pos as [number, number, number]}
+              scale={boulder.scale as [number, number, number]}
+              rotation={boulder.rot as [number, number, number]}
+            />
+          ))}
+        </Instances>
 
         {/* Villa Foundation Plinth */}
         <mesh position={[0.75, 0.38, -0.32]} castShadow receiveShadow>
@@ -720,16 +719,17 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
         </mesh>
 
         {/* Surrounding Waterline Rock Clustered Reef */}
-        {[
-          { pos: [-1.4, -0.15, 0.6], scale: [0.3, 0.2, 0.28] },
-          { pos: [1.2, -0.16, -0.8], scale: [0.35, 0.24, 0.32] },
-          { pos: [0.3, -0.18, 1.4], scale: [0.28, 0.2, 0.26] },
-        ].map((b, i) => (
-          <mesh key={`beacon-boulder-${i}`} position={b.pos as [number, number, number]} scale={b.scale as [number, number, number]} castShadow>
-            <dodecahedronGeometry args={[1, 0]} />
-            <meshStandardMaterial color={isNight ? '#10151f' : '#aba398'} roughness={0.85} />
-          </mesh>
-        ))}
+        <Instances castShadow receiveShadow>
+          <dodecahedronGeometry args={[1, 0]} />
+          <meshStandardMaterial color={isNight ? '#10151f' : '#aba398'} roughness={0.85} />
+          {[
+            { pos: [-1.4, -0.15, 0.6], scale: [0.3, 0.2, 0.28] },
+            { pos: [1.2, -0.16, -0.8], scale: [0.35, 0.24, 0.32] },
+            { pos: [0.3, -0.18, 1.4], scale: [0.28, 0.2, 0.26] },
+          ].map((b, i) => (
+            <Instance key={`beacon-boulder-${i}`} position={b.pos as [number, number, number]} scale={b.scale as [number, number, number]} />
+          ))}
+        </Instances>
 
         {/* --- COASTAL LIGHTHOUSE TOWER --- */}
         <group position={[-0.6, 0.3, -0.5]}>
@@ -1076,24 +1076,23 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
         </group>
 
         {/* Coastal Rock Boulders around Outpost Perimeter */}
-        {[
-          { pos: [-1.8, 0.0, -1.2], scale: [0.4, 0.3, 0.35], rot: [0.2, 0.4, 0.1] },
-          { pos: [1.6, -0.05, 1.2], scale: [0.45, 0.32, 0.38], rot: [-0.1, 0.8, 0.2] },
-          { pos: [1.9, 0.02, -0.8], scale: [0.38, 0.28, 0.32], rot: [0.3, -0.2, 0.4] },
-          { pos: [-1.4, -0.08, 1.6], scale: [0.36, 0.24, 0.3], rot: [-0.2, 0.5, -0.1] },
-        ].map((b, bi) => (
-          <mesh
-            key={`outpost-rock-${bi}`}
-            position={b.pos as [number, number, number]}
-            scale={b.scale as [number, number, number]}
-            rotation={b.rot as [number, number, number]}
-            castShadow
-            receiveShadow
-          >
-            <dodecahedronGeometry args={[1, 0]} />
-            <meshStandardMaterial color={isNight ? '#111822' : '#9ca3af'} roughness={0.85} />
-          </mesh>
-        ))}
+        <Instances castShadow receiveShadow>
+          <dodecahedronGeometry args={[1, 0]} />
+          <meshStandardMaterial color={isNight ? '#111822' : '#9ca3af'} roughness={0.85} />
+          {[
+            { pos: [-1.8, 0.0, -1.2], scale: [0.4, 0.3, 0.35], rot: [0.2, 0.4, 0.1] },
+            { pos: [1.6, -0.05, 1.2], scale: [0.45, 0.32, 0.38], rot: [-0.1, 0.8, 0.2] },
+            { pos: [1.9, 0.02, -0.8], scale: [0.38, 0.28, 0.32], rot: [0.3, -0.2, 0.4] },
+            { pos: [-1.4, -0.08, 1.6], scale: [0.36, 0.24, 0.3], rot: [-0.2, 0.5, -0.1] },
+          ].map((b, bi) => (
+            <Instance
+              key={`outpost-rock-${bi}`}
+              position={b.pos as [number, number, number]}
+              scale={b.scale as [number, number, number]}
+              rotation={b.rot as [number, number, number]}
+            />
+          ))}
+        </Instances>
 
         {/* Rock-Grazing Architectural LED Floodlight */}
         <pointLight
@@ -1121,25 +1120,23 @@ export default function IslandTerrain({ boatPosition, boatPosRef }: IslandTerrai
       {/* ===================================================================
           5. DISTANT HORIZON MOUNTAIN SILHOUETTES (Radius 40 - 60)
           =================================================================== */}
-      {[
-        { pos: [-42, 2.5, -28], scale: [14, 7, 9], rot: [0, 0.4, 0] },
-        { pos: [38, 3.2, -35], scale: [18, 9, 12], rot: [0, -0.6, 0] },
-        { pos: [-28, 2.0, 42], scale: [12, 6, 8], rot: [0, 0.8, 0] },
-        { pos: [45, 2.8, 25], scale: [16, 8, 10], rot: [0, -0.3, 0] },
-      ].map((mt, i) => (
-        <mesh
-          key={`horizon-mountain-${i}`}
-          position={mt.pos as [number, number, number]}
-          scale={mt.scale as [number, number, number]}
-          rotation={mt.rot as [number, number, number]}
-        >
-          <coneGeometry args={[1.5, 1.0, 6]} />
-          <meshStandardMaterial
-            color={isNight ? '#0b111a' : '#b8c6cd'}
-            roughness={1.0}
+      <Instances>
+        <coneGeometry args={[1.5, 1.0, 6]} />
+        <meshStandardMaterial color={isNight ? '#0b111a' : '#b8c6cd'} roughness={1.0} />
+        {[
+          { pos: [-42, 2.5, -28], scale: [14, 7, 9], rot: [0, 0.4, 0] },
+          { pos: [38, 3.2, -35], scale: [18, 9, 12], rot: [0, -0.6, 0] },
+          { pos: [-28, 2.0, 42], scale: [12, 6, 8], rot: [0, 0.8, 0] },
+          { pos: [45, 2.8, 25], scale: [16, 8, 10], rot: [0, -0.3, 0] },
+        ].map((mt, i) => (
+          <Instance
+            key={`horizon-mountain-${i}`}
+            position={mt.pos as [number, number, number]}
+            scale={mt.scale as [number, number, number]}
+            rotation={mt.rot as [number, number, number]}
           />
-        </mesh>
-      ))}
+        ))}
+      </Instances>
 
     </group>
   );

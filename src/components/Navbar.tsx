@@ -92,6 +92,20 @@ export default function Navbar() {
 
         {/* Right Action Cluster */}
         <div className="flex items-center gap-2 sm:gap-2.5">
+          
+          {/* CRUISE / EMBARK BUTTON */}
+          {viewMode === '3d' && !isCruising && (
+            <button
+              onClick={() => setIsCruising(true)}
+              aria-label="Embark and drive hydrofoil"
+              title="Drive the hydrofoil boat (WASD)"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-cyan-500/40 bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 font-semibold text-xs font-mono tracking-wider uppercase transition-all shadow-[0_0_12px_rgba(6,182,212,0.2)] hover:bg-cyan-500/20"
+            >
+              <Compass size={13} className="text-cyan-500 dark:text-cyan-400" />
+              <span className="text-[10px] font-bold">CRUISE</span>
+            </button>
+          )}
+
           {/* View Mode 3D / Lite Switch */}
           <button
             onClick={toggleViewMode}

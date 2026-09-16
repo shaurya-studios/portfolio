@@ -1,5 +1,10 @@
 import { knowledgeBase } from '../src/knowledgeBase.js';
 
+// Extremely lightweight in-memory rate limiter for Vercel Serverless (warm invocations)
+const rateLimit = new Map();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 7; // Max 7 messages per minute per IP
+
 export default async function handler(req, res) {
   // CORS configuration
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -12,6 +17,31 @@ export default async function handler(req, res) {
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  // IP-based Rate Limiting
+  const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
+  const now = Date.now();
+  
+  const record = rateLimit.get(ip);
+  if (record) {
+    if (now - record.startTime < RATE_LIMIT_WINDOW) {
+      if (record.count >= MAX_REQUESTS_PER_WINDOW) {
+        return res.status(429).json({ error: 'Too many requests. Please slow down and try again in a minute.' });
+      }
+      record.count += 1;
+    } else {
+      rateLimit.set(ip, { count: 1, startTime: now });
+    }
+  } else {
+    rateLimit.set(ip, { count: 1, startTime: now });
+  }
+
+  // Cleanup map occasionally to prevent memory leaks in the container
+  if (Math.random() < 0.05) {
+    for (const [key, val] of rateLimit.entries()) {
+      if (now - val.startTime > RATE_LIMIT_WINDOW) rateLimit.delete(key);
+    }
   }
 
   if (req.method !== 'POST') {
