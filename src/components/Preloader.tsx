@@ -46,12 +46,24 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
 
         // Smooth increment towards target
         setPercent(prev => {
-          const diff = targetPercent - prev;
-          let next = prev + (diff * 0.1) + Math.random() * 2;
+          // Never allow target to decrease if resources unload/reload
+          const safeTarget = Math.max(targetPercent, prev);
+          const diff = safeTarget - prev;
           
-          if (targetPercent === 100 && next >= 98) {
+          let next = prev;
+          if (diff > 0.5) {
+             next = prev + (diff * 0.15) + (Math.random() * 1.5);
+          } else if (safeTarget === 100) {
+             next = 100;
+          }
+          
+          // Never go backwards
+          next = Math.max(next, prev);
+          
+          if (safeTarget >= 100 && next >= 98) {
             next = 100;
           }
+          
           return Math.min(next, 100);
         });
 
