@@ -69,11 +69,26 @@ function AppContent() {
     }
   }, [isCruising]);
 
-  // Press ESC to instantly dock the vessel and return to editorial portfolio view
+  // Global keyboard shortcuts (ESC to dock, WASD to auto-cruise)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user happens to be focused on an input/textarea
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
       if (e.key === 'Escape' && isCruising) {
         setIsCruising(false);
+        return;
+      }
+
+      if (!isCruising) {
+        const k = e.key.toLowerCase();
+        // We omit arrow keys here because users often use arrow keys to scroll the website. 
+        // Jumping to 3D when they just wanted to scroll down would be annoying.
+        if (['w', 'a', 's', 'd'].includes(k)) {
+          // They tried to drive the boat while in the 2D view! Jump into 3D.
+          setIsCruising(true);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
