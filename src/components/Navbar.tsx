@@ -99,9 +99,9 @@ export default function Navbar() {
               onClick={() => setIsCruising(true)}
               aria-label="Embark and drive hydrofoil"
               title="Drive the hydrofoil boat (WASD)"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-cyan-500/40 bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 font-semibold text-xs font-mono tracking-wider uppercase transition-all shadow-[0_0_12px_rgba(6,182,212,0.2)] hover:bg-cyan-500/20"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[var(--color-text)] bg-[var(--color-text)] text-[var(--color-bg)] font-semibold text-xs font-mono tracking-wider uppercase transition-all hover:bg-transparent hover:text-[var(--color-text)]"
             >
-              <Compass size={13} className="text-cyan-500 dark:text-cyan-400" />
+              <Compass size={13} />
               <span className="text-[10px] font-bold">CRUISE</span>
             </button>
           )}
@@ -112,17 +112,17 @@ export default function Navbar() {
             aria-label="Toggle 3D World or Clean Lite View"
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-mono tracking-wider uppercase transition-all ${
               viewMode === '3d'
-                ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+                ? 'border-[var(--color-border)] bg-[var(--color-card-bg)] text-[var(--color-text)] font-semibold hover:border-[var(--color-text)]'
                 : 'border-[var(--color-border)] hover:border-[var(--color-text)] bg-[var(--color-card-bg)] text-[var(--color-text-muted)]'
             }`}
             title={viewMode === '3d' ? 'Switch to Lite View (Disables 3D Models)' : 'Switch to Full 3D Interactive World'}
           >
             {viewMode === '3d' ? (
-              <Sparkles size={13} className="text-emerald-500" />
+              <Sparkles size={13} />
             ) : (
               <Monitor size={13} />
             )}
-            <span className="text-[10px] font-bold">{viewMode === '3d' ? '3D WORLD' : 'LITE'}</span>
+            <span className="text-[10px] font-bold">{viewMode === '3d' ? '3D' : 'LITE'}</span>
           </button>
 
           {/* Cruise Ocean Mode Toggle (Only in 3D Mode) */}

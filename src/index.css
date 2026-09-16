@@ -29,7 +29,7 @@
   --color-text-muted: #374151;
   --color-border: rgba(15, 17, 21, 0.12);
   --color-border-hover: rgba(15, 17, 21, 0.35);
-  --color-card-bg: rgba(255, 255, 255, 0.94);
+  --color-card-bg: #FFFFFF;
   --color-card-border: rgba(15, 17, 21, 0.12);
   --color-accent: #0F1115;
   --color-highlight: #92400E;
@@ -42,7 +42,7 @@
   --color-text-muted: #9CA3AF;
   --color-border: rgba(247, 245, 240, 0.12);
   --color-border-hover: rgba(233, 216, 166, 0.4);
-  --color-card-bg: rgba(17, 20, 27, 0.88);
+  --color-card-bg: #0A0B0E;
   --color-card-border: rgba(255, 255, 255, 0.1);
   --color-accent: #E9D8A6;
   --color-highlight: #E9D8A6;
@@ -105,8 +105,6 @@ body::after {
 
 .luxury-glass {
   background: var(--color-card-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--color-card-border);
   transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }

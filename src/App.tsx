@@ -146,6 +146,15 @@ function AppContent() {
             <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-transparent via-[var(--color-card-bg)]/30 to-transparent" />
           )}
 
+          {/* Layer 0.5: Editorial Contrast Overlay (Dims 3D to ensure text readability) */}
+          {viewMode === '3d' && (
+            <div
+              className={`fixed inset-0 z-0 pointer-events-none transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                !isCruising ? 'bg-[var(--color-bg)]/90 backdrop-blur-[2px]' : 'bg-transparent backdrop-blur-none'
+              }`}
+            />
+          )}
+
           {/* Layer 1: Luxury Telemetry Vessel HUD (Only in 3D Mode) */}
           {viewMode === '3d' && <VesselControlsHUD />}
 

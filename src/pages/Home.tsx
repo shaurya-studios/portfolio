@@ -48,23 +48,7 @@ export default function Home() {
               I build fast, modern websites and interactive 3D web experiences that help businesses, startups, and creators stand out. Clean code, sharp design, and high performance — built from scratch without bloated templates.
             </p>
 
-            {/* Performance & Quality Benchmarks */}
-            <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-10 font-mono text-xs text-[var(--color-text-muted)]">
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[var(--color-text)] font-semibold">100/100</span> SPEED SCORE
-              </div>
-              <div className="h-3 w-[1px] bg-[var(--color-border)]" />
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                <span className="text-[var(--color-text)] font-semibold">60 FPS</span> 3D MOTION
-              </div>
-              <div className="h-3 w-[1px] bg-[var(--color-border)]" />
-              <div className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                <span className="text-[var(--color-text)] font-semibold">100%</span> CUSTOM CRAFTED
-              </div>
-            </div>
+
 
             {/* Interactive Call to Actions */}
             <div className="flex flex-wrap items-center gap-4">
