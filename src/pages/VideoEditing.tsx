@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import ContactFooter from '../components/ContactFooter';
 import { useContact } from '../context/ContactContext';
-import { Film, Scissors, Sparkles, MonitorPlay, ArrowUpRight, Play, Pause, Activity } from 'lucide-react';
+import { Film, Scissors, Sparkles, MonitorPlay, ArrowUpRight, Play, Pause, Activity, Star } from 'lucide-react';
 import { KineticText } from '../components/ui/KineticText';
 import { TactileCard } from '../components/ui/TactileCard';
 import { playTactileClick } from '../utils/audioHaptics';
@@ -270,7 +270,50 @@ export default function VideoEditing() {
       </section>
 
       {/* ===================================================
-          04 // ENGAGEMENT TERMS
+          04 // CLIENT FEEDBACK
+          =================================================== */}
+      <section className="py-24 px-6 md:px-16 lg:px-24 max-w-7xl mx-auto w-full">
+        <div className="max-w-2xl mb-12">
+          <div className="flex items-center gap-2.5 mb-3">
+            <span className="section-label">CLIENT REVIEWS</span>
+          </div>
+          <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-[var(--color-text)] uppercase leading-none">
+            What Creators Say.
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <TactileCard
+            glowColor="rgba(255, 255, 255, 0.05)"
+            className="luxury-glass p-8 md:p-10 rounded-[2rem] flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex text-amber-500 mb-6 gap-1">
+                <Star size={16} fill="currentColor" />
+                <Star size={16} fill="currentColor" />
+                <Star size={16} fill="currentColor" />
+                <Star size={16} fill="currentColor" />
+                <Star size={16} fill="currentColor" className="text-amber-500/30" />
+              </div>
+              <blockquote className="text-xl md:text-2xl font-display font-medium text-[var(--color-text)] leading-tight mb-8">
+                "@shauryaa74 makes really good quality pictures and very fast aswell and nice 8/10"
+              </blockquote>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-[#5C6BC0]/20 flex items-center justify-center border border-[#5C6BC0]/30">
+                <span className="font-mono text-[#5C6BC0] font-bold">SR</span>
+              </div>
+              <div>
+                <div className="font-bold text-[var(--color-text)]">SacredRedstone</div>
+                <div className="text-xs font-mono text-[var(--color-text-muted)] uppercase">Discord Client</div>
+              </div>
+            </div>
+          </TactileCard>
+        </div>
+      </section>
+
+      {/* ===================================================
+          05 // ENGAGEMENT TERMS
           =================================================== */}
       <section className="py-24 px-6 md:px-16 lg:px-24 max-w-7xl mx-auto w-full">
         <TactileCard
@@ -278,7 +321,6 @@ export default function VideoEditing() {
           className="luxury-glass p-10 md:p-16 rounded-[2.5rem] max-w-4xl mx-auto text-center"
         >
           <div className="flex items-center justify-center gap-2 text-xs font-mono text-[var(--color-text-muted)] tracking-widest uppercase mb-4">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
             <span>SIMPLE TERMS & FAST TURNAROUND</span>
           </div>
 
@@ -317,14 +359,14 @@ export default function VideoEditing() {
       </section>
 
       {/* ===================================================
-          05 // TOOLS & SOFTWARE
+          06 // TOOLS & SOFTWARE
           =================================================== */}
       <section className="py-20 px-6 max-w-4xl mx-auto w-full text-center">
         <div className="section-label mb-6">TOOLS & SOFTWARE</div>
 
         <div className="flex flex-wrap justify-center gap-3">
           {['Adobe Premiere Pro', 'DaVinci Resolve Studio', 'After Effects', 'Adobe Audition', 'Photoshop', 'Blender'].map((tool, i) => (
-            <div key={i} className="px-5 py-2.5 text-xs font-mono text-[var(--color-text)] border border-[var(--color-border)] rounded-full luxury-glass">
+            <div key={i} className="px-5 py-2.5 text-xs font-mono text-[var(--color-text)] border border-[var(--color-border)] rounded-full bg-[var(--color-card-bg)] shadow-sm">
               {tool}
             </div>
           ))}
@@ -332,7 +374,7 @@ export default function VideoEditing() {
       </section>
 
       {/* ===================================================
-          06 // CONTACT FOOTER
+          07 // CONTACT FOOTER
           =================================================== */}
       <div>
         <ContactFooter />
