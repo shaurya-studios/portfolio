@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useContact } from '../context/ContactContext';
 import { useScenery } from '../context/SceneryContext';
-import { Sun, Moon, Compass, Sparkles, Monitor } from 'lucide-react';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { openContact } = useContact();
-  const { timeOfDay, toggleTimeOfDay, isCruising, setIsCruising, viewMode, toggleViewMode } = useScenery();
+  const { isConstructionMode, toggleConstructionMode } = useScenery();
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,23 +18,6 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleNav = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
-    e.preventDefault();
-    if (isCruising) {
-      setIsCruising(false);
-    }
-    if (location.pathname !== '/') {
-      navigate('/' + hash);
-    } else {
-      const element = document.querySelector(hash);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
-
-  const isNight = timeOfDay === 'night';
-
   return (
     <motion.header 
       initial={{ y: -80, opacity: 0 }}
@@ -44,133 +25,39 @@ export default function Navbar() {
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className="fixed top-6 left-0 w-full z-50 px-6 md:px-12 pointer-events-none"
     >
-      <div className={`mx-auto max-w-7xl flex items-center justify-between transition-all duration-500 rounded-full px-6 py-3.5 pointer-events-auto ${
+      <div className={`mx-auto max-w-7xl flex items-center justify-between transition-all duration-500 px-6 py-3.5 pointer-events-auto ${
         scrolled 
-          ? 'luxury-glass shadow-[0_15px_35px_-10px_rgba(0,0,0,0.06)]' 
+          ? 'bg-[#050505]/90 backdrop-blur-md border border-white/10 shadow-2xl' 
           : 'bg-transparent border border-transparent'
       }`}>
-        {/* Brand Name */}
         <Link 
           to="/" 
-          onClick={() => { if (isCruising) setIsCruising(false); }}
-          className="font-mono text-xs md:text-sm tracking-[0.25em] uppercase font-semibold flex items-center gap-2.5 transition-opacity hover:opacity-75"
+          onClick={(e) => {
+            if (location.pathname === '/') {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }}
+          className="text-white font-mono font-bold tracking-[0.2em] text-sm md:text-base hover:opacity-70 transition-opacity"
         >
-          <span className={`w-2 h-2 rounded-full transition-colors duration-500 ${isNight ? 'bg-[#5eead4] shadow-[0_0_8px_#5eead4]' : 'bg-[#0F1115]'}`} />
-          SHAURYA STUDIOS
+          SHAURYA
         </Link>
-        
-        {/* Nav Links */}
-        <nav className="hidden md:flex items-center gap-8 text-xs uppercase tracking-[0.2em] font-mono">
-          <a 
-            href="#work" 
-            onClick={(e) => handleNav(e, '#work')} 
-            className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors py-1"
-          >
-            Works
-          </a>
-          <a 
-            href="#services" 
-            onClick={(e) => handleNav(e, '#services')} 
-            className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors py-1"
-          >
-            Services
-          </a>
-          <a 
-            href="#pricing" 
-            onClick={(e) => handleNav(e, '#pricing')} 
-            className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors py-1"
-          >
-            Pricing
-          </a>
-          <Link 
-            to="/video-editing" 
-            className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors py-1"
-          >
-            Video
-          </Link>
-        </nav>
 
-        {/* Right Action Cluster */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
-          
-          {/* CRUISE / EMBARK BUTTON */}
-          {viewMode === '3d' && !isCruising && (
-            <button
-              onClick={() => setIsCruising(true)}
-              aria-label="Embark and drive hydrofoil"
-              title="Drive the hydrofoil boat (WASD)"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[var(--color-text)] bg-[var(--color-text)] text-[var(--color-bg)] font-semibold text-xs font-mono tracking-wider uppercase transition-all hover:bg-transparent hover:text-[var(--color-text)]"
-            >
-              <Compass size={13} />
-              <span className="text-[10px] font-bold">CRUISE</span>
-            </button>
-          )}
-
-          {/* View Mode 3D / Lite Switch */}
+        <div className="flex items-center gap-4">
           <button
-            onClick={toggleViewMode}
-            aria-label="Toggle 3D World or Clean Lite View"
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-mono tracking-wider uppercase transition-all ${
-              viewMode === '3d'
-                ? 'border-[var(--color-border)] bg-[var(--color-card-bg)] text-[var(--color-text)] font-semibold hover:border-[var(--color-text)]'
-                : 'border-[var(--color-border)] hover:border-[var(--color-text)] bg-[var(--color-card-bg)] text-[var(--color-text-muted)]'
-            }`}
-            title={viewMode === '3d' ? 'Switch to Lite View (Disables 3D Models)' : 'Switch to Full 3D Interactive World'}
+            onClick={toggleConstructionMode}
+            className={`flex items-center gap-2 px-3 py-1.5 border ${isConstructionMode ? 'border-[#5eead4] text-[#5eead4]' : 'border-white/20 text-white/60 hover:text-white'} text-xs font-mono tracking-widest uppercase transition-all`}
+            title="Toggle Construction Mode"
           >
-            {viewMode === '3d' ? (
-              <Sparkles size={13} />
-            ) : (
-              <Monitor size={13} />
-            )}
-            <span className="text-[10px] font-bold">{viewMode === '3d' ? '3D' : 'LITE'}</span>
+            <span className="hidden sm:inline text-[10px]">CONSTRUCT_MODE</span>
+            <span className="w-2 h-2 rounded-full border border-current" style={{ backgroundColor: isConstructionMode ? '#5eead4' : 'transparent' }} />
           </button>
 
-          {/* Cruise Ocean Mode Toggle (Only in 3D Mode) */}
-          {viewMode === '3d' && (
-            <button
-              onClick={() => setIsCruising(!isCruising)}
-              aria-label="Toggle Ocean Cruise Mode"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-mono tracking-wider uppercase transition-all ${
-                isCruising
-                  ? 'border-cyan-500 bg-cyan-500/10 text-cyan-500 font-semibold shadow-[0_0_12px_rgba(6,182,212,0.25)]'
-                  : 'border-[var(--color-border)] hover:border-[var(--color-text)] bg-[var(--color-card-bg)] text-[var(--color-text-muted)]'
-              }`}
-              title="Drive the Hydrofoil Boat (WASD)"
-            >
-              <Compass size={13} className={isCruising ? 'text-cyan-500 animate-spin' : ''} />
-              <span className="hidden sm:inline text-[10px]">{isCruising ? 'DOCK' : 'CRUISE'}</span>
-            </button>
-          )}
-
-          {/* Day / Midnight Scenery Switch */}
-          <button
-            onClick={toggleTimeOfDay}
-            aria-label="Toggle Island Atmosphere"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[var(--color-border)] hover:border-[var(--color-text)] bg-[var(--color-card-bg)] text-xs font-mono tracking-widest uppercase transition-all"
-            title={isNight ? 'Switch to Golden Hour' : 'Switch to Midnight'}
-          >
-            {isNight ? (
-              <>
-                <Moon size={13} className="text-[#5eead4]" />
-                <span className="hidden sm:inline text-[10px]">MIDNIGHT</span>
-              </>
-            ) : (
-              <>
-                <Sun size={13} className="text-[#C6B8A8]" />
-                <span className="hidden sm:inline text-[10px]">GOLDEN HR</span>
-              </>
-            )}
-          </button>
-
-          {/* Contact Button */}
           <button 
-            onClick={() => {
-              if (isCruising) setIsCruising(false);
-              openContact();
-            }}
-            className="px-4 sm:px-5 py-2 rounded-full bg-[var(--color-text)] text-[var(--color-bg)] text-xs font-mono font-semibold tracking-[0.15em] uppercase hover:opacity-90 active:scale-[0.98] transition-all shadow-md"
+            onClick={openContact}
+            className="px-4 py-1.5 border border-white text-white text-xs font-mono tracking-[0.15em] uppercase hover:bg-white hover:text-black transition-all"
           >
-            Contact
+            Connect
           </button>
         </div>
       </div>

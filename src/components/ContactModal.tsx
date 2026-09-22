@@ -1,21 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useContact } from '../context/ContactContext';
-import { useScenery } from '../context/SceneryContext';
 import { Copy, Mail, MessageSquare, ExternalLink, Check, X, Sparkles } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { playTactileClick } from '../utils/audioHaptics';
 
 export default function ContactModal() {
   const { isOpen, closeContact } = useContact();
-  const { isCruising, setIsCruising } = useScenery();
   const [copiedId, setCopiedId] = useState<string | null>(null);
-
-  // Automatically dock/stop cruising when contact modal is opened
-  useEffect(() => {
-    if (isOpen && isCruising) {
-      setIsCruising(false);
-    }
-  }, [isOpen, isCruising, setIsCruising]);
 
   const handleCopy = (text: string, id: string) => {
     playTactileClick();

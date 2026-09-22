@@ -15,10 +15,10 @@ export default function ContactFooter() {
       >
         <span className="section-label mb-4">Direct Contact</span>
         <h2 className="font-display text-4xl md:text-6xl font-bold mb-6 tracking-tight text-[var(--color-text)]">
-          Let's work together.
+          Let's talk.
         </h2>
         <p className="text-[var(--color-text-muted)] text-base md:text-lg max-w-xl mx-auto leading-relaxed mb-10 font-sans">
-          Available for web development, interactive 3D experiences, and video editing projects. Reach out directly to discuss your vision.
+          I'm always open to discussing new projects, freelance work, or interesting ideas. Feel free to reach out.
         </p>
         <button 
           onClick={openContact}
@@ -30,7 +30,7 @@ export default function ContactFooter() {
 
       {/* Ultra-minimal copyright footer */}
       <div className="mt-20 flex justify-center items-center text-xs font-mono text-[var(--color-text-muted)] border-t border-[var(--color-border)] pt-8 tracking-widest uppercase">
-        <div>&copy; 2026 SHAURYA STUDIOS. ALL RIGHTS RESERVED.</div>
+        <div>&copy; {new Date().getFullYear()} SHAURYA.</div>
       </div>
     </section>
   );
