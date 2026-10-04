@@ -1,60 +1,89 @@
+import { ScrollControls, Scroll } from '@react-three/drei';
+import * as THREE from 'three';
+import KineticLoom from './KineticLoom';
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Environment, Grid } from '@react-three/drei';
-import { useScenery } from '../../context/SceneryContext';
-import SignatureObject from './SignatureObject';
+import { fuzzBackgroundVertex, fuzzBackgroundFragment } from './shaders/LoomShaders';
 
-export default function Scene() {
-  const { isConstructionMode } = useScenery();
-  const scrollProgress = useRef(0);
-  const targetProgress = useRef(0);
+function FuzzBackground() {
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
 
-  // Sync scroll progress smoothly
-  useFrame((state, delta) => {
-    // Calculate max scroll
-    const maxScroll = Math.max(
-      document.documentElement.scrollHeight - window.innerHeight,
-      1
-    );
-    targetProgress.current = window.scrollY / maxScroll;
-
-    // Smoothly interpolate scroll progress for physics
-    const lambda = 5.0;
-    scrollProgress.current += (targetProgress.current - scrollProgress.current) * (1 - Math.exp(-lambda * delta));
-    
-    // Move the camera slightly based on scroll to "fly into" the space
-    state.camera.position.z = 15 - (scrollProgress.current * 10);
-    state.camera.position.y = scrollProgress.current * 2;
+  useFrame((state) => {
+    if (materialRef.current) {
+      materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
+    }
   });
 
   return (
-    <>
-      <color attach="background" args={['#050505']} />
-      
-      {/* Stark directional lighting for dramatic physical shadows */}
-      <directionalLight position={[10, 10, 5]} intensity={2.5} color="#ffffff" castShadow />
-      <directionalLight position={[-10, -10, -5]} intensity={0.5} color="#5eead4" />
-      <ambientLight intensity={0.1} />
-
-      {/* The Central Interactive Sculpture */}
-      <SignatureObject scrollProgress={scrollProgress.current} />
-
-      {/* The Digital Workspace Floor / Grid */}
-      <Grid 
-        position={[0, -5, 0]} 
-        args={[100, 100]} 
-        cellSize={1} 
-        cellThickness={isConstructionMode ? 1.5 : 0.5} 
-        cellColor={isConstructionMode ? '#5eead4' : '#222222'} 
-        sectionSize={5} 
-        sectionThickness={1} 
-        sectionColor={isConstructionMode ? '#5eead4' : '#333333'} 
-        fadeDistance={30}
-        fadeStrength={1}
+    <mesh position={[0, 0, -20]} scale={[100, 100, 1]}>
+      <planeGeometry args={[1, 1]} />
+      <shaderMaterial
+        ref={materialRef}
+        vertexShader={fuzzBackgroundVertex}
+        fragmentShader={fuzzBackgroundFragment}
+        uniforms={{
+          uTime: { value: 0 }
+        }}
+        depthWrite={false}
       />
+    </mesh>
+  );
+}
+
+export default function Scene() {
+  return (
+    <>
+      <color attach="background" args={['#08080a']} />
       
-      {/* Minimal environment map for reflections on metal/glass */}
-      <Environment preset="studio" environmentIntensity={0.2} />
+      {/* 
+        ScrollControls manages the HTML overlay and scroll progress. 
+        pages={4} creates a 400vh tall scroll container.
+      */}
+      <ScrollControls pages={4} damping={0.2} distance={1.5}>
+        {/* Background fuzz behind everything */}
+        <FuzzBackground />
+        
+        {/* The dynamic thread instanced mesh */}
+        <KineticLoom />
+
+        {/* 
+          HTML Overlay stitched over the 3D canvas 
+          This replaces the traditional App.tsx routes for the immersive experience.
+        */}
+        <Scroll html style={{ width: '100%', height: '100%' }}>
+          <div className="w-screen h-screen flex flex-col items-center justify-center pointer-events-none">
+            <h1 className="text-white text-5xl md:text-8xl font-sans tracking-tight opacity-90 mix-blend-difference drop-shadow-2xl">
+              SHAURYA
+            </h1>
+            <p className="text-white/60 font-mono text-sm tracking-[0.3em] mt-4 uppercase">
+              Scroll to Weave
+            </p>
+          </div>
+          
+          <div className="w-screen h-screen flex flex-col items-start justify-center px-12 md:px-32 pointer-events-none">
+            <h2 className="text-[#5eead4] text-sm font-mono tracking-widest mb-4">CASE STUDY [01]</h2>
+            <h3 className="text-white text-4xl md:text-6xl font-sans font-bold">Editify Studios</h3>
+            <p className="text-white/70 max-w-md mt-6 text-lg">
+              A high-performance video editing agency interface. The digital fabric of modern content creation.
+            </p>
+          </div>
+
+          <div className="w-screen h-screen flex flex-col items-end justify-center px-12 md:px-32 pointer-events-none text-right">
+            <h2 className="text-[#5eead4] text-sm font-mono tracking-widest mb-4">CASE STUDY [02]</h2>
+            <h3 className="text-white text-4xl md:text-6xl font-sans font-bold">ThumbPilot</h3>
+            <p className="text-white/70 max-w-md mt-6 text-lg text-right ml-auto">
+              A/B testing architecture woven into a scalable product.
+            </p>
+          </div>
+          
+          <div className="w-screen h-screen flex flex-col items-center justify-center pointer-events-none">
+            <h3 className="text-white text-3xl font-sans font-bold">Ready to craft?</h3>
+            <button className="mt-8 px-8 py-3 border border-white/20 text-white font-mono text-sm tracking-widest hover:bg-white hover:text-black transition-colors pointer-events-auto cursor-pointer">
+              INITIALIZE_CONTACT
+            </button>
+          </div>
+        </Scroll>
+      </ScrollControls>
     </>
   );
 }
