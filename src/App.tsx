@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
 import Scene from './components/3d/Scene';
 import Navbar from './components/Navbar';
-import Cursor from './components/Cursor';
 import { ContactProvider } from './context/ContactContext';
 import { SceneryProvider } from './context/SceneryContext';
 import ContactModal from './components/ContactModal';
@@ -24,7 +23,6 @@ function AppContent() {
         className="relative min-h-screen bg-[#050505] transition-colors duration-700 overflow-hidden"
       >
         <Router>
-          <Cursor />
           <Navbar />
 
           <div className="fixed inset-0 z-0 pointer-events-auto">
