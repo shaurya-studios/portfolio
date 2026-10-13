@@ -65,19 +65,19 @@ export default function Scene() {
             <div className="flex flex-col items-center text-center max-w-4xl">
               
               {/* Crisp, High-Contrast Master Typography */}
-              <h1 className="text-white text-6xl sm:text-7xl md:text-9xl font-sans tracking-tighter font-extrabold select-none drop-shadow-[0_14px_45px_rgba(0,0,0,0.95)] leading-[0.95]">
-                SHAURYA
+              <h1 className="text-white text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-sans tracking-tight font-black select-none drop-shadow-[0_16px_50px_rgba(0,0,0,0.95)] leading-[0.92]">
+                SHAURYA STUDIOS
               </h1>
 
               {/* Subtitle in Frosted Blurred Rounded Rectangle for Pristine Visibility */}
-              <div className="mt-8 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-black/70 border border-amber-500/35 backdrop-blur-2xl shadow-[0_15px_40px_rgba(0,0,0,0.85)] max-w-xl mx-auto flex items-center justify-center">
+              <div className="mt-8 px-7 sm:px-9 py-3.5 sm:py-4 rounded-2xl bg-black/65 border border-amber-500/30 backdrop-blur-2xl shadow-[0_15px_40px_rgba(0,0,0,0.85)] max-w-xl mx-auto flex items-center justify-center">
                 <p className="text-amber-100 font-mono text-xs sm:text-sm tracking-[0.22em] uppercase text-center font-medium leading-relaxed drop-shadow-sm">
-                  Engineering Digital Experiences Through Craft & Precision
+                  Engineering Digital Experiences Through Craft &amp; Precision
                 </p>
               </div>
 
-              {/* Scroll Cue Pill */}
-              <div className="mt-10 flex items-center gap-2.5 px-5 py-2 rounded-full bg-black/60 border border-amber-500/25 backdrop-blur-md text-amber-200/80 font-mono text-[11px] tracking-[0.25em] uppercase shadow-lg">
+              {/* Minimal Scroll Cue */}
+              <div className="mt-10 flex items-center gap-2.5 px-5 py-2 rounded-full bg-black/50 border border-white/10 backdrop-blur-md text-amber-200/70 font-mono text-[11px] tracking-[0.25em] uppercase shadow-lg">
                 <span className="inline-block animate-bounce text-amber-400">↓</span>
                 <span>Scroll To Explore</span>
               </div>

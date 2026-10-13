@@ -54,7 +54,7 @@ export default function ContactModal() {
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_10px_#f59e0b]" />
                 <span className="font-mono text-[11px] font-bold uppercase tracking-widest text-amber-300/80">
-                  Direct Inquiries &bull; Available for Work
+                  Shaurya Studios &bull; Direct Inquiries
                 </span>
               </div>
               <h2 className="font-sans text-2xl sm:text-3xl font-bold tracking-tight text-white">

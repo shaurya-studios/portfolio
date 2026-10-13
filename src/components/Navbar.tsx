@@ -40,9 +40,10 @@ export default function Navbar() {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }
           }}
-          className="text-white font-mono font-bold tracking-[0.25em] text-sm md:text-base hover:text-amber-400 transition-colors"
+          className="text-white font-mono font-bold tracking-[0.22em] text-xs sm:text-sm md:text-base hover:text-amber-400 transition-colors flex items-center gap-2.5"
         >
-          SHAURYA
+          <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b]" />
+          SHAURYA STUDIOS
         </Link>
 
         <div className="flex items-center gap-3 sm:gap-4">
