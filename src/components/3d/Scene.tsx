@@ -212,7 +212,15 @@ export default function Scene() {
               </div>
               
               <h2 className="text-white text-3xl sm:text-4xl md:text-5xl font-sans font-bold tracking-tight mb-4 drop-shadow-md">
-                Editify Studios
+                <a
+                  href="https://editify-studios.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => playTactileClick()}
+                  className="hover:text-amber-400 transition-colors"
+                >
+                  Editify Studios
+                </a>
               </h2>
               
               <p className="text-neutral-200 text-sm sm:text-base md:text-lg leading-relaxed mb-6 font-sans">
@@ -228,11 +236,13 @@ export default function Scene() {
               
               <div className="flex items-center gap-4">
                 <a
-                  href="/video-editing"
+                  href="https://editify-studios.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => playTactileClick()}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-mono text-xs font-bold tracking-wider uppercase hover:bg-amber-400 transition-all shadow-lg active:scale-95 cursor-pointer"
                 >
-                  <span>Explore Case Study</span>
+                  <span>Visit Editify Studios</span>
                   <ArrowUpRight size={14} />
                 </a>
               </div>
@@ -256,7 +266,15 @@ export default function Scene() {
               </div>
               
               <h2 className="text-white text-3xl sm:text-4xl md:text-5xl font-sans font-bold tracking-tight mb-4 drop-shadow-md">
-                ThumbPilot
+                <a
+                  href="https://thumbpilot-main.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => playTactileClick()}
+                  className="hover:text-amber-400 transition-colors"
+                >
+                  ThumbPilot
+                </a>
               </h2>
               
               <p className="text-neutral-200 text-sm sm:text-base md:text-lg leading-relaxed mb-6 font-sans">
@@ -271,16 +289,16 @@ export default function Scene() {
               </div>
               
               <div className="flex items-center gap-4">
-                <button
-                  onClick={() => {
-                    playTactileClick();
-                    openContact();
-                  }}
+                <a
+                  href="https://thumbpilot-main.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => playTactileClick()}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-mono text-xs font-bold tracking-wider uppercase hover:bg-amber-400 transition-all shadow-lg active:scale-95 cursor-pointer"
                 >
-                  <span>Inquire Architecture</span>
+                  <span>Launch ThumbPilot</span>
                   <ArrowUpRight size={14} />
-                </button>
+                </a>
               </div>
             </div>
           </div>
