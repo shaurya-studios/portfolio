@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { useContact } from '../context/ContactContext';
 import { useScenery } from '../context/SceneryContext';
+import { playTactileClick } from '../utils/audioHaptics';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -25,37 +26,44 @@ export default function Navbar() {
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className="fixed top-6 left-0 w-full z-50 px-6 md:px-12 pointer-events-none"
     >
-      <div className={`mx-auto max-w-7xl flex items-center justify-between transition-all duration-500 px-6 py-3.5 pointer-events-auto ${
+      <div className={`mx-auto max-w-7xl flex items-center justify-between transition-all duration-500 px-6 py-3.5 pointer-events-auto rounded-full ${
         scrolled 
-          ? 'bg-[#050505]/90 backdrop-blur-md border border-white/10 shadow-2xl' 
+          ? 'bg-[#100b08]/90 backdrop-blur-md border border-amber-500/25 shadow-2xl' 
           : 'bg-transparent border border-transparent'
       }`}>
         <Link 
           to="/" 
           onClick={(e) => {
+            playTactileClick();
             if (location.pathname === '/') {
               e.preventDefault();
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }
           }}
-          className="text-white font-mono font-bold tracking-[0.2em] text-sm md:text-base hover:opacity-70 transition-opacity"
+          className="text-white font-mono font-bold tracking-[0.25em] text-sm md:text-base hover:text-amber-400 transition-colors"
         >
           SHAURYA
         </Link>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <button
-            onClick={toggleConstructionMode}
-            className={`flex items-center gap-2 px-3 py-1.5 border ${isConstructionMode ? 'border-[#5eead4] text-[#5eead4]' : 'border-white/20 text-white/60 hover:text-white'} text-xs font-mono tracking-widest uppercase transition-all`}
-            title="Toggle Construction Mode"
+            onClick={() => {
+              playTactileClick();
+              toggleConstructionMode();
+            }}
+            className={`flex items-center gap-2 px-3 py-1.5 border rounded-full ${isConstructionMode ? 'border-amber-400 text-amber-300 bg-amber-500/15' : 'border-amber-500/20 text-amber-100/60 hover:text-amber-200 hover:border-amber-500/40'} text-xs font-mono tracking-widest uppercase transition-all cursor-pointer`}
+            title="Toggle Wireframe Architecture"
           >
-            <span className="hidden sm:inline text-[10px]">CONSTRUCT_MODE</span>
-            <span className="w-2 h-2 rounded-full border border-current" style={{ backgroundColor: isConstructionMode ? '#5eead4' : 'transparent' }} />
+            <span className="hidden sm:inline text-[10px]">WIREFRAME</span>
+            <span className="w-1.5 h-1.5 rounded-full border border-current" style={{ backgroundColor: isConstructionMode ? '#f59e0b' : 'transparent' }} />
           </button>
 
           <button 
-            onClick={openContact}
-            className="px-4 py-1.5 border border-white text-white text-xs font-mono tracking-[0.15em] uppercase hover:bg-white hover:text-black transition-all"
+            onClick={() => {
+              playTactileClick();
+              openContact();
+            }}
+            className="px-4 sm:px-5 py-1.5 rounded-full border border-amber-400/80 bg-amber-500/10 text-amber-200 text-xs font-mono tracking-[0.15em] uppercase hover:bg-amber-400 hover:text-black transition-all cursor-pointer font-semibold shadow-md active:scale-95"
           >
             Connect
           </button>
