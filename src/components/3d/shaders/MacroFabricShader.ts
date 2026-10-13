@@ -20,7 +20,7 @@ export const fabricFragmentShader = `
       return fract(p.x * p.y);
   }
   
-  // Simplex-ish noise for fiber irregularities
+  // Simplex-ish noise for fiber irregularities and organic weave variation
   float snoise(vec2 v) {
       const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
       vec2 i  = floor(v + dot(v, C.yy));
@@ -44,76 +44,94 @@ export const fabricFragmentShader = `
   }
 
   void main() {
-    // Correct aspect ratio
     vec2 st = vUv;
     
-    // Scale defines the "zoom" level into the fabric. 
-    // High scale = seeing individual woven threads.
-    float scale = 150.0;
+    // Zoom scale: 72.0 gives an intimate macro view where individual woven yarn coils are distinctly seen
+    float scale = 72.0;
     vec2 scaledUv = st * scale;
     
-    // Animate slightly with scroll to give a tactile panning feeling
-    scaledUv.y += uScroll * 20.0;
+    // Smooth scroll panning
+    scaledUv.y += uScroll * 14.0;
     
-    // ---- FABRIC STRUCTURE (WARP & WEFT) ----
+    // Organic thread path distortion (simulating raw spun silk handloom irregularity)
+    float threadWobble = snoise(scaledUv * 0.15) * 0.35;
     
-    // Weft (Horizontal Threads)
-    // Use a sine wave, but distort it slightly with noise for realism
-    float noiseDistort = snoise(scaledUv * 0.5) * 0.5;
-    float weftWave = sin((scaledUv.y + noiseDistort) * 3.1415);
+    // Coordinates within thread grid
+    vec2 threadUv = scaledUv + threadWobble;
     
-    // Warp (Vertical Threads)
-    float warpWave = sin((scaledUv.x + noiseDistort) * 3.1415);
+    // ---- WARP & WEFT WEAVE STRUCTURE ----
+    // Weft (Horizontal Yarn)
+    float weftPhase = fract(threadUv.y);
+    float weftCylinder = sin(weftPhase * 3.14159);
     
-    // Over/Under logic (Checkerboard weave pattern)
-    // Adds a 3D depth to which thread is on top
-    float weaveGrid = mod(floor(scaledUv.x) + floor(scaledUv.y), 2.0);
+    // Warp (Vertical Yarn)
+    float warpPhase = fract(threadUv.x);
+    float warpCylinder = sin(warpPhase * 3.14159);
     
-    // Thread shaping (giving them cylindrical volume)
-    float weftVolume = abs(weftWave);
-    float warpVolume = abs(warpWave);
+    // Checkerboard over/under interlacing pattern
+    float cellX = floor(threadUv.x);
+    float cellY = floor(threadUv.y);
+    float isOver = mod(cellX + cellY, 2.0); // 1 = Warp on top, 0 = Weft on top
     
-    // Choose dominant thread based on weave grid
-    float threadVolume = mix(warpVolume, weftVolume, weaveGrid);
-    float isWeft = weaveGrid;
+    // Micro-fibers: fine parallel filament striations along each thread bundle (like wound spool thread)
+    float microWarp = sin((threadUv.y + snoise(threadUv * 1.5) * 0.2) * 45.0) * 0.12;
+    float microWeft = sin((threadUv.x + snoise(threadUv * 1.5) * 0.2) * 45.0) * 0.12;
     
-    // ---- COLOR PALETTE (INDIAN TEXTILE) ----
-    // Rich Crimson / Saffron Saree Style
-    vec3 weftColor = vec3(0.65, 0.08, 0.15); // Deep Crimson Red
-    vec3 warpColor = vec3(0.95, 0.65, 0.15); // Saffron / Gold Silk
+    float warpProfile = max(0.0, warpCylinder + microWarp);
+    float weftProfile = max(0.0, weftCylinder + microWeft);
     
-    // Base color of the pixel
-    vec3 baseColor = mix(warpColor, weftColor, isWeft);
+    float threadProfile = mix(weftProfile, warpProfile, isOver);
     
-    // ---- MICROFIBER & SHEEN (LIGHTING) ----
+    // ---- INDIAN SILK PALETTE (Royal Crimson, Saffron Zari & Deep Maroon) ----
+    // Deep Sindoor / Crimson Silk
+    vec3 crimsonSilk = vec3(0.52, 0.05, 0.12);
+    // Raw Saffron Gold / Antique Zari Silk
+    vec3 saffronGold = vec3(0.85, 0.58, 0.14);
+    // Deep weave shadow gap
+    vec3 shadowGap   = vec3(0.08, 0.01, 0.03);
     
-    // Specular highlight (Silk Sheen)
-    // Silk shines brightly on the peaks of the thread cylinders
-    float sheen = pow(threadVolume, 8.0) * 1.5; 
+    // Slight thread-to-thread organic dye variation
+    float dyeVariance = snoise(vec2(cellX * 0.3, cellY * 0.3)) * 0.1;
+    vec3 currentWeftColor = clamp(crimsonSilk + vec3(dyeVariance, -dyeVariance * 0.5, 0.0), 0.0, 1.0);
+    vec3 currentWarpColor = clamp(saffronGold + vec3(dyeVariance * 0.8, dyeVariance * 0.6, -dyeVariance), 0.0, 1.0);
     
-    // Add micro-noise for individual fibers on the thread surface
-    float fiberNoise = snoise(scaledUv * 5.0) * 0.3;
+    vec3 baseColor = mix(currentWeftColor, currentWarpColor, isOver);
     
-    // Darken the gaps between threads for depth/ambient occlusion
-    float ao = smoothstep(0.2, 0.8, threadVolume);
+    // ---- SILK SHEEN & ANISOTROPIC LIGHTING ----
+    // Tight specular glint on the curved apex of the silk thread
+    float sheen = pow(threadProfile, 6.0) * 1.6;
+    vec3 sheenColor = mix(vec3(1.0, 0.85, 0.6), vec3(1.0, 0.95, 0.9), isOver);
     
-    // Combine lighting
-    vec3 finalColor = baseColor * ao;
-    finalColor += sheen * (vec3(1.0, 0.9, 0.8) + fiberNoise); // Gold-ish sheen
+    // Inter-thread contact shadows (ambient occlusion between threads)
+    float ao = smoothstep(0.12, 0.75, threadProfile);
     
-    // ---- STRAY FIBERS (FUZZ) ----
-    // Irregularities sticking out of the fabric
-    float strayBase = snoise(st * 400.0 + uTime * 0.2);
-    float strayMask = smoothstep(0.7, 0.9, strayBase);
-    vec3 strayColor = vec3(0.8, 0.7, 0.6); // Light dust/cotton fuzz color
+    // Surface fiber texture / fuzzy tactile specs
+    float fuzz = hash(vUv * 600.0 + uTime * 0.05) * 0.06;
     
-    finalColor = mix(finalColor, strayColor, strayMask * 0.5);
+    vec3 finalColor = (baseColor * ao) + (sheen * sheenColor) + fuzz;
     
-    // ---- CAMERA LENS EFFECTS ----
-    // Vignette / Macro lens edge darkening
-    float dist = length(vUv - 0.5);
-    float vignette = smoothstep(0.7, 0.2, dist * 1.2);
-    finalColor *= vignette;
+    // Stray surface filaments (fine loose fibers across the fabric face)
+    float strayBase = snoise(st * 180.0 + uTime * 0.15);
+    float strayMask = smoothstep(0.72, 0.92, strayBase);
+    vec3 strayFiberColor = vec3(0.9, 0.75, 0.5);
+    finalColor = mix(finalColor, strayFiberColor, strayMask * 0.35);
+    
+    // ---- CONTRAST & READABILITY CALIBRATION ----
+    // Controlled center vignette / soft dark scrim so foreground text has pristine readability
+    vec2 center = vUv - 0.5;
+    float dist = length(center);
+    
+    // Macro depth-of-field lens vignette
+    float lensVignette = smoothstep(0.9, 0.15, dist * 1.1);
+    
+    // Soft center dimming: gently darkens the central reading zone by ~35%
+    // so crisp white typography and cards float with maximum contrast and zero visual clash
+    float centerScrim = 0.68 + 0.32 * smoothstep(0.0, 0.55, dist);
+    
+    finalColor *= lensVignette * centerScrim;
+    
+    // Soft deep tone curve
+    finalColor = pow(finalColor, vec3(1.05));
 
     gl_FragColor = vec4(finalColor, 1.0);
   }
