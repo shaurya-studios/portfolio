@@ -1,142 +1,37 @@
 import { ScrollControls, Scroll, useScroll } from '@react-three/drei';
-import * as THREE from 'three';
-import { useRef, useMemo } from 'react';
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { fabricVertexShader, fabricFragmentShader } from './shaders/MacroFabricShader';
+import WoolFabricSculpture from './WoolFabricSculpture';
+import RealisticThreadSkein from './RealisticThreadSkein';
 import { useContact } from '../../context/ContactContext';
 import { ArrowUpRight, Sparkles, Layers, Cpu } from 'lucide-react';
 import { playTactileClick } from '../../utils/audioHaptics';
 
-// --- MACRO FABRIC BACKGROUND ---
-function MacroFabric() {
-  const materialRef = useRef<THREE.ShaderMaterial>(null);
+// Controller to synchronize camera and lighting with scroll
+function SceneRig() {
   const scrollData = useScroll();
+  const scrollRef = useRef(0);
 
-  useFrame((state) => {
-    if (materialRef.current) {
-      materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
-      materialRef.current.uniforms.uScroll.value = scrollData.offset;
-    }
+  useFrame((state, delta) => {
+    const target = scrollData.offset;
+    // Smooth scroll interpolation
+    scrollRef.current += (target - scrollRef.current) * Math.min(1, delta * 6);
+
+    // Dynamic camera glide: subtly glides closer and orbits as user scrolls through sections
+    state.camera.position.z = 15 - (scrollRef.current * 4.5);
+    state.camera.position.x = Math.sin(scrollRef.current * Math.PI) * 1.5;
+    state.camera.position.y = -(scrollRef.current * 2.0);
+    state.camera.lookAt(0, 0, 0);
   });
 
   return (
-    <mesh position={[0, 0, -10]} scale={[40, 40, 1]}>
-      <planeGeometry args={[1, 1]} />
-      <shaderMaterial
-        ref={materialRef}
-        vertexShader={fabricVertexShader}
-        fragmentShader={fabricFragmentShader}
-        uniforms={{
-          uTime: { value: 0 },
-          uScroll: { value: 0 },
-          uResolution: { value: new THREE.Vector2(typeof window !== 'undefined' ? window.innerWidth : 1920, typeof window !== 'undefined' ? window.innerHeight : 1080) }
-        }}
-        depthWrite={false}
-      />
-    </mesh>
-  );
-}
+    <>
+      {/* 1. Center 3D Model: Sculpted Wool & Raw Silk Fabric with Potli Button */}
+      <WoolFabricSculpture scrollProgress={scrollRef.current} />
 
-// --- ULTRA-FINE SILK FILAMENTS (Thinner, cleaner, graceful Indian silk strands) ---
-function LooseThreads() {
-  const scrollData = useScroll();
-  const groupRef = useRef<THREE.Group>(null);
-  
-  // Silk colors directly referenced from traditional Indian dyed silk skeins:
-  // Crimson Red, Raw Saffron Gold, Peacock Blue, Emerald Green, Warm Copper Zari, Pure Silver Zari
-  const threads = useMemo(() => {
-    const threadData: Array<{
-      curve: THREE.CatmullRomCurve3;
-      color: string;
-      radius: number;
-      speed: number;
-      phase: number;
-    }> = [];
-
-    const palette = [
-      '#dc2626', // Vibrant Crimson Silk
-      '#f59e0b', // Raw Saffron Gold
-      '#2563eb', // Peacock / Royal Cobalt Blue
-      '#059669', // Emerald Rani Green
-      '#d97706', // Copper Zari
-      '#f8fafc', // Glistening Silver Filament
-    ];
-
-    // Generate 48 ultra-fine, smooth sweeping filament curves
-    for (let i = 0; i < 48; i++) {
-      const color = palette[i % palette.length];
-      
-      // Much thinner radius: 0.0035 to 0.006 (down from previous 0.03)
-      const radius = 0.0038 + (i % 4) * 0.0008;
-
-      // Group into 3 flowing ribbons across the scene depth
-      const streamIndex = i % 3;
-      const baseDepth = -1.5 - streamIndex * 1.5;
-      
-      // Spread across the perimeter and sides so the central reading zone stays clean
-      const side = (i % 2 === 0 ? 1 : -1);
-      const startX = side * (4.0 + Math.random() * 6.5);
-      const startY = 10.0 - (i * 0.45);
-
-      const points: THREE.Vector3[] = [];
-      const numPoints = 7;
-      
-      // Create clean, graceful sinusoidal catenary curves (no erratic jagged angles)
-      const waveFreq = 0.45 + Math.random() * 0.35;
-      const waveAmp = 1.2 + Math.random() * 1.5;
-      const arcSweep = (Math.random() - 0.5) * 2.5;
-
-      for (let j = 0; j < numPoints; j++) {
-        const progress = j / (numPoints - 1);
-        const y = startY - progress * 16.0;
-        const x = startX + Math.sin(progress * Math.PI * waveFreq + i * 0.5) * waveAmp + (progress * arcSweep);
-        const z = baseDepth + Math.cos(progress * Math.PI * 1.2 + i) * 0.8;
-        
-        points.push(new THREE.Vector3(x, y, z));
-      }
-
-      // Smooth chordal Catmull-Rom spline for continuous, uninterrupted silk drape
-      const curve = new THREE.CatmullRomCurve3(points, false, 'chordal');
-      threadData.push({
-        curve,
-        color,
-        radius,
-        speed: 0.25 + Math.random() * 0.35,
-        phase: i * 0.4
-      });
-    }
-
-    return threadData;
-  }, []);
-
-  useFrame((state) => {
-    if (groupRef.current) {
-      const t = state.clock.elapsedTime;
-      // Gentle, organic floating sway
-      groupRef.current.position.y = Math.sin(t * 0.35) * 0.25;
-      groupRef.current.rotation.z = Math.sin(t * 0.15) * 0.015;
-      // Smooth scroll parallax
-      groupRef.current.position.y += scrollData.offset * 12.0;
-    }
-  });
-
-  return (
-    <group ref={groupRef} position={[0, 0, 0]}>
-      {threads.map((t, idx) => (
-        <mesh key={idx}>
-          {/* Smooth 96 tubular segments, 6 radial faces for crisp, hair-like render */}
-          <tubeGeometry args={[t.curve, 96, t.radius, 6, false]} />
-          <meshPhysicalMaterial 
-            color={t.color}
-            roughness={0.14}
-            metalness={0.42}
-            clearcoat={1.0}
-            clearcoatRoughness={0.06}
-            reflectivity={0.95}
-          />
-        </mesh>
-      ))}
-    </group>
+      {/* 2. Realistic Spun Yarn Cords & Dense Silk Filament Skeins */}
+      <RealisticThreadSkein />
+    </>
   );
 }
 
@@ -145,23 +40,22 @@ export default function Scene() {
 
   return (
     <>
-      <color attach="background" args={['#050102']} />
+      <color attach="background" args={['#080709']} />
       
-      {/* Studio Lighting to illuminate the silk sheen and metallic luster */}
-      <ambientLight intensity={1.8} />
-      <directionalLight position={[6, 12, 6]} intensity={3.5} color="#fff1e6" />
-      <directionalLight position={[-8, -6, 4]} intensity={2.2} color="#f59e0b" />
-      <pointLight position={[0, 0, 5]} intensity={1.5} color="#ffd8a8" />
+      {/* 
+        High-End Studio Lighting Rig 
+        Highlights micro-sheen on wool cloth, specular gleam on plied cords, and clearcoat on silk
+      */}
+      <ambientLight intensity={1.4} />
+      <directionalLight position={[6, 14, 8]} intensity={3.8} color="#fff6ed" castShadow />
+      <directionalLight position={[-8, -5, 4]} intensity={2.2} color="#f59e0b" />
+      <directionalLight position={[0, -10, -5]} intensity={1.5} color="#991b1b" />
+      <pointLight position={[0, 2, 7]} intensity={2.0} color="#fef3c7" distance={25} />
 
-      <ScrollControls pages={4} damping={0.2} distance={1.5}>
-        
-        {/* Macro Indian Fabric Background */}
-        <MacroFabric />
-        
-        {/* Delicate, Clean Floating Silk Filaments */}
-        <LooseThreads />
+      <ScrollControls pages={4} damping={0.25} distance={1.5}>
+        <SceneRig />
 
-        {/* High-Legibility Editorial Interface */}
+        {/* High-Legibility Editorial HTML Interface */}
         <Scroll html style={{ width: '100%', height: '100%' }}>
           
           {/* ===================================================
@@ -171,26 +65,26 @@ export default function Scene() {
             <div className="flex flex-col items-center text-center max-w-4xl">
               
               {/* Luxury Silk Woven Label Tag */}
-              <div className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 rounded-full bg-black/75 border border-amber-500/40 backdrop-blur-xl shadow-[0_10px_35px_rgba(0,0,0,0.85)] mb-6 animate-pulse">
-                <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_10px_#f59e0b]" />
+              <div className="inline-flex items-center gap-2.5 px-4 sm:px-6 py-2 rounded-full bg-black/80 border border-amber-500/50 backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.9)] mb-6 animate-pulse">
+                <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_12px_#f59e0b]" />
                 <span className="font-mono text-xs sm:text-sm font-semibold tracking-[0.25em] text-amber-200 uppercase">
-                  Raw Silk &bull; Creative Technologist
+                  Indian Handloom &bull; Creative Technologist
                 </span>
               </div>
 
-              {/* Crisp, High-Contrast Typography */}
-              <h1 className="text-white text-6xl sm:text-7xl md:text-9xl font-sans tracking-tighter font-extrabold select-none drop-shadow-[0_12px_40px_rgba(0,0,0,0.95)] leading-[0.95]">
+              {/* Crisp, High-Contrast Master Typography */}
+              <h1 className="text-white text-6xl sm:text-7xl md:text-9xl font-sans tracking-tighter font-extrabold select-none drop-shadow-[0_14px_45px_rgba(0,0,0,0.95)] leading-[0.95]">
                 SHAURYA
               </h1>
 
-              <p className="text-neutral-100 font-mono text-xs sm:text-sm md:text-base tracking-[0.3em] uppercase mt-6 drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] max-w-xl font-medium">
+              <p className="text-neutral-200 font-mono text-xs sm:text-sm md:text-base tracking-[0.3em] uppercase mt-6 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] max-w-xl font-medium">
                 Engineering Digital Experiences Through Craft & Precision
               </p>
 
-              {/* Scroll Indicator Cue */}
-              <div className="mt-12 flex items-center gap-3 px-4 py-2 rounded-full bg-black/60 border border-white/15 backdrop-blur-md text-white/80 font-mono text-[11px] tracking-[0.25em] uppercase shadow-lg">
-                <span className="inline-block animate-bounce">↓</span>
-                <span>Scroll To Explore Weave</span>
+              {/* Scroll Cue Pill */}
+              <div className="mt-12 flex items-center gap-3 px-5 py-2.5 rounded-full bg-black/70 border border-white/20 backdrop-blur-md text-white/85 font-mono text-[11px] tracking-[0.25em] uppercase shadow-xl">
+                <span className="inline-block animate-bounce text-amber-400">↓</span>
+                <span>Scroll To Explore Fabric & Projects</span>
               </div>
             </div>
           </div>
@@ -199,15 +93,15 @@ export default function Scene() {
               SECTION 02 // CASE STUDY 01: EDITIFY STUDIOS
               =================================================== */}
           <div className="w-screen h-screen flex flex-col items-start justify-center px-6 sm:px-12 md:px-28 lg:px-36 pointer-events-none">
-            <div className="pointer-events-auto max-w-xl bg-black/85 backdrop-blur-2xl border border-white/20 p-8 sm:p-10 md:p-12 rounded-[2rem] shadow-[0_30px_70px_rgba(0,0,0,0.9)] relative overflow-hidden group hover:border-amber-500/40 transition-all duration-300">
+            <div className="pointer-events-auto max-w-xl bg-black/90 backdrop-blur-2xl border border-amber-500/30 p-8 sm:p-10 md:p-12 rounded-[2rem] shadow-[0_30px_70px_rgba(0,0,0,0.95)] relative overflow-hidden group hover:border-amber-500/60 transition-all duration-300">
               
-              {/* Top Zari Accent Corner */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-500/15 via-red-500/5 to-transparent pointer-events-none" />
+              {/* Crimson & Gold Zari Accent Corner */}
+              <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-red-600/20 via-amber-500/10 to-transparent pointer-events-none" />
               
               <div className="flex items-center gap-2.5 mb-4">
                 <Layers size={14} className="text-amber-400" />
                 <span className="text-amber-400 font-mono text-xs tracking-[0.25em] uppercase font-bold">
-                  CASE STUDY [01] &bull; PRODUCTION
+                  SWATCH [01] &bull; VIDEO PRODUCTION
                 </span>
               </div>
               
@@ -231,7 +125,7 @@ export default function Scene() {
                 <span className="px-3 py-1 rounded-full bg-white/10 text-white/95 border border-white/15">Next.js</span>
                 <span className="px-3 py-1 rounded-full bg-white/10 text-white/95 border border-white/15">Three.js</span>
                 <span className="px-3 py-1 rounded-full bg-white/10 text-white/95 border border-white/15">Tailwind CSS</span>
-                <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-semibold">Live Client</span>
+                <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-semibold">Live Production</span>
               </div>
               
               <div className="flex items-center gap-4">
@@ -253,15 +147,15 @@ export default function Scene() {
               SECTION 03 // CASE STUDY 02: THUMBPILOT
               =================================================== */}
           <div className="w-screen h-screen flex flex-col items-end justify-center px-6 sm:px-12 md:px-28 lg:px-36 pointer-events-none">
-            <div className="pointer-events-auto max-w-xl text-left bg-black/85 backdrop-blur-2xl border border-white/20 p-8 sm:p-10 md:p-12 rounded-[2rem] shadow-[0_30px_70px_rgba(0,0,0,0.9)] relative overflow-hidden group hover:border-amber-500/40 transition-all duration-300 ml-auto">
+            <div className="pointer-events-auto max-w-xl text-left bg-black/90 backdrop-blur-2xl border border-blue-500/30 p-8 sm:p-10 md:p-12 rounded-[2rem] shadow-[0_30px_70px_rgba(0,0,0,0.95)] relative overflow-hidden group hover:border-blue-400/60 transition-all duration-300 ml-auto">
               
-              {/* Top Zari Accent Corner */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-500/15 via-blue-500/5 to-transparent pointer-events-none" />
+              {/* Peacock Blue & Silver Accent Corner */}
+              <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-blue-600/20 via-cyan-500/10 to-transparent pointer-events-none" />
 
               <div className="flex items-center gap-2.5 mb-4">
-                <Cpu size={14} className="text-amber-400" />
-                <span className="text-amber-400 font-mono text-xs tracking-[0.25em] uppercase font-bold">
-                  CASE STUDY [02] &bull; PRODUCT ARCHITECTURE
+                <Cpu size={14} className="text-blue-400" />
+                <span className="text-blue-400 font-mono text-xs tracking-[0.25em] uppercase font-bold">
+                  SWATCH [02] &bull; PRODUCT ARCHITECTURE
                 </span>
               </div>
               
@@ -271,7 +165,7 @@ export default function Scene() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => playTactileClick()}
-                  className="hover:text-amber-400 transition-colors"
+                  className="hover:text-blue-400 transition-colors"
                 >
                   ThumbPilot
                 </a>
@@ -285,7 +179,7 @@ export default function Scene() {
                 <span className="px-3 py-1 rounded-full bg-white/10 text-white/95 border border-white/15">React 19</span>
                 <span className="px-3 py-1 rounded-full bg-white/10 text-white/95 border border-white/15">TypeScript</span>
                 <span className="px-3 py-1 rounded-full bg-white/10 text-white/95 border border-white/15">Framer Motion</span>
-                <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-semibold">SaaS Platform</span>
+                <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40 font-semibold">SaaS Platform</span>
               </div>
               
               <div className="flex items-center gap-4">
@@ -294,7 +188,7 @@ export default function Scene() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => playTactileClick()}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-mono text-xs font-bold tracking-wider uppercase hover:bg-amber-400 transition-all shadow-lg active:scale-95 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-mono text-xs font-bold tracking-wider uppercase hover:bg-blue-400 transition-all shadow-lg active:scale-95 cursor-pointer"
                 >
                   <span>Launch ThumbPilot</span>
                   <ArrowUpRight size={14} />
@@ -307,19 +201,19 @@ export default function Scene() {
               SECTION 04 // FINAL OUTRO: CONTACT & COLLABORATE
               =================================================== */}
           <div className="w-screen h-screen flex flex-col items-center justify-center px-6 pointer-events-none">
-            <div className="pointer-events-auto max-w-xl text-center bg-black/90 backdrop-blur-2xl border border-white/20 p-10 sm:p-12 md:p-14 rounded-[2.5rem] shadow-[0_30px_80px_rgba(0,0,0,0.95)] relative overflow-hidden">
+            <div className="pointer-events-auto max-w-xl text-center bg-black/95 backdrop-blur-2xl border border-amber-500/40 p-10 sm:p-12 md:p-14 rounded-[2.5rem] shadow-[0_30px_80px_rgba(0,0,0,0.95)] relative overflow-hidden">
               
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/35 text-amber-300 font-mono text-xs uppercase tracking-widest mb-6 font-semibold">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 font-mono text-xs uppercase tracking-widest mb-6 font-semibold">
                 <Sparkles size={13} className="text-amber-400" />
-                Available for New Work
+                Available for Select Work
               </div>
 
               <h2 className="text-white text-4xl sm:text-5xl md:text-6xl font-sans font-bold tracking-tight mb-4 drop-shadow-md">
-                Let's Weave Something Memorable.
+                Let's Craft Together.
               </h2>
               
               <p className="text-neutral-200 text-sm sm:text-base leading-relaxed mb-8 max-w-md mx-auto">
-                Whether you need high-impact web development, 3D interactive experiences, or full-stack software architecture, let's talk.
+                Whether you need high-impact web development, 3D interactive experiences, or full-stack software architecture, let's connect.
               </p>
               
               <button 
